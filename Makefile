@@ -2,7 +2,7 @@ VERSION = v0.7.x
 LDFLAGS = -ldflags "-X uhppote.VERSION=$(VERSION)" 
 DIST   ?= development
 DEBUG  ?= --debug
-CMD     = ./bin/uhppoted-httpd
+CMD     = ./bin/uhppoted-tunnel
 
 .PHONY: sass
 .PHONY: debug

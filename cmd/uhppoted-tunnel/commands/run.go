@@ -3,10 +3,10 @@ package commands
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
+	"github.com/uhppoted/uhppoted-tunnel/log"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
 )
 
@@ -72,8 +72,7 @@ func (cmd *Run) execute(f func()) error {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Printf("%-5s %v\n", "FATAL", err)
-			os.Exit(-1)
+			log.Fatalf("%-5s %v\n", "FATAL", err)
 		}
 	}()
 
