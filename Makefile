@@ -86,6 +86,9 @@ remote: build
 local: build
 	$(CMD) --debug --console --remote 192.168.1.100:8080
 
+vultr: build
+	$(CMD) --debug --console --remote 66.42.65.202:8080
+
 daemonize: build
 	sudo $(CMD) daemonize
 
