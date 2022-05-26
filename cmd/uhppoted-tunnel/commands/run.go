@@ -4,14 +4,15 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
+	// "path/filepath"
 
-	"github.com/uhppoted/uhppoted-tunnel/log"
+	// "github.com/uhppoted/uhppoted-tunnel/log"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
 )
 
 type Run struct {
 	console     bool
+	remote      string
 	debug       bool
 	workdir     string
 	logFile     string
@@ -22,6 +23,7 @@ func (r *Run) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("", flag.ExitOnError)
 
 	flagset.BoolVar(&r.console, "console", false, "Runs as a console application rather than a service")
+	flagset.StringVar(&r.remote, "remote", "", "Remote host address:port")
 	flagset.BoolVar(&r.debug, "debug", false, "Enables detailed debugging logs")
 
 	return flagset
@@ -36,7 +38,7 @@ func (cmd *Run) Description() string {
 }
 
 func (cmd *Run) Usage() string {
-	return "uhppoted-tunnel [--debug] [--config <file>] [--logfile <file>] [--logfilesize <bytes>] [--pid <file>]"
+	return "uhppoted-tunnel [--debug] [--remote <address:port>] [--logfile <file>] [--logfilesize <bytes>] [--pid <file>]"
 }
 
 func (cmd *Run) Help() {
@@ -52,31 +54,31 @@ func (cmd *Run) Help() {
 }
 
 func (cmd *Run) execute(f func()) error {
-	// ... create lockfile
-	if err := os.MkdirAll(cmd.workdir, os.ModeDir|os.ModePerm); err != nil {
-		return fmt.Errorf("Unable to create working directory '%v': %v", cmd.workdir, err)
-	}
-
-	pid := fmt.Sprintf("%d\n", os.Getpid())
-	lockfile := filepath.Join(cmd.workdir, fmt.Sprintf("%s.pid", SERVICE))
-
-	if _, err := os.Stat(lockfile); err == nil {
-		return fmt.Errorf("PID lockfile '%v' already in use", lockfile)
-	} else if !os.IsNotExist(err) {
-		return fmt.Errorf("Error checking PID lockfile '%v' (%v)", lockfile, err)
-	}
-
-	if err := os.WriteFile(lockfile, []byte(pid), 0644); err != nil {
-		return fmt.Errorf("Unable to create PID lockfile: %v", err)
-	}
-
-	defer func() {
-		if err := recover(); err != nil {
-			log.Fatalf("%-5s %v\n", "FATAL", err)
-		}
-	}()
-
-	defer os.Remove(lockfile)
+	// // ... create lockfile
+	// if err := os.MkdirAll(cmd.workdir, os.ModeDir|os.ModePerm); err != nil {
+	// 	return fmt.Errorf("Unable to create working directory '%v': %v", cmd.workdir, err)
+	// }
+	//
+	// pid := fmt.Sprintf("%d\n", os.Getpid())
+	// lockfile := filepath.Join(cmd.workdir, fmt.Sprintf("%s.pid", SERVICE))
+	//
+	// if _, err := os.Stat(lockfile); err == nil {
+	// 	return fmt.Errorf("PID lockfile '%v' already in use", lockfile)
+	// } else if !os.IsNotExist(err) {
+	// 	return fmt.Errorf("Error checking PID lockfile '%v' (%v)", lockfile, err)
+	// }
+	//
+	// if err := os.WriteFile(lockfile, []byte(pid), 0644); err != nil {
+	// 	return fmt.Errorf("Unable to create PID lockfile: %v", err)
+	// }
+	//
+	// defer func() {
+	// 	if err := recover(); err != nil {
+	// 		log.Fatalf("%-5s %v\n", "FATAL", err)
+	// 	}
+	// }()
+	//
+	// defer os.Remove(lockfile)
 
 	f()
 
@@ -84,7 +86,7 @@ func (cmd *Run) execute(f func()) error {
 }
 
 func (cmd *Run) run(interrupt chan os.Signal) {
-	t := tunnel.Tunnel{}
+	t := tunnel.NewTunnel()
 
-	t.Run(interrupt)
+	t.Run(cmd.remote, interrupt)
 }

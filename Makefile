@@ -80,8 +80,11 @@ help: build
 	$(CMD) help version
 	$(CMD) help help
 
-run: build
+remote: build
 	$(CMD) --debug --console
+
+local: build
+	$(CMD) --debug --console --remote 192.168.1.100:8080
 
 daemonize: build
 	sudo $(CMD) daemonize
