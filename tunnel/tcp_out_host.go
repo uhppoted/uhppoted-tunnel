@@ -76,11 +76,14 @@ func (tcp *tcpOutHost) Send(message []byte) []byte {
 				hex := dump(buffer[:N], "                           ")
 				debugf("TCP/out  received %v bytes from %v\n%s\n", N, c.RemoteAddr(), hex)
 
-				size := uint(buffer[0])
-				size <<= 8
-				size += uint(buffer[1])
+				ix := 0
+				for ix < N {
+					size := uint(buffer[ix])
+					size <<= 8
+					size += uint(buffer[ix+1])
 
-				return depacketize(buffer)
+					return depacketize(buffer[ix : ix+2+int(size)])
+				}
 			}
 		}
 	}

@@ -81,10 +81,10 @@ help: build
 	$(CMD) help help
 
 host: build
-	$(CMD) --debug --console --in udp/bind:0.0.0.0:60000 --out tcp/bind:0.0.0.0:12345
+	$(CMD) --debug --console --in udp/listen:0.0.0.0:60005 --out tcp/listen:0.0.0.0:12345
 
-local: build
-	$(CMD) --debug --console --remote 192.168.1.100:8080
+client: build
+	$(CMD) --debug --console --in tcp/connect:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60000
 
 vultr: build
 	$(CMD) --debug --console --remote 66.42.65.202:8080

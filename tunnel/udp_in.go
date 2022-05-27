@@ -41,6 +41,7 @@ func (udp *udpIn) Listen(relay func([]byte) []byte) error {
 	defer socket.Close()
 
 	infof("UDP  listening on %v", udp.addr)
+
 	buffer := make([]byte, 2048)
 
 	for {
@@ -57,7 +58,7 @@ func (udp *udpIn) Listen(relay func([]byte) []byte) error {
 			if N, err := socket.WriteToUDP(reply, remote); err != nil {
 				warnf("%v", err)
 			} else {
-				debugf(" ... sent %v bytes to %v\n", N, udp.addr)
+				debugf("UDP sent %v bytes to %v\n", N, remote)
 			}
 		}
 	}

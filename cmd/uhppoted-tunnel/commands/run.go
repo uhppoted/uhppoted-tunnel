@@ -22,7 +22,7 @@ type Run struct {
 func (r *Run) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("", flag.ExitOnError)
 
-	flagset.StringVar(&r.in, "in", "", "IN connection e.g. udp/bind:0.0.0.0:60000 or tcp/bind:0.0.0.0:54321 or tcp/connect:101.102.103.104:54321")
+	flagset.StringVar(&r.in, "in", "", "IN connection e.g. udp/listen:0.0.0.0:60000, udp/broadcast:255.255.255.255:60000, tcp/listen:0.0.0.0:54321 or tcp/connect:101.102.103.104:54321")
 	flagset.StringVar(&r.out, "out", "", "OUT connection e.g. udp/255.255.255.255:60000 or tcp/bind:0.0.0.0:54321 or tcp/connect:101.102.103.104:54321")
 	flagset.BoolVar(&r.console, "console", false, "Runs as a console application rather than a service")
 	flagset.BoolVar(&r.debug, "debug", false, "Enables detailed debugging logs")
@@ -63,11 +63,18 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) error {
 	case cmd.in == "":
 		return fmt.Errorf("--in argument is required")
 
-	case strings.HasPrefix(cmd.in, "udp/bind:"):
-		if udp, err := tunnel.NewUDPIn(cmd.in[9:]); err != nil {
+	case strings.HasPrefix(cmd.in, "udp/listen:"):
+		if udp, err := tunnel.NewUDPIn(cmd.in[11:]); err != nil {
 			return err
 		} else {
 			in = udp
+		}
+
+	case strings.HasPrefix(cmd.in, "tcp/connect:"):
+		if tcp, err := tunnel.NewTCPIn(cmd.in[12:]); err != nil {
+			return err
+		} else {
+			in = tcp
 		}
 
 	default:
@@ -79,8 +86,15 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) error {
 	case cmd.out == "":
 		return fmt.Errorf("--out argument is required")
 
-	case strings.HasPrefix(cmd.out, "tcp/bind:"):
-		if tcp, err := tunnel.NewTCPOutHost(cmd.out[9:]); err != nil {
+	case strings.HasPrefix(cmd.out, "udp/broadcast:"):
+		if udp, err := tunnel.NewUDPOut(cmd.out[14:]); err != nil {
+			return err
+		} else {
+			out = udp
+		}
+
+	case strings.HasPrefix(cmd.out, "tcp/listen:"):
+		if tcp, err := tunnel.NewTCPOutHost(cmd.out[11:]); err != nil {
 			return err
 		} else {
 			out = tcp
