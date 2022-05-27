@@ -80,8 +80,8 @@ help: build
 	$(CMD) help version
 	$(CMD) help help
 
-remote: build
-	$(CMD) --debug --console
+host: build
+	$(CMD) --debug --console --in udp/bind:0.0.0.0:60000 --out tcp/bind:0.0.0.0:12345
 
 local: build
 	$(CMD) --debug --console --remote 192.168.1.100:8080

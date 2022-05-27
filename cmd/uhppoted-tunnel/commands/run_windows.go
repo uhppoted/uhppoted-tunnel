@@ -15,6 +15,8 @@ import (
 	"github.com/uhppoted/uhppote-core/uhppote"
 	"github.com/uhppoted/uhppoted-lib/config"
 	"github.com/uhppoted/uhppoted-lib/eventlog"
+
+	"github.com/uhppoted/uhppoted-tunnel/tunnel"
 )
 
 var RUN = Run{
@@ -25,22 +27,23 @@ var RUN = Run{
 }
 
 type service struct {
-	name string
-	conf config.Config
-	cmd  *Run
+	name   string
+	conf   config.Config
+	cmd    *Run
+	tunnel *tunnel.Tunnel
 }
 
 func (cmd *Run) Execute(args ...interface{}) error {
 	log.Printf("%s service %s - %s (PID %d)\n", SERVICE, uhppote.VERSION, "Microsoft Windows", os.Getpid())
 
-	f := func() {
-		cmd.start()
+	f := func(t *tunnel.Tunnel) {
+		cmd.start(t)
 	}
 
 	return cmd.execute(f)
 }
 
-func (cmd *Run) start() {
+func (cmd *Run) start(t *tunnel.Tunnel) {
 	if cmd.console {
 		log.SetOutput(os.Stdout)
 		log.SetFlags(log.LstdFlags)
@@ -48,7 +51,7 @@ func (cmd *Run) start() {
 		interrupt := make(chan os.Signal, 1)
 
 		signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
-		cmd.run(interrupt)
+		cmd.run(t, interrupt)
 		return
 	}
 
@@ -66,8 +69,9 @@ func (cmd *Run) start() {
 	log.Printf("%s service - start\n", SERVICE)
 
 	uhppoted := service{
-		name: SERVICE,
-		cmd:  cmd,
+		name:   SERVICE,
+		cmd:    cmd,
+		tunnel: t,
 	}
 
 	log.Printf("%s service - starting\n", SERVICE)
@@ -108,7 +112,7 @@ func (s *service) Execute(args []string, r <-chan svc.ChangeRequest, status chan
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		s.cmd.run(interrupt)
+		s.cmd.run(s.tunnel, interrupt)
 
 		log.Printf("exit\n")
 	}()

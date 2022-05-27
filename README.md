@@ -2,7 +2,29 @@
 
 # uhppoted-tunnel
 
-Tunnels UDP packets between a pair of machines to enable UHPPOTE controller remote access
+Tunnels UDP packets between a pair of machines to enable UHPPOTE controller remote access.
+
+Technically it's not really a tunnel, except in the sense that as a packet you enter a dark
+forbidding hole, mysterious and possibly unspeakable things occur and you emerge some time
+later blinking in the light in an entirely different place. So probably more a relay or a 
+proxy .. but we're going to go with tunnel anyway.
+
+## Raison d'être
+
+For those **so** irritating times when your controller is in one place and the host machine is
+in another which means UDP broadcast doesn't just work and the network admin is being uncooperative
+about poking holes in the firewall and/or fixing the NAT. And:
+
+- you're not really a command line person so [uhppote-cli](https://github.com/uhppoted/uhppote-cli) is 
+  just not going work for you
+- REST is for people who into that kind thing, so nope not doing [uhppoted-rest](https://github.com/uhppoted/uhppoted-rest)
+- You've heard of MQTT and want no truck with things of that ilk i.e. [uhppoted-mqtt](https://github.com/uhppoted/uhppoted-mqtt)
+  is out
+- no respectable person runs their access control system from a [spreadsheet](https://github.com/uhppoted/uhppoted-app-sheets) 
+- or [Wild Apricot](https://github.com/uhppoted/uhppoted-app-wildapricot) for that matter
+- the UHHPOTE _AccessControl_ application works for you except for this one small thing where you
+  have to run it on a machine in a small closet with a whole bunch of electrical cabinets making 
+  disturbing humming noises
 
 ## Status
 
@@ -13,8 +35,6 @@ Supported operating systems:
 - MacOS
 - Windows
 - ARM7 _(e.g. RaspberryPi)_
-
-## Raison d'être
 
 ## Releases
 
@@ -29,7 +49,7 @@ Executables for all the supported operating systems are packaged in the [release
 
 The release tarballs contain the executables for all the operating systems - OS specific tarballs with all the _uhppoted_ components can be found in [uhpppoted](https://github.com/uhppoted/uhppoted/releases) releases.
 
-Installation is straightforward - download the archive and extract it to a directory of your choice. To install `uhppoted-httpd` as a system service:
+Installation is straightforward - download the archive and extract it to a directory of your choice. To install `uhppoted-tunnel` as a system service:
 ```
    cd <uhppoted directory>
    sudo uhppoted-tunnel daemonize
@@ -40,7 +60,7 @@ Installation is straightforward - download the archive and extract it to a direc
 ### Building from source
 
 Required tools:
-- [Go 1.17+](https://go.dev)
+- [Go 1.18+](https://go.dev)
 - make (optional but recommended)
 
 To build using the included Makefile:
@@ -66,7 +86,7 @@ The above commands build the `uhppoted-tunnel` executable to the `bin` directory
 | *Dependency*                                                            | *Description*                        |
 | ----------------------------------------------------------------------- | -------------------------------------|
 | [uhppote-core](https://github.com/uhppoted/uhppote-core)                | Device level API implementation      |
-| [uhppoted-lib](https://github.com/uhppoted/uhppoted-lib)                | common API for external applications |
+| [uhppoted-lib](https://github.com/uhppoted/uhppoted-lib)                | Common library functions             |
 | golang.org/x/sys                                                        | (for Windows service integration)    |
 
 ## uhppoted-tunnel
@@ -78,7 +98,6 @@ Supported commands:
 - `help`
 - `version`
 - `run`
-- `console`
 - `daemonize`
 - `undaemonize`
 

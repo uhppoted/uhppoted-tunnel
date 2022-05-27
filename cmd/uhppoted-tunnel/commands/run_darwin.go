@@ -9,6 +9,8 @@ import (
 
 	"github.com/uhppoted/uhppote-core/uhppote"
 	"github.com/uhppoted/uhppoted-lib/eventlog"
+
+	"github.com/uhppoted/uhppoted-tunnel/tunnel"
 )
 
 var RUN = Run{
@@ -21,14 +23,14 @@ var RUN = Run{
 func (cmd *Run) Execute(args ...interface{}) error {
 	log.Printf("%s service %s - %s (PID %d)\n", SERVICE, uhppote.VERSION, "MacOS", os.Getpid())
 
-	f := func() {
-		cmd.exec()
+	f := func(t *tunnel.Tunnel) {
+		cmd.exec(t)
 	}
 
 	return cmd.execute(f)
 }
 
-func (cmd *Run) exec() {
+func (cmd *Run) exec(t *tunnel.Tunnel) {
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags)
 
@@ -55,5 +57,5 @@ func (cmd *Run) exec() {
 		}()
 	}
 
-	cmd.run(interrupt)
+	cmd.run(t, interrupt)
 }

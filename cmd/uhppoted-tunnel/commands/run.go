@@ -4,15 +4,15 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	// "path/filepath"
+	"strings"
 
-	// "github.com/uhppoted/uhppoted-tunnel/log"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
 )
 
 type Run struct {
 	console     bool
-	remote      string
+	in          string
+	out         string
 	debug       bool
 	workdir     string
 	logFile     string
@@ -22,8 +22,9 @@ type Run struct {
 func (r *Run) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("", flag.ExitOnError)
 
+	flagset.StringVar(&r.in, "in", "", "IN connection e.g. udp/bind:0.0.0.0:60000 or tcp/bind:0.0.0.0:54321 or tcp/connect:101.102.103.104:54321")
+	flagset.StringVar(&r.out, "out", "", "OUT connection e.g. udp/255.255.255.255:60000 or tcp/bind:0.0.0.0:54321 or tcp/connect:101.102.103.104:54321")
 	flagset.BoolVar(&r.console, "console", false, "Runs as a console application rather than a service")
-	flagset.StringVar(&r.remote, "remote", "", "Remote host address:port")
 	flagset.BoolVar(&r.debug, "debug", false, "Enables detailed debugging logs")
 
 	return flagset
@@ -38,7 +39,7 @@ func (cmd *Run) Description() string {
 }
 
 func (cmd *Run) Usage() string {
-	return "uhppoted-tunnel [--debug] [--remote <address:port>] [--logfile <file>] [--logfilesize <bytes>] [--pid <file>]"
+	return "uhppoted-tunnel [--debug] [--in <connection>] [--out <connection>] [--logfile <file>] [--logfilesize <bytes>] [--pid <file>]"
 }
 
 func (cmd *Run) Help() {
@@ -53,7 +54,42 @@ func (cmd *Run) Help() {
 	fmt.Println()
 }
 
-func (cmd *Run) execute(f func()) error {
+func (cmd *Run) execute(f func(t *tunnel.Tunnel)) error {
+	var in tunnel.In
+	var out tunnel.Out
+
+	// ... create 'in' connection
+	switch {
+	case cmd.in == "":
+		return fmt.Errorf("--in argument is required")
+
+	case strings.HasPrefix(cmd.in, "udp/bind:"):
+		if udp, err := tunnel.NewUDPIn(cmd.in[9:]); err != nil {
+			return err
+		} else {
+			in = udp
+		}
+
+	default:
+		return fmt.Errorf("Invalid --in argument (%v)", cmd.in)
+	}
+
+	// ... create 'out' connection
+	switch {
+	case cmd.out == "":
+		return fmt.Errorf("--out argument is required")
+
+	case strings.HasPrefix(cmd.out, "tcp/bind:"):
+		if tcp, err := tunnel.NewTCPOutHost(cmd.out[9:]); err != nil {
+			return err
+		} else {
+			out = tcp
+		}
+
+	default:
+		return fmt.Errorf("Invalid --out argument (%v)", cmd.out)
+	}
+
 	// // ... create lockfile
 	// if err := os.MkdirAll(cmd.workdir, os.ModeDir|os.ModePerm); err != nil {
 	// 	return fmt.Errorf("Unable to create working directory '%v': %v", cmd.workdir, err)
@@ -80,13 +116,14 @@ func (cmd *Run) execute(f func()) error {
 	//
 	// defer os.Remove(lockfile)
 
-	f()
+	t := tunnel.NewTunnel(in, out)
+
+	f(t)
 
 	return nil
 }
 
-func (cmd *Run) run(interrupt chan os.Signal) {
-	t := tunnel.NewTunnel()
+func (cmd *Run) run(t *tunnel.Tunnel, interrupt chan os.Signal) {
 
-	t.Run(cmd.remote, interrupt)
+	t.Run(interrupt)
 }
