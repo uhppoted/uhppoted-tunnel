@@ -11,5 +11,19 @@ func packetize(message []byte) []byte {
 }
 
 func depacketize(packet []byte) []byte {
-	return packet[2:]
+	if len(packet) < 2 {
+		warnf("invalid packet (%v bytes)", len(packet))
+	} else {
+		N := int(packet[0])
+		N <<= 8
+		N += int(packet[1])
+
+		if N > len(packet[2:]) {
+			warnf("invalid packet - expected %v bytes, got %v bytes", N+2, len(packet))
+		} else {
+			return packet[2 : 2+N]
+		}
+	}
+
+	return nil
 }

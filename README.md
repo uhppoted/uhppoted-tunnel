@@ -7,24 +7,23 @@ Tunnels UDP packets between a pair of machines to enable UHPPOTE controller remo
 Technically it's not really a tunnel, except in the sense that as a packet you enter a dark
 forbidding hole, mysterious and possibly unspeakable things occur and you emerge some time
 later blinking in the light in an entirely different place. So probably more a relay or a 
-proxy .. but we're going to go with tunnel anyway.
+proxy .. but we're going to go with _tunnel_ anyway.
 
 ## Raison d'être
 
-For those **so** irritating times when your controller is in one place and the host machine is
-in another which means UDP broadcast doesn't just work and the network admin is being uncooperative
-about poking holes in the firewall and/or fixing the NAT. And:
+For those **so** annoying times when it would ne nice to run the UHPPOTE _AccessControl_ application
+but the controller is in one place and the host machine is in another (or perhaps on a VPS in Norway) 
+which means UDP broadcast doesn't just work. And poking holes in the firewall and/or fixing the NAT
+or setting up a VPN is just more trouble than it's worth.
 
-- you're not really a command line person so [uhppote-cli](https://github.com/uhppoted/uhppote-cli) is 
-  just not going work for you
-- REST is for people who into that kind thing, so nope not doing [uhppoted-rest](https://github.com/uhppoted/uhppoted-rest)
-- You've heard of MQTT and want no truck with things of that ilk i.e. [uhppoted-mqtt](https://github.com/uhppoted/uhppoted-mqtt)
-  is out
-- no respectable person runs their access control system from a [spreadsheet](https://github.com/uhppoted/uhppoted-app-sheets) 
-- or [Wild Apricot](https://github.com/uhppoted/uhppoted-app-wildapricot) for that matter
-- the UHHPOTE _AccessControl_ application works for you except for this one small thing where you
-  have to run it on a machine in a small closet with a whole bunch of electrical cabinets making 
-  disturbing humming noises
+Also useful for remotely using
+- [uhppote-cli](https://github.com/uhppoted/uhppote-cli)
+- [uhppoted-app-sheets](https://github.com/uhppoted/uhppoted-app-sheets) 
+- [uhppoted-app-wildapricot](https://github.com/uhppoted/uhppoted-app-wildapricot)
+
+and is a simpler alternative to:
+- [uhppoted-rest](https://github.com/uhppoted/uhppoted-rest)
+- [uhppoted-mqtt](https://github.com/uhppoted/uhppoted-mqtt)
 
 ## Status
 
