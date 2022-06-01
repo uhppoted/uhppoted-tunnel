@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type tcpInClient struct {
+type tcpClient struct {
 	addr          *net.TCPAddr
 	maxRetries    int
 	maxRetryDelay time.Duration
@@ -14,7 +14,7 @@ type tcpInClient struct {
 
 const RETRY_MIN_DELAY = 5 * time.Second
 
-func NewTCPIn(spec string, maxRetries int, maxRetryDelay time.Duration) (*tcpInClient, error) {
+func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tcpClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func NewTCPIn(spec string, maxRetries int, maxRetryDelay time.Duration) (*tcpInC
 		return nil, fmt.Errorf("unable to resolve TCP address '%v'", spec)
 	}
 
-	in := tcpInClient{
+	in := tcpClient{
 		addr:          addr,
 		maxRetries:    maxRetries,
 		maxRetryDelay: maxRetryDelay,
@@ -33,7 +33,25 @@ func NewTCPIn(spec string, maxRetries int, maxRetryDelay time.Duration) (*tcpInC
 	return &in, nil
 }
 
-func (tcp *tcpInClient) Listen(relay func([]byte) []byte) error {
+func (tcp *tcpClient) Close() {
+
+}
+
+func (tcp *tcpClient) Run(relay func([]byte) []byte) error {
+	return tcp.connect(relay)
+}
+
+func (tcp *tcpClient) Send(message []byte) []byte {
+	// for c, _ := range tcp.connections {
+	// 	if reply := tcp.send(c, message); reply != nil && len(reply) > 0 {
+	// 		return reply
+	// 	}
+	// }
+
+	return nil
+}
+
+func (tcp *tcpClient) connect(relay func([]byte) []byte) error {
 	retryDelay := RETRY_MIN_DELAY
 	retries := 0
 
@@ -67,11 +85,7 @@ func (tcp *tcpInClient) Listen(relay func([]byte) []byte) error {
 	return fmt.Errorf("Connect to %v failed (retry count exceeded %v)", tcp.addr, tcp.maxRetries)
 }
 
-func (tcp *tcpInClient) Close() {
-
-}
-
-func (tcp *tcpInClient) listen(socket net.Conn, relay func([]byte) []byte) error {
+func (tcp *tcpClient) listen(socket net.Conn, relay func([]byte) []byte) error {
 	infof("TCP  connected to %v", socket.RemoteAddr())
 
 	defer socket.Close()

@@ -8,14 +8,14 @@ import (
 	"time"
 )
 
-type tcpOutHost struct {
+type tcpServer struct {
 	addr        *net.TCPAddr
 	timeout     time.Duration
 	connections map[net.Conn]chan []byte
 	sync.RWMutex
 }
 
-func NewTCPOutHost(spec string) (*tcpOutHost, error) {
+func NewTCPServer(spec string) (*tcpServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func NewTCPOutHost(spec string) (*tcpOutHost, error) {
 		return nil, fmt.Errorf("TCP host requires a non-zero port")
 	}
 
-	out := tcpOutHost{
+	out := tcpServer{
 		addr:        addr,
 		timeout:     5 * time.Second,
 		connections: map[net.Conn]chan []byte{},
@@ -38,7 +38,24 @@ func NewTCPOutHost(spec string) (*tcpOutHost, error) {
 	return &out, nil
 }
 
-func (tcp *tcpOutHost) Listen() error {
+func (tcp *tcpServer) Close() {
+}
+
+func (tcp *tcpServer) Run(relay func([]byte) []byte) error {
+	return tcp.listen()
+}
+
+func (tcp *tcpServer) Send(message []byte) []byte {
+	for c, _ := range tcp.connections {
+		if reply := tcp.send(c, message); reply != nil && len(reply) > 0 {
+			return reply
+		}
+	}
+
+	return nil
+}
+
+func (tcp *tcpServer) listen() error {
 	socket, err := net.Listen("tcp", fmt.Sprintf("%v", tcp.addr))
 	if err != nil {
 		return err
@@ -87,20 +104,7 @@ func (tcp *tcpOutHost) Listen() error {
 	}
 }
 
-func (tcp *tcpOutHost) Close() {
-}
-
-func (tcp *tcpOutHost) Send(message []byte) []byte {
-	for c, _ := range tcp.connections {
-		if reply := tcp.send(c, message); reply != nil && len(reply) > 0 {
-			return reply
-		}
-	}
-
-	return nil
-}
-
-func (tcp *tcpOutHost) send(conn net.Conn, message []byte) []byte {
+func (tcp *tcpServer) send(conn net.Conn, message []byte) []byte {
 	ch := make(chan []byte)
 
 	tcp.Lock()

@@ -12,8 +12,8 @@ import (
 
 type Run struct {
 	console       bool
-	in            string
-	out           string
+	udp           string
+	pipe          string
 	maxRetries    int
 	maxRetryDelay time.Duration
 	debug         bool
@@ -28,8 +28,9 @@ const MAX_RETRY_DELAY = 5 * time.Minute
 func (r *Run) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("", flag.ExitOnError)
 
-	flagset.StringVar(&r.in, "in", "", "IN connection e.g. udp/listen:0.0.0.0:60000, udp/broadcast:255.255.255.255:60000, tcp/listen:0.0.0.0:54321 or tcp/connect:101.102.103.104:54321")
-	flagset.StringVar(&r.out, "out", "", "OUT connection e.g. udp/255.255.255.255:60000 or tcp/bind:0.0.0.0:54321 or tcp/connect:101.102.103.104:54321")
+	flagset.StringVar(&r.udp, "udp", "", "UDP connection e.g. listen:0.0.0.0:60000 or broadcast:255.255.255.255:60000")
+	flagset.StringVar(&r.pipe, "pipe", "", "TCP pipe connection e.g. tcp/server:0.0.0.0:54321 or tcp/client:101.102.103.104:54321")
+
 	flagset.IntVar(&r.maxRetries, "max-retries", MAX_RETRIES, "Maximum number of times to retry failed connection. Defaults to -1 (retry forever)")
 	flagset.DurationVar(&r.maxRetryDelay, "max-retry-delay", MAX_RETRY_DELAY, "Maximum delay between retrying failed connections")
 	flagset.BoolVar(&r.console, "console", false, "Runs as a console application rather than a service")
@@ -63,53 +64,53 @@ func (cmd *Run) Help() {
 }
 
 func (cmd *Run) execute(f func(t *tunnel.Tunnel)) error {
-	var in tunnel.In
-	var out tunnel.Out
+	var udp tunnel.UDP
+	var pipe tunnel.TCP
 
-	// ... create 'in' connection
+	// ... create UDP packet handler
 	switch {
-	case cmd.in == "":
-		return fmt.Errorf("--in argument is required")
+	case cmd.udp == "":
+		return fmt.Errorf("--udp argument is required")
 
-	case strings.HasPrefix(cmd.in, "udp/listen:"):
-		if udp, err := tunnel.NewUDPIn(cmd.in[11:]); err != nil {
+	case strings.HasPrefix(cmd.udp, "listen:"):
+		if u, err := tunnel.NewUDPListen(cmd.udp[7:]); err != nil {
 			return err
 		} else {
-			in = udp
+			udp = u
 		}
 
-	case strings.HasPrefix(cmd.in, "tcp/connect:"):
-		if tcp, err := tunnel.NewTCPIn(cmd.in[12:], cmd.maxRetries, cmd.maxRetryDelay); err != nil {
+	case strings.HasPrefix(cmd.udp, "broadcast:"):
+		if u, err := tunnel.NewUDPBroadcast(cmd.udp[10:]); err != nil {
 			return err
 		} else {
-			in = tcp
+			udp = u
 		}
 
 	default:
-		return fmt.Errorf("Invalid --in argument (%v)", cmd.in)
+		return fmt.Errorf("Invalid --udp argument (%v)", cmd.udp)
 	}
 
-	// ... create 'out' connection
+	// ... create TCP/IP pipe
 	switch {
-	case cmd.out == "":
-		return fmt.Errorf("--out argument is required")
+	case cmd.pipe == "":
+		return fmt.Errorf("--pipe argument is required")
 
-	case strings.HasPrefix(cmd.out, "udp/broadcast:"):
-		if udp, err := tunnel.NewUDPOut(cmd.out[14:]); err != nil {
+	case strings.HasPrefix(cmd.pipe, "tcp/client:"):
+		if tcp, err := tunnel.NewTCPClient(cmd.pipe[11:], cmd.maxRetries, cmd.maxRetryDelay); err != nil {
 			return err
 		} else {
-			out = udp
+			pipe = tcp
 		}
 
-	case strings.HasPrefix(cmd.out, "tcp/listen:"):
-		if tcp, err := tunnel.NewTCPOutHost(cmd.out[11:]); err != nil {
+	case strings.HasPrefix(cmd.pipe, "tcp/server:"):
+		if tcp, err := tunnel.NewTCPServer(cmd.pipe[11:]); err != nil {
 			return err
 		} else {
-			out = tcp
+			pipe = tcp
 		}
 
 	default:
-		return fmt.Errorf("Invalid --out argument (%v)", cmd.out)
+		return fmt.Errorf("Invalid --pipe argument (%v)", cmd.pipe)
 	}
 
 	// // ... create lockfile
@@ -138,7 +139,7 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) error {
 	//
 	// defer os.Remove(lockfile)
 
-	t := tunnel.NewTunnel(in, out)
+	t := tunnel.NewTunnel(udp, pipe)
 
 	f(t)
 
@@ -146,6 +147,5 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) error {
 }
 
 func (cmd *Run) run(t *tunnel.Tunnel, interrupt chan os.Signal) {
-
 	t.Run(interrupt)
 }

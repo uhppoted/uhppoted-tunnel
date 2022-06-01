@@ -5,11 +5,11 @@ import (
 	"net"
 )
 
-type udpIn struct {
+type udpListen struct {
 	addr *net.UDPAddr
 }
 
-func NewUDPIn(spec string) (*udpIn, error) {
+func NewUDPListen(spec string) (*udpListen, error) {
 	addr, err := net.ResolveUDPAddr("udp", spec)
 	if err != nil {
 		return nil, err
@@ -23,14 +23,25 @@ func NewUDPIn(spec string) (*udpIn, error) {
 		return nil, fmt.Errorf("UDP listen requires a non-zero port")
 	}
 
-	in := udpIn{
+	udp := udpListen{
 		addr: addr,
 	}
 
-	return &in, nil
+	return &udp, nil
 }
 
-func (udp *udpIn) Listen(relay func([]byte) []byte) error {
+func (udp *udpListen) Close() {
+}
+
+func (udp *udpListen) Run(relay func([]byte) []byte) error {
+	return udp.listen(relay)
+}
+
+func (udp *udpListen) Send(message []byte) []byte {
+	return nil
+}
+
+func (udp *udpListen) listen(relay func([]byte) []byte) error {
 	socket, err := net.ListenUDP("udp", udp.addr)
 	if err != nil {
 		return fmt.Errorf("Error creating UDP listen socket (%v)", err)
@@ -64,8 +75,4 @@ func (udp *udpIn) Listen(relay func([]byte) []byte) error {
 	}
 
 	return nil
-}
-
-func (u *udpIn) Close() {
-
 }

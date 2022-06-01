@@ -9,52 +9,57 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/log"
 )
 
-type In interface {
-	Listen(relay func([]byte) []byte) error
+type UDP interface {
 	Close()
+	Run(func([]byte) []byte) error
+	Send([]byte) []byte
 }
 
-type Out interface {
-	Listen() error
-	Send([]byte) []byte
+type TCP interface {
 	Close()
+	Run(func([]byte) []byte) error
+	Send([]byte) []byte
 }
 
 type Tunnel struct {
-	in  In
-	out Out
+	udp UDP
+	tcp TCP
 }
 
-func NewTunnel(in In, out Out) *Tunnel {
+func NewTunnel(udp UDP, tcp TCP) *Tunnel {
 	return &Tunnel{
-		in:  in,
-		out: out,
+		udp: udp,
+		tcp: tcp,
 	}
 }
 
 func (t *Tunnel) Run(interrupt chan os.Signal) {
 	infof("%v", "uhppoted-tunnel::run")
 
+	p := func(message []byte) []byte {
+		return t.tcp.Send(message)
+	}
+
+	q := func(message []byte) []byte {
+		return t.udp.Send(message)
+	}
+
 	go func() {
-		if err := t.out.Listen(); err != nil {
+		if err := t.udp.Run(p); err != nil {
 			fatalf("%v", err)
 		}
 	}()
 
 	go func() {
-		if err := t.in.Listen(t.redirect); err != nil {
+		if err := t.tcp.Run(q); err != nil {
 			fatalf("%v", err)
 		}
 	}()
 
 	<-interrupt
 
-	t.in.Close()
-	t.out.Close()
-}
-
-func (t *Tunnel) redirect(message []byte) []byte {
-	return t.out.Send(message)
+	t.udp.Close()
+	t.tcp.Close()
 }
 
 func dump(m []byte, prefix string) string {

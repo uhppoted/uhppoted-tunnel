@@ -1,15 +1,12 @@
 # TODO
 
+- [ ] Reverse tunnel
+
 ## TCP server
-- [x] Handle disconnects
-- [x] Timeout on reply
 - [ ] tcpInHost
 - [ ] Commonalise tcpInHost and tcpOutHost as tcpServer
 
 ## TCP client
-- [x] Retry and reconnect
-- [x] Max retries command line option
-- [x] Max retry delay command line option
 
 ## Miscellaneous
 - [ ] Encode packet with protocol buffers

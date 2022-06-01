@@ -6,11 +6,11 @@ import (
 	"time"
 )
 
-type udpOut struct {
+type udpBroadcast struct {
 	addr *net.UDPAddr
 }
 
-func NewUDPOut(spec string) (*udpOut, error) {
+func NewUDPBroadcast(spec string) (*udpBroadcast, error) {
 	addr, err := net.ResolveUDPAddr("udp", spec)
 	if err != nil {
 		return nil, err
@@ -24,14 +24,17 @@ func NewUDPOut(spec string) (*udpOut, error) {
 		return nil, fmt.Errorf("UDP requires a non-zero port")
 	}
 
-	out := udpOut{
+	out := udpBroadcast{
 		addr: addr,
 	}
 
 	return &out, nil
 }
 
-func (udp *udpOut) Listen() error {
+func (udp *udpBroadcast) Close() {
+}
+
+func (udp *udpBroadcast) Run(relay func([]byte) []byte) error {
 	ch := make(chan bool)
 
 	<-ch
@@ -39,10 +42,7 @@ func (udp *udpOut) Listen() error {
 	return nil
 }
 
-func (udp *udpOut) Close() {
-}
-
-func (udp *udpOut) Send(message []byte) []byte {
+func (udp *udpBroadcast) Send(message []byte) []byte {
 	hex := dump(message, "                           ")
 	debugf("broadcast%v\n%s\n", "", hex)
 
