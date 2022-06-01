@@ -7,7 +7,9 @@
 - [ ] Commonalise tcpInHost and tcpOutHost as tcpServer
 
 ## TCP client
-- [ ] Retry and reconnect
+- [x] Retry and reconnect
+- [x] Max retries command line option
+- [x] Max retry delay command line option
 
 ## Miscellaneous
 - [ ] Encode packet with protocol buffers

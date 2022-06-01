@@ -5,25 +5,33 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
 )
 
 type Run struct {
-	console     bool
-	in          string
-	out         string
-	debug       bool
-	workdir     string
-	logFile     string
-	logFileSize int
+	console       bool
+	in            string
+	out           string
+	maxRetries    int
+	maxRetryDelay time.Duration
+	debug         bool
+	workdir       string
+	logFile       string
+	logFileSize   int
 }
+
+const MAX_RETRIES = -1
+const MAX_RETRY_DELAY = 5 * time.Minute
 
 func (r *Run) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("", flag.ExitOnError)
 
 	flagset.StringVar(&r.in, "in", "", "IN connection e.g. udp/listen:0.0.0.0:60000, udp/broadcast:255.255.255.255:60000, tcp/listen:0.0.0.0:54321 or tcp/connect:101.102.103.104:54321")
 	flagset.StringVar(&r.out, "out", "", "OUT connection e.g. udp/255.255.255.255:60000 or tcp/bind:0.0.0.0:54321 or tcp/connect:101.102.103.104:54321")
+	flagset.IntVar(&r.maxRetries, "max-retries", MAX_RETRIES, "Maximum number of times to retry failed connection. Defaults to -1 (retry forever)")
+	flagset.DurationVar(&r.maxRetryDelay, "max-retry-delay", MAX_RETRY_DELAY, "Maximum delay between retrying failed connections")
 	flagset.BoolVar(&r.console, "console", false, "Runs as a console application rather than a service")
 	flagset.BoolVar(&r.debug, "debug", false, "Enables detailed debugging logs")
 
@@ -71,7 +79,7 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) error {
 		}
 
 	case strings.HasPrefix(cmd.in, "tcp/connect:"):
-		if tcp, err := tunnel.NewTCPIn(cmd.in[12:]); err != nil {
+		if tcp, err := tunnel.NewTCPIn(cmd.in[12:], cmd.maxRetries, cmd.maxRetryDelay); err != nil {
 			return err
 		} else {
 			in = tcp

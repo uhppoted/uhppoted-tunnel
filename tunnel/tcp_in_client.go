@@ -3,13 +3,18 @@ package tunnel
 import (
 	"fmt"
 	"net"
+	"time"
 )
 
 type tcpInClient struct {
-	addr *net.TCPAddr
+	addr          *net.TCPAddr
+	maxRetries    int
+	maxRetryDelay time.Duration
 }
 
-func NewTCPIn(spec string) (*tcpInClient, error) {
+const RETRY_MIN_DELAY = 5 * time.Second
+
+func NewTCPIn(spec string, maxRetries int, maxRetryDelay time.Duration) (*tcpInClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -20,62 +25,91 @@ func NewTCPIn(spec string) (*tcpInClient, error) {
 	}
 
 	in := tcpInClient{
-		addr: addr,
+		addr:          addr,
+		maxRetries:    maxRetries,
+		maxRetryDelay: maxRetryDelay,
 	}
 
 	return &in, nil
 }
 
 func (tcp *tcpInClient) Listen(relay func([]byte) []byte) error {
-	socket, err := net.Dial("tcp", fmt.Sprintf("%v", tcp.addr))
-	if err != nil {
-		return fmt.Errorf("Error connecting to  %v (%v)", tcp.addr, err)
-	} else if socket == nil {
-		return fmt.Errorf("Failed to create TCP connection to %v (%v)", tcp.addr, socket)
-	}
+	retryDelay := RETRY_MIN_DELAY
+	retries := 0
 
-	defer socket.Close()
+	for tcp.maxRetries < 0 || retries < tcp.maxRetries {
+		infof("connecting to %v", tcp.addr)
 
-	infof("TCP  connected to %v", tcp.addr)
-
-	buffer := make([]byte, 2048)
-
-	for {
-		if N, err := socket.Read(buffer); err != nil {
+		if socket, err := net.Dial("tcp", fmt.Sprintf("%v", tcp.addr)); err != nil {
 			warnf("%v", err)
-			break
+		} else if socket == nil {
+			warnf("Failed to create TCP connection to %v (%v)", tcp.addr, socket)
 		} else {
-			hex := dump(buffer[:N], "                           ")
-			debugf("TCP  received %v bytes from %v\n%s\n", N, socket.RemoteAddr(), hex)
+			retries = 0
+			retryDelay = RETRY_MIN_DELAY
 
-			ix := 0
-			for ix < N {
-				size := uint(buffer[ix])
-				size <<= 8
-				size += uint(buffer[ix+1])
-
-				message := depacketize(buffer[ix : ix+2+int(size)])
-
-				if reply := relay(message); reply != nil && len(reply) > 0 {
-					packet := packetize(reply)
-
-					if N, err := socket.Write(packet); err != nil {
-						warnf("error relaying reply to %v (%v)", socket.RemoteAddr(), err)
-					} else if N != len(packet) {
-						warnf("relayed reply with %v of %v bytes to %v", N, len(reply), socket.RemoteAddr())
-					} else {
-						infof("relayed reply with %v bytes to %v", len(reply), socket.RemoteAddr())
-					}
-				}
-
-				ix += 2 + int(size)
+			if err := tcp.listen(socket, relay); err != nil {
+				warnf("%v", err)
 			}
+		}
+
+		infof("connection failed ... retrying in %v", retryDelay)
+
+		time.Sleep(retryDelay)
+
+		retries++
+		retryDelay *= 2
+		if retryDelay > tcp.maxRetryDelay {
+			retryDelay = tcp.maxRetryDelay
 		}
 	}
 
-	return nil
+	return fmt.Errorf("Connect to %v failed (retry count exceeded %v)", tcp.maxRetries)
 }
 
 func (tcp *tcpInClient) Close() {
 
+}
+
+func (tcp *tcpInClient) listen(socket net.Conn, relay func([]byte) []byte) error {
+	infof("TCP  connected to %v", socket.RemoteAddr())
+
+	defer socket.Close()
+
+	buffer := make([]byte, 2048)
+
+	for {
+		N, err := socket.Read(buffer)
+		if err != nil {
+			return err
+		}
+
+		hex := dump(buffer[:N], "                           ")
+		debugf("TCP  received %v bytes from %v\n%s\n", N, socket.RemoteAddr(), hex)
+
+		ix := 0
+		for ix < N {
+			size := uint(buffer[ix])
+			size <<= 8
+			size += uint(buffer[ix+1])
+
+			message := depacketize(buffer[ix : ix+2+int(size)])
+
+			if reply := relay(message); reply != nil && len(reply) > 0 {
+				packet := packetize(reply)
+
+				if N, err := socket.Write(packet); err != nil {
+					warnf("error relaying reply to %v (%v)", socket.RemoteAddr(), err)
+				} else if N != len(packet) {
+					warnf("relayed reply with %v of %v bytes to %v", N, len(reply), socket.RemoteAddr())
+				} else {
+					infof("relayed reply with %v bytes to %v", len(reply), socket.RemoteAddr())
+				}
+			}
+
+			ix += 2 + int(size)
+		}
+	}
+
+	return nil
 }
