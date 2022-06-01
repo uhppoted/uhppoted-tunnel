@@ -62,7 +62,7 @@ func (udp *udpListen) listen(relay func([]byte) []byte) error {
 			break
 		}
 
-		hex := dump(buffer[:N], "                           ")
+		hex := dump(buffer[:N], "                                ")
 		debugf("UDP  received %v bytes from %v\n%s\n", N, remote, hex)
 
 		if reply := relay(buffer[:N]); reply != nil {

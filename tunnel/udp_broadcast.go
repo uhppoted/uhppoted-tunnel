@@ -73,7 +73,8 @@ func (udp *udpBroadcast) Send(message []byte) []byte {
 			if N, remote, err := socket.ReadFromUDP(reply); err != nil {
 				warnf("%v", err)
 			} else {
-				debugf(" ... received %v bytes from %v\n%s", N, remote, dump(reply[:N], " ...          "))
+				hex := dump(reply[:N], "                         ")
+				debugf(" ... received %v bytes from %v\n%s", N, remote, hex)
 
 				return reply[:N]
 			}

@@ -87,7 +87,10 @@ client: build
 	$(CMD) --debug --console --udp broadcast:192.168.1.255:60000 --pipe tcp/client:127.0.0.1:12345
 
 reverse-host: build
-	$(CMD) --debug --console --udp listen:0.0.0.0:60005 --tcp client:127.0.0.1:12345
+	$(CMD) --debug --console --udp listen:0.0.0.0:60005 --pipe tcp/client:127.0.0.1:12345
+
+reverse-client: build
+	$(CMD) --debug --console --udp broadcast:192.168.1.255:60000 --pipe tcp/server:0.0.0.0:12345
 
 vultr: build
 	$(CMD) --debug --console --remote 66.42.65.202:8080

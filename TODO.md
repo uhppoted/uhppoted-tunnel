@@ -1,10 +1,11 @@
 # TODO
 
 - [ ] Reverse tunnel
+      - [ ] close client channel when socket closes
+
+- (?) Routing matrix
 
 ## TCP server
-- [ ] tcpInHost
-- [ ] Commonalise tcpInHost and tcpOutHost as tcpServer
 
 ## TCP client
 
