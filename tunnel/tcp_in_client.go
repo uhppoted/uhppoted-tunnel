@@ -64,7 +64,7 @@ func (tcp *tcpInClient) Listen(relay func([]byte) []byte) error {
 		}
 	}
 
-	return fmt.Errorf("Connect to %v failed (retry count exceeded %v)", tcp.maxRetries)
+	return fmt.Errorf("Connect to %v failed (retry count exceeded %v)", tcp.addr, tcp.maxRetries)
 }
 
 func (tcp *tcpInClient) Close() {
@@ -110,6 +110,4 @@ func (tcp *tcpInClient) listen(socket net.Conn, relay func([]byte) []byte) error
 			ix += 2 + int(size)
 		}
 	}
-
-	return nil
 }
