@@ -42,7 +42,7 @@ func (tcp *tcpClient) Close() {
 
 }
 
-func (tcp *tcpClient) Run(relay func([]byte) []byte) error {
+func (tcp *tcpClient) Run(relay relay) error {
 	return tcp.connect(relay)
 }
 
@@ -65,7 +65,7 @@ func (tcp *tcpClient) Send(message []byte) []byte {
 	return nil
 }
 
-func (tcp *tcpClient) connect(relay func([]byte) []byte) error {
+func (tcp *tcpClient) connect(relay relay) error {
 	retryDelay := RETRY_MIN_DELAY
 	retries := 0
 
@@ -83,7 +83,7 @@ func (tcp *tcpClient) connect(relay func([]byte) []byte) error {
 			go func() {
 				for {
 					msg := <-tcp.ch
-					infof("TCP  relaying %v bytes to %v", len(msg) ,socket.RemoteAddr())
+					infof("TCP  relaying %v bytes to %v", len(msg), socket.RemoteAddr())
 					tcp.send(socket, msg)
 				}
 			}()
@@ -111,7 +111,7 @@ func (tcp *tcpClient) connect(relay func([]byte) []byte) error {
 	return fmt.Errorf("Connect to %v failed (retry count exceeded %v)", tcp.addr, tcp.maxRetries)
 }
 
-func (tcp *tcpClient) listen(socket net.Conn, relay func([]byte) []byte) error {
+func (tcp *tcpClient) listen(socket net.Conn, relay relay) error {
 	infof("TCP  connected to %v", socket.RemoteAddr())
 
 	defer socket.Close()
@@ -133,10 +133,10 @@ func (tcp *tcpClient) listen(socket net.Conn, relay func([]byte) []byte) error {
 			size <<= 8
 			size += uint(buffer[ix+1])
 
-			message := depacketize(buffer[ix : ix+2+int(size)])
+			id, message := depacketize(buffer[ix:])
 
-			if reply := relay(message); reply != nil && len(reply) > 0 {
-				packet := packetize(reply)
+			if reply := relay(id, message); reply != nil && len(reply) > 0 {
+				packet := packetize(id, reply)
 
 				if N, err := socket.Write(packet); err != nil {
 					warnf("error relaying reply to %v (%v)", socket.RemoteAddr(), err)
@@ -153,7 +153,8 @@ func (tcp *tcpClient) listen(socket net.Conn, relay func([]byte) []byte) error {
 }
 
 func (tcp *tcpClient) send(conn net.Conn, message []byte) []byte {
-	packet := packetize(message)
+	id := nextID()
+	packet := packetize(id, message)
 
 	if N, err := conn.Write(packet); err != nil {
 		warnf("error sending message to %v (%v)", conn.RemoteAddr(), err)

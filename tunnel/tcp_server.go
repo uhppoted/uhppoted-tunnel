@@ -41,13 +41,14 @@ func NewTCPServer(spec string) (*tcpServer, error) {
 func (tcp *tcpServer) Close() {
 }
 
-func (tcp *tcpServer) Run(relay func([]byte) []byte) error {
+func (tcp *tcpServer) Run(relay relay) error {
 	return tcp.listen(relay)
 }
 
 func (tcp *tcpServer) Send(message []byte) []byte {
+	id := nextID()
 	for c, _ := range tcp.connections {
-		if reply := tcp.send(c, message); reply != nil && len(reply) > 0 {
+		if reply := tcp.send(c, id, message); reply != nil && len(reply) > 0 {
 			return reply
 		}
 	}
@@ -55,7 +56,7 @@ func (tcp *tcpServer) Send(message []byte) []byte {
 	return nil
 }
 
-func (tcp *tcpServer) listen(relay func([]byte) []byte) error {
+func (tcp *tcpServer) listen(relay relay) error {
 	socket, err := net.Listen("tcp", fmt.Sprintf("%v", tcp.addr))
 	if err != nil {
 		return err
@@ -104,7 +105,7 @@ func (tcp *tcpServer) listen(relay func([]byte) []byte) error {
 	}
 }
 
-func (tcp *tcpServer) received(packet []byte, relay func([]byte) []byte, socket net.Conn) {
+func (tcp *tcpServer) received(packet []byte, relay relay, socket net.Conn) {
 	hex := dump(packet, "                                ")
 	debugf("TCP  received %v bytes from %v\n%s\n", len(packet), socket.RemoteAddr(), hex)
 
@@ -114,10 +115,10 @@ func (tcp *tcpServer) received(packet []byte, relay func([]byte) []byte, socket 
 		size <<= 8
 		size += uint(packet[ix+1])
 
-		message := depacketize(packet[ix : ix+2+int(size)])
+		id, message := depacketize(packet[ix : ix+2+int(size)])
 
-		if reply := relay(message); reply != nil && len(reply) > 0 {
-			packet := packetize(reply)
+		if reply := relay(id, message); reply != nil && len(reply) > 0 {
+			packet := packetize(id, reply)
 
 			if N, err := socket.Write(packet); err != nil {
 				warnf("error relaying reply to %v (%v)", socket.RemoteAddr(), err)
@@ -132,7 +133,7 @@ func (tcp *tcpServer) received(packet []byte, relay func([]byte) []byte, socket 
 	}
 }
 
-func (tcp *tcpServer) send(conn net.Conn, message []byte) []byte {
+func (tcp *tcpServer) send(conn net.Conn, id uint32, message []byte) []byte {
 	ch := make(chan []byte)
 
 	tcp.Lock()
@@ -147,7 +148,7 @@ func (tcp *tcpServer) send(conn net.Conn, message []byte) []byte {
 		close(ch)
 	}()
 
-	packet := packetize(message)
+	packet := packetize(id, message)
 
 	if N, err := conn.Write(packet); err != nil {
 		warnf("error sending message to %v (%v)", conn.RemoteAddr(), err)
@@ -165,7 +166,9 @@ func (tcp *tcpServer) send(conn net.Conn, message []byte) []byte {
 			hex := dump(buffer, "                           ")
 			debugf("TCP  received %v bytes from %v\n%s\n", N, conn.RemoteAddr(), hex)
 
-			return depacketize(buffer)
+			_, message := depacketize(buffer)
+
+			return message
 		}
 	}
 

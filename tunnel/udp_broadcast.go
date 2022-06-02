@@ -34,7 +34,7 @@ func NewUDPBroadcast(spec string) (*udpBroadcast, error) {
 func (udp *udpBroadcast) Close() {
 }
 
-func (udp *udpBroadcast) Run(relay func([]byte) []byte) error {
+func (udp *udpBroadcast) Run(relay relay) error {
 	ch := make(chan bool)
 
 	<-ch

@@ -9,15 +9,17 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/log"
 )
 
+type relay func(uint32, []byte) []byte
+
 type UDP interface {
 	Close()
-	Run(func([]byte) []byte) error
+	Run(relay) error
 	Send([]byte) []byte
 }
 
 type TCP interface {
 	Close()
-	Run(func([]byte) []byte) error
+	Run(relay) error
 	Send([]byte) []byte
 }
 
@@ -36,11 +38,11 @@ func NewTunnel(udp UDP, tcp TCP) *Tunnel {
 func (t *Tunnel) Run(interrupt chan os.Signal) {
 	infof("%v", "uhppoted-tunnel::run")
 
-	p := func(message []byte) []byte {
+	p := func(id uint32, message []byte) []byte {
 		return t.tcp.Send(message)
 	}
 
-	q := func(message []byte) []byte {
+	q := func(id uint32, message []byte) []byte {
 		return t.udp.Send(message)
 	}
 

@@ -33,7 +33,7 @@ func NewUDPListen(spec string) (*udpListen, error) {
 func (udp *udpListen) Close() {
 }
 
-func (udp *udpListen) Run(relay func([]byte) []byte) error {
+func (udp *udpListen) Run(relay relay) error {
 	return udp.listen(relay)
 }
 
@@ -41,7 +41,7 @@ func (udp *udpListen) Send(message []byte) []byte {
 	return nil
 }
 
-func (udp *udpListen) listen(relay func([]byte) []byte) error {
+func (udp *udpListen) listen(relay relay) error {
 	socket, err := net.ListenUDP("udp", udp.addr)
 	if err != nil {
 		return fmt.Errorf("Error creating UDP listen socket (%v)", err)
@@ -65,7 +65,8 @@ func (udp *udpListen) listen(relay func([]byte) []byte) error {
 		hex := dump(buffer[:N], "                                ")
 		debugf("UDP  received %v bytes from %v\n%s\n", N, remote, hex)
 
-		if reply := relay(buffer[:N]); reply != nil {
+		id := nextID()
+		if reply := relay(id, buffer[:N]); reply != nil {
 			if N, err := socket.WriteToUDP(reply, remote); err != nil {
 				warnf("%v", err)
 			} else {
