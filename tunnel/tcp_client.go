@@ -46,7 +46,7 @@ func (tcp *tcpClient) Run(relay relay) error {
 	return tcp.connect(relay)
 }
 
-func (tcp *tcpClient) Send(message []byte) []byte {
+func (tcp *tcpClient) Send(id uint32, message []byte) []byte {
 	fmt.Printf(">>>>> SEND\n")
 
 	select {
@@ -135,7 +135,10 @@ func (tcp *tcpClient) listen(socket net.Conn, relay relay) error {
 
 			id, message := depacketize(buffer[ix:])
 
+			fmt.Printf(">>> CLIENT/INCOMING: %v\n", id)
+
 			if reply := relay(id, message); reply != nil && len(reply) > 0 {
+				fmt.Printf(">>> CLIENT/REPLYING: %v\n", id)
 				packet := packetize(id, reply)
 
 				if N, err := socket.Write(packet); err != nil {
@@ -147,7 +150,7 @@ func (tcp *tcpClient) listen(socket net.Conn, relay relay) error {
 				}
 			}
 
-			ix += 2 + int(size)
+			ix += 6 + int(size)
 		}
 	}
 }

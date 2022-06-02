@@ -2,6 +2,7 @@ package tunnel
 
 import (
 	"fmt"
+	"io"
 	"net"
 )
 
@@ -59,25 +60,28 @@ func (udp *udpListen) listen(router *Switch) error {
 
 	for {
 		buffer := make([]byte, 2048) // NTS buffer is handed off to router
-		N, remote, err := socket.ReadFromUDP(buffer)
-		if err != nil {
-			debugf("%v", err)
-			break
-		}
 
-		udp.dump(buffer[:N], "request  %v bytes from %v", N, remote)
-
-		h := func(reply []byte) {
-			udp.dump(reply, "reply  %v bytes for %v", N, remote)
-
-			if N, err := socket.WriteToUDP(reply, remote); err != nil {
-				warnf("%v", err)
-			} else {
-				debugf("UDP sent %v bytes to %v\n", N, remote)
+		if N, remote, err := socket.ReadFromUDP(buffer); err != nil {
+			if err == io.EOF {
+				infof("UDP  listen socket %v closed ", socket)
+				break
 			}
-		}
+			warnf("UDP  error reading from socket (%v)", err)
+		} else {
+			udp.dump(buffer[:N], "request  %v bytes from %v", N, remote)
 
-		router.received(nextID(), buffer[:N], h)
+			h := func(reply []byte) {
+				udp.dump(reply, "reply  %v bytes for %v", len(reply), remote)
+
+				if N, err := socket.WriteToUDP(reply, remote); err != nil {
+					warnf("%v", err)
+				} else {
+					debugf("UDP sent %v bytes to %v\n", N, remote)
+				}
+			}
+
+			router.request(nextID(), buffer[:N], h)
+		}
 	}
 
 	return nil

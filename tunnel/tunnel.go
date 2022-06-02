@@ -20,7 +20,7 @@ type UDP interface {
 type TCP interface {
 	Close()
 	Run(relay) error
-	Send([]byte) []byte
+	Send(uint32, []byte) []byte
 }
 
 type Tunnel struct {
@@ -39,7 +39,7 @@ func (t *Tunnel) Run(interrupt chan os.Signal) {
 	infof("%v", "uhppoted-tunnel::run")
 
 	p := func(id uint32, message []byte) []byte {
-		return t.tcp.Send(message)
+		return t.tcp.Send(id, message)
 	}
 
 	q := func(id uint32, message []byte) []byte {

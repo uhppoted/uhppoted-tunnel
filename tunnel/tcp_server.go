@@ -5,34 +5,28 @@ import (
 	"io"
 	"net"
 	"sync"
-	"time"
 )
 
 type tcpServer struct {
 	addr        *net.TCPAddr
-	timeout     time.Duration
-	connections map[net.Conn]chan []byte
+	connections map[net.Conn]struct{}
 	sync.RWMutex
 }
 
 func NewTCPServer(spec string) (*tcpServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
+
 	if err != nil {
 		return nil, err
-	}
-
-	if addr == nil {
+	} else if addr == nil {
 		return nil, fmt.Errorf("unable to resolve TCP address '%v'", spec)
-	}
-
-	if addr.Port == 0 {
+	} else if addr.Port == 0 {
 		return nil, fmt.Errorf("TCP host requires a non-zero port")
 	}
 
 	out := tcpServer{
 		addr:        addr,
-		timeout:     5 * time.Second,
-		connections: map[net.Conn]chan []byte{},
+		connections: map[net.Conn]struct{}{},
 	}
 
 	return &out, nil
@@ -42,21 +36,26 @@ func (tcp *tcpServer) Close() {
 }
 
 func (tcp *tcpServer) Run(relay relay) error {
-	return tcp.listen(relay)
+	router := Switch{
+		relay: relay,
+	}
+
+	return tcp.listen(&router)
 }
 
-func (tcp *tcpServer) Send(message []byte) []byte {
-	id := nextID()
+func (tcp *tcpServer) Send(id uint32, message []byte) []byte {
 	for c, _ := range tcp.connections {
-		if reply := tcp.send(c, id, message); reply != nil && len(reply) > 0 {
-			return reply
+		if socket, ok := c.(*net.TCPConn); ok && socket != nil {
+			go func() {
+				tcp.send(socket, id, message)
+			}()
 		}
 	}
 
 	return nil
 }
 
-func (tcp *tcpServer) listen(relay relay) error {
+func (tcp *tcpServer) listen(router *Switch) error {
 	socket, err := net.Listen("tcp", fmt.Sprintf("%v", tcp.addr))
 	if err != nil {
 		return err
@@ -74,29 +73,20 @@ func (tcp *tcpServer) listen(relay relay) error {
 				errorf("TCP  %v", "invalid TCP socket")
 			} else {
 				tcp.Lock()
-				tcp.connections[socket] = nil
+				tcp.connections[socket] = struct{}{}
 				tcp.Unlock()
 
 				go func(socket *net.TCPConn) {
-					buffer := make([]byte, 2048)
-
 					for {
+						buffer := make([]byte, 2048) // buffer is handed off to router
 						if N, err := socket.Read(buffer); err != nil {
 							if err == io.EOF {
 								infof("TCP  client connection %v closed ", socket.RemoteAddr())
 								break
 							}
 							warnf("TCP  error reading from socket (%v)", err)
-
-						} else if ch, ok := tcp.connections[socket]; !ok || ch == nil {
-							tcp.received(buffer[:N], relay, socket)
 						} else {
-							select {
-							case ch <- buffer[:N]:
-								debugf("TCP  dispatched packet")
-							default:
-								debugf("TCP  dropped packet")
-							}
+							tcp.received(buffer[:N], router, socket)
 						}
 					}
 				}(socket)
@@ -105,7 +95,7 @@ func (tcp *tcpServer) listen(relay relay) error {
 	}
 }
 
-func (tcp *tcpServer) received(packet []byte, relay relay, socket net.Conn) {
+func (tcp *tcpServer) received(packet []byte, router *Switch, socket net.Conn) {
 	hex := dump(packet, "                                ")
 	debugf("TCP  received %v bytes from %v\n%s\n", len(packet), socket.RemoteAddr(), hex)
 
@@ -115,39 +105,27 @@ func (tcp *tcpServer) received(packet []byte, relay relay, socket net.Conn) {
 		size <<= 8
 		size += uint(packet[ix+1])
 
-		id, message := depacketize(packet[ix : ix+2+int(size)])
+		id, message := depacketize(packet[ix:])
 
-		if reply := relay(id, message); reply != nil && len(reply) > 0 {
-			packet := packetize(id, reply)
+		router.reply(id, message)
 
-			if N, err := socket.Write(packet); err != nil {
-				warnf("error relaying reply to %v (%v)", socket.RemoteAddr(), err)
-			} else if N != len(packet) {
-				warnf("relayed reply with %v of %v bytes to %v", N, len(reply), socket.RemoteAddr())
-			} else {
-				infof("relayed reply with %v bytes to %v", len(reply), socket.RemoteAddr())
-			}
-		}
+		// if reply := relay(id, message); reply != nil && len(reply) > 0 {
+		// 	packet := packetize(id, reply)
 
-		ix += 2 + int(size)
+		// 	if N, err := socket.Write(packet); err != nil {
+		// 		warnf("error relaying reply to %v (%v)", socket.RemoteAddr(), err)
+		// 	} else if N != len(packet) {
+		// 		warnf("relayed reply with %v of %v bytes to %v", N, len(reply), socket.RemoteAddr())
+		// 	} else {
+		// 		infof("relayed reply with %v bytes to %v", len(reply), socket.RemoteAddr())
+		// 	}
+		// }
+
+		ix += 6 + int(size)
 	}
 }
 
-func (tcp *tcpServer) send(conn net.Conn, id uint32, message []byte) []byte {
-	ch := make(chan []byte)
-
-	tcp.Lock()
-	tcp.connections[conn] = ch
-	tcp.Unlock()
-
-	defer func() {
-		tcp.Lock()
-		tcp.connections[conn] = nil
-		tcp.Unlock()
-
-		close(ch)
-	}()
-
+func (tcp *tcpServer) send(conn *net.TCPConn, id uint32, message []byte) {
 	packet := packetize(id, message)
 
 	if N, err := conn.Write(packet); err != nil {
@@ -156,21 +134,5 @@ func (tcp *tcpServer) send(conn net.Conn, id uint32, message []byte) []byte {
 		warnf("TCP  sent %v of %v bytes to %v", N, len(message), conn.RemoteAddr())
 	} else {
 		infof("TCP  sent %v bytes to %v", len(message), conn.RemoteAddr())
-
-		select {
-		case <-time.After(tcp.timeout):
-			infof("TCP  timeout waiting for reply from %v", conn.RemoteAddr())
-			return nil
-
-		case buffer := <-ch:
-			hex := dump(buffer, "                           ")
-			debugf("TCP  received %v bytes from %v\n%s\n", N, conn.RemoteAddr(), hex)
-
-			_, message := depacketize(buffer)
-
-			return message
-		}
 	}
-
-	return nil
 }
