@@ -34,14 +34,18 @@ func (udp *udpListen) Close() {
 }
 
 func (udp *udpListen) Run(relay relay) error {
-	return udp.listen(relay)
+	router := Switch{
+		relay: relay,
+	}
+
+	return udp.listen(&router)
 }
 
 func (udp *udpListen) Send(message []byte) []byte {
 	return nil
 }
 
-func (udp *udpListen) listen(relay relay) error {
+func (udp *udpListen) listen(router *Switch) error {
 	socket, err := net.ListenUDP("udp", udp.addr)
 	if err != nil {
 		return fmt.Errorf("Error creating UDP listen socket (%v)", err)
@@ -53,27 +57,35 @@ func (udp *udpListen) listen(relay relay) error {
 
 	infof("UDP  listening on %v", udp.addr)
 
-	buffer := make([]byte, 2048)
-
 	for {
+		buffer := make([]byte, 2048) // NTS buffer is handed off to router
 		N, remote, err := socket.ReadFromUDP(buffer)
 		if err != nil {
 			debugf("%v", err)
 			break
 		}
 
-		hex := dump(buffer[:N], "                                ")
-		debugf("UDP  received %v bytes from %v\n%s\n", N, remote, hex)
+		udp.dump(buffer[:N], "request  %v bytes from %v", N, remote)
 
-		id := nextID()
-		if reply := relay(id, buffer[:N]); reply != nil {
+		h := func(reply []byte) {
+			udp.dump(reply, "reply  %v bytes for %v", N, remote)
+
 			if N, err := socket.WriteToUDP(reply, remote); err != nil {
 				warnf("%v", err)
 			} else {
 				debugf("UDP sent %v bytes to %v\n", N, remote)
 			}
 		}
+
+		router.received(nextID(), buffer[:N], h)
 	}
 
 	return nil
+}
+
+func (udp *udpListen) dump(message []byte, format string, args ...any) {
+	hex := dump(message, "                                ")
+	preamble := fmt.Sprintf(format, args...)
+
+	debugf("UDP  %v\n%s", preamble, hex)
 }
