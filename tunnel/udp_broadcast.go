@@ -52,8 +52,6 @@ func (udp *udpBroadcast) Run(relay relay) error {
 			router.reply(msg.id, msg.message)
 		}
 	}
-
-	return nil
 }
 
 func (udp *udpBroadcast) Send(id uint32, msg []byte) {
