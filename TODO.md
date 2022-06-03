@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] Reverse tunnel
+- [x] Reverse tunnel
 
 - [ ] Routing matrix
 - [ ] depacketize should return the remaining buffer
@@ -9,6 +9,7 @@
 ```
 2022/06/02 17:27:35 WARN   error sending message to 127.0.0.1:53477 (write tcp 127.0.0.1:12345->127.0.0.1:53477: write: broken pipe)
 ```
+
 
 ## TCP server
 

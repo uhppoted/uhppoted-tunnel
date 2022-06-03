@@ -67,7 +67,8 @@ func (udp *udpListen) listen(router *Switch) error {
 			}
 			warnf("UDP  error reading from socket (%v)", err)
 		} else {
-			udp.dump(buffer[:N], "request  %v bytes from %v", N, remote)
+			id := nextID()
+			udp.dump(buffer[:N], "request %v  %v bytes from %v", id, N, remote)
 
 			h := func(reply []byte) {
 				udp.dump(reply, "reply  %v bytes for %v", len(reply), remote)
@@ -75,11 +76,11 @@ func (udp *udpListen) listen(router *Switch) error {
 				if N, err := socket.WriteToUDP(reply, remote); err != nil {
 					warnf("%v", err)
 				} else {
-					debugf("UDP sent %v bytes to %v\n", N, remote)
+					debugf("UDP  sent %v bytes to %v\n", N, remote)
 				}
 			}
 
-			router.request(nextID(), buffer[:N], h)
+			router.request(id, buffer[:N], h)
 		}
 	}
 

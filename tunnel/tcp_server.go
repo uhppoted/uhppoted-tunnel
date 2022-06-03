@@ -10,10 +10,11 @@ import (
 type tcpServer struct {
 	addr        *net.TCPAddr
 	connections map[net.Conn]struct{}
+	mode        Mode
 	sync.RWMutex
 }
 
-func NewTCPServer(spec string) (*tcpServer, error) {
+func NewTCPServer(spec string, mode Mode) (*tcpServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -26,6 +27,7 @@ func NewTCPServer(spec string) (*tcpServer, error) {
 
 	out := tcpServer{
 		addr:        addr,
+		mode:        mode,
 		connections: map[net.Conn]struct{}{},
 	}
 
@@ -105,25 +107,21 @@ func (tcp *tcpServer) received(packet []byte, router *Switch, socket net.Conn) {
 
 		id, message := depacketize(packet[ix:])
 
-		router.reply(id, message)
+		switch tcp.mode {
+		case ModeNormal:
+			router.reply(id, message)
 
-		// if reply := relay(id, message); reply != nil && len(reply) > 0 {
-		// 	packet := packetize(id, reply)
-
-		// 	if N, err := socket.Write(packet); err != nil {
-		// 		warnf("error relaying reply to %v (%v)", socket.RemoteAddr(), err)
-		// 	} else if N != len(packet) {
-		// 		warnf("relayed reply with %v of %v bytes to %v", N, len(reply), socket.RemoteAddr())
-		// 	} else {
-		// 		infof("relayed reply with %v bytes to %v", len(reply), socket.RemoteAddr())
-		// 	}
-		// }
+		case ModeReverse:
+			router.request(id, message, func(message []byte) {
+				tcp.send(socket, id, message)
+			})
+		}
 
 		ix += 6 + int(size)
 	}
 }
 
-func (tcp *tcpServer) send(conn *net.TCPConn, id uint32, message []byte) {
+func (tcp *tcpServer) send(conn net.Conn, id uint32, message []byte) {
 	packet := packetize(id, message)
 
 	if N, err := conn.Write(packet); err != nil {
