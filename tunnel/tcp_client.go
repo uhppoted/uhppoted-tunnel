@@ -73,14 +73,18 @@ func (tcp *tcpClient) connect(router *Switch) error {
 		} else {
 			retries = 0
 			retryDelay = RETRY_MIN_DELAY
+			eof := make(chan struct{})
 
 			go func() {
 				for {
-					msg := <-tcp.ch
-					infof("TCP  relaying message %v to %v", msg.id, socket.RemoteAddr())
-					tcp.send(socket, msg.id, msg.message)
+					select {
+					case msg := <-tcp.ch:
+						infof("TCP  relaying message %v to %v", msg.id, socket.RemoteAddr())
+						tcp.send(socket, msg.id, msg.message)
 
-					// TODO terminate on socket close
+					case <-eof:
+						return
+					}
 				}
 			}()
 
@@ -91,6 +95,8 @@ func (tcp *tcpClient) connect(router *Switch) error {
 					warnf("TCP  connection to %v error (%v)", tcp.addr, err)
 				}
 			}
+
+			close(eof)
 		}
 
 		infof("TCP  connection failed ... retrying in %v", retryDelay)
