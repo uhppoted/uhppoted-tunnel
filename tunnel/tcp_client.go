@@ -50,23 +50,7 @@ func (tcp *tcpClient) Run(relay relay) error {
 	return tcp.connect(&router)
 }
 
-func (tcp *tcpClient) Send(id uint32, message []byte) []byte {
-	fmt.Printf(">>>>> SEND\n")
-
-	select {
-	case tcp.ch <- message:
-		fmt.Printf(">>>>> SENT!!\n")
-
-	default:
-		fmt.Printf(">>>>> DUNNO/WEIRDNESS\n")
-	}
-	// for c, _ := range tcp.connections {
-	// 	if reply := tcp.send(c, message); reply != nil && len(reply) > 0 {
-	// 		return reply
-	// 	}
-	// }
-
-	return nil
+func (tcp *tcpClient) Send(id uint32, message []byte) {
 }
 
 func (tcp *tcpClient) connect(router *Switch) error {

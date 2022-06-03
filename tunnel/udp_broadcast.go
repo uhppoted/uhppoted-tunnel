@@ -56,7 +56,7 @@ func (udp *udpBroadcast) Run(relay relay) error {
 	return nil
 }
 
-func (udp *udpBroadcast) Send(id uint32, msg []byte) []byte {
+func (udp *udpBroadcast) Send(id uint32, msg []byte) {
 	go func() {
 		if reply := udp.send(id, msg); reply != nil {
 			udp.ch <- message{
@@ -65,8 +65,6 @@ func (udp *udpBroadcast) Send(id uint32, msg []byte) []byte {
 			}
 		}
 	}()
-
-	return nil
 }
 
 func (udp *udpBroadcast) send(id uint32, message []byte) []byte {

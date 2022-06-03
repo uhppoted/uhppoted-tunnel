@@ -43,7 +43,7 @@ func (tcp *tcpServer) Run(relay relay) error {
 	return tcp.listen(&router)
 }
 
-func (tcp *tcpServer) Send(id uint32, message []byte) []byte {
+func (tcp *tcpServer) Send(id uint32, message []byte) {
 	for c, _ := range tcp.connections {
 		if socket, ok := c.(*net.TCPConn); ok && socket != nil {
 			go func() {
@@ -51,8 +51,6 @@ func (tcp *tcpServer) Send(id uint32, message []byte) []byte {
 			}()
 		}
 	}
-
-	return nil
 }
 
 func (tcp *tcpServer) listen(router *Switch) error {

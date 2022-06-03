@@ -11,9 +11,7 @@ var handlers = map[uint32]func([]byte){}
 func (s *Switch) request(id uint32, message []byte, handler func([]byte)) {
 	go func() {
 		handlers[id] = handler
-		if reply := s.relay(id, message); reply != nil {
-			handler(reply)
-		}
+		s.relay(id, message)
 	}()
 }
 
