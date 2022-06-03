@@ -95,29 +95,24 @@ func (tcp *tcpServer) listen(router *Switch) error {
 	}
 }
 
-func (tcp *tcpServer) received(packet []byte, router *Switch, socket net.Conn) {
-	hex := dump(packet, "                                ")
-	debugf("TCP  received %v bytes from %v\n%s\n", len(packet), socket.RemoteAddr(), hex)
+func (tcp *tcpServer) received(buffer []byte, router *Switch, socket net.Conn) {
+	hex := dump(buffer, "                                ")
+	debugf("TCP  received %v bytes from %v\n%s\n", len(buffer), socket.RemoteAddr(), hex)
 
-	ix := 0
-	for ix < len(packet) {
-		size := uint(packet[ix])
-		size <<= 8
-		size += uint(packet[ix+1])
-
-		id, message := depacketize(packet[ix:])
+	var id uint32
+	var msg []byte
+	for len(buffer) > 0 {
+		id, msg, buffer = depacketize(buffer)
 
 		switch tcp.mode {
 		case ModeNormal:
-			router.reply(id, message)
+			router.reply(id, msg)
 
 		case ModeReverse:
-			router.request(id, message, func(message []byte) {
+			router.request(id, msg, func(message []byte) {
 				tcp.send(socket, id, message)
 			})
 		}
-
-		ix += 6 + int(size)
 	}
 }
 
