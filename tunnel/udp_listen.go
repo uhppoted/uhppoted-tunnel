@@ -42,7 +42,7 @@ func (udp *udpListen) Run(relay relay) error {
 	return udp.listen(&router)
 }
 
-func (udp *udpListen) Send(message []byte) []byte {
+func (udp *udpListen) Send(id uint32, message []byte) []byte {
 	return nil
 }
 

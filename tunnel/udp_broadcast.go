@@ -8,6 +8,12 @@ import (
 
 type udpBroadcast struct {
 	addr *net.UDPAddr
+	ch   chan message
+}
+
+type message struct {
+	id      uint32
+	message []byte
 }
 
 func NewUDPBroadcast(spec string) (*udpBroadcast, error) {
@@ -26,6 +32,7 @@ func NewUDPBroadcast(spec string) (*udpBroadcast, error) {
 
 	out := udpBroadcast{
 		addr: addr,
+		ch:   make(chan message),
 	}
 
 	return &out, nil
@@ -35,16 +42,36 @@ func (udp *udpBroadcast) Close() {
 }
 
 func (udp *udpBroadcast) Run(relay relay) error {
-	ch := make(chan bool)
+	router := Switch{
+		relay: relay,
+	}
 
-	<-ch
+	for {
+		select {
+		case msg := <-udp.ch:
+			router.reply(msg.id, msg.message)
+		}
+	}
 
 	return nil
 }
 
-func (udp *udpBroadcast) Send(message []byte) []byte {
-	hex := dump(message, "                           ")
-	debugf("broadcast%v\n%s\n", "", hex)
+func (udp *udpBroadcast) Send(id uint32, msg []byte) []byte {
+	go func() {
+		if reply := udp.send(id, msg); reply != nil {
+			udp.ch <- message{
+				id:      id,
+				message: reply,
+			}
+		}
+	}()
+
+	return nil
+}
+
+func (udp *udpBroadcast) send(id uint32, message []byte) []byte {
+	hex := dump(message, "                                ")
+	debugf("UDP  broadcast%v\n%s\n", "", hex)
 
 	if bind, err := net.ResolveUDPAddr("udp", "0.0.0.0:0"); err != nil {
 		warnf("%v", err)
@@ -66,15 +93,15 @@ func (udp *udpBroadcast) Send(message []byte) []byte {
 		if N, err := socket.WriteToUDP(message, udp.addr); err != nil {
 			warnf("%v", err)
 		} else {
-			debugf(" ... sent %v bytes to %v\n", N, udp.addr)
+			debugf("UDP  sent %v bytes to %v\n", N, udp.addr)
 
 			reply := make([]byte, 2048)
 
 			if N, remote, err := socket.ReadFromUDP(reply); err != nil {
 				warnf("%v", err)
 			} else {
-				hex := dump(reply[:N], "                         ")
-				debugf(" ... received %v bytes from %v\n%s", N, remote, hex)
+				hex := dump(reply[:N], "                                ")
+				debugf("UDP  received %v bytes from %v\n%s", N, remote, hex)
 
 				return reply[:N]
 			}

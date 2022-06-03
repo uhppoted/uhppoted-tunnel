@@ -14,7 +14,7 @@ type relay func(uint32, []byte) []byte
 type UDP interface {
 	Close()
 	Run(relay) error
-	Send([]byte) []byte
+	Send(uint32, []byte) []byte
 }
 
 type TCP interface {
@@ -43,7 +43,7 @@ func (t *Tunnel) Run(interrupt chan os.Signal) {
 	}
 
 	q := func(id uint32, message []byte) []byte {
-		return t.udp.Send(message)
+		return t.udp.Send(id, message)
 	}
 
 	go func() {

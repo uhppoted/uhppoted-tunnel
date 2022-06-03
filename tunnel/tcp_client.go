@@ -146,7 +146,6 @@ func (tcp *tcpClient) listen(socket net.Conn, router *Switch) error {
 			router.request(id, message, h)
 
 			// if reply := relay(id, message); reply != nil && len(reply) > 0 {
-			// 	fmt.Printf(">>> CLIENT/REPLYING: %v\n", id)
 			// 	packet := packetize(id, reply)
 			//
 			// 	if N, err := socket.Write(packet); err != nil {
