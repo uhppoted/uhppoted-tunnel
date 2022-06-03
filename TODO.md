@@ -3,7 +3,8 @@
 - [ ] Reverse tunnel
       - [ ] close client channel when socket closes
 
-- (?) Routing matrix
+- [ ] Routing matrix
+- [ ] depacketize should return the remaining buffer
 
 ## TCP server
 
