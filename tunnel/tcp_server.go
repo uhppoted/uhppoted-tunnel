@@ -10,10 +10,11 @@ import (
 type tcpServer struct {
 	addr        *net.TCPAddr
 	connections map[net.Conn]struct{}
+	mode        Mode
 	sync.RWMutex
 }
 
-func NewTCPServer(spec string) (*tcpServer, error) {
+func NewTCPServer(spec string, mode Mode) (*tcpServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -26,6 +27,7 @@ func NewTCPServer(spec string) (*tcpServer, error) {
 
 	out := tcpServer{
 		addr:        addr,
+		mode:        mode,
 		connections: map[net.Conn]struct{}{},
 	}
 
@@ -93,37 +95,28 @@ func (tcp *tcpServer) listen(router *Switch) error {
 	}
 }
 
-func (tcp *tcpServer) received(packet []byte, router *Switch, socket net.Conn) {
-	hex := dump(packet, "                                ")
-	debugf("TCP  received %v bytes from %v\n%s\n", len(packet), socket.RemoteAddr(), hex)
+func (tcp *tcpServer) received(buffer []byte, router *Switch, socket net.Conn) {
+	hex := dump(buffer, "                                ")
+	debugf("TCP  received %v bytes from %v\n%s\n", len(buffer), socket.RemoteAddr(), hex)
 
-	ix := 0
-	for ix < len(packet) {
-		size := uint(packet[ix])
-		size <<= 8
-		size += uint(packet[ix+1])
+	var id uint32
+	var msg []byte
+	for len(buffer) > 0 {
+		id, msg, buffer = depacketize(buffer)
 
-		id, message := depacketize(packet[ix:])
+		switch tcp.mode {
+		case ModeNormal:
+			router.reply(id, msg)
 
-		router.reply(id, message)
-
-		// if reply := relay(id, message); reply != nil && len(reply) > 0 {
-		// 	packet := packetize(id, reply)
-
-		// 	if N, err := socket.Write(packet); err != nil {
-		// 		warnf("error relaying reply to %v (%v)", socket.RemoteAddr(), err)
-		// 	} else if N != len(packet) {
-		// 		warnf("relayed reply with %v of %v bytes to %v", N, len(reply), socket.RemoteAddr())
-		// 	} else {
-		// 		infof("relayed reply with %v bytes to %v", len(reply), socket.RemoteAddr())
-		// 	}
-		// }
-
-		ix += 6 + int(size)
+		case ModeReverse:
+			router.request(id, msg, func(message []byte) {
+				tcp.send(socket, id, message)
+			})
+		}
 	}
 }
 
-func (tcp *tcpServer) send(conn *net.TCPConn, id uint32, message []byte) {
+func (tcp *tcpServer) send(conn net.Conn, id uint32, message []byte) {
 	packet := packetize(id, message)
 
 	if N, err := conn.Write(packet); err != nil {

@@ -12,12 +12,13 @@ type tcpClient struct {
 	maxRetries    int
 	maxRetryDelay time.Duration
 	timeout       time.Duration
-	ch            chan []byte
+	mode          Mode
+	ch            chan message
 }
 
 const RETRY_MIN_DELAY = 5 * time.Second
 
-func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tcpClient, error) {
+func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration, mode Mode) (*tcpClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -32,7 +33,8 @@ func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tc
 		maxRetries:    maxRetries,
 		maxRetryDelay: maxRetryDelay,
 		timeout:       5 * time.Second,
-		ch:            make(chan []byte),
+		mode:          mode,
+		ch:            make(chan message),
 	}
 
 	return &in, nil
@@ -50,7 +52,11 @@ func (tcp *tcpClient) Run(relay relay) error {
 	return tcp.connect(&router)
 }
 
-func (tcp *tcpClient) Send(id uint32, message []byte) {
+func (tcp *tcpClient) Send(id uint32, msg []byte) {
+	select {
+	case tcp.ch <- message{id: id, message: msg}:
+	default:
+	}
 }
 
 func (tcp *tcpClient) connect(router *Switch) error {
@@ -67,14 +73,20 @@ func (tcp *tcpClient) connect(router *Switch) error {
 		} else {
 			retries = 0
 			retryDelay = RETRY_MIN_DELAY
+			eof := make(chan struct{})
 
-			// go func() {
-			// 	for {
-			// 		msg := <-tcp.ch
-			// 		infof("TCP  relaying %v bytes to %v", len(msg), socket.RemoteAddr())
-			// 		tcp.send(socket, msg)
-			// 	}
-			// }()
+			go func() {
+				for {
+					select {
+					case msg := <-tcp.ch:
+						infof("TCP  relaying message %v to %v", msg.id, socket.RemoteAddr())
+						tcp.send(socket, msg.id, msg.message)
+
+					case <-eof:
+						return
+					}
+				}
+			}()
 
 			if err := tcp.listen(socket, router); err != nil {
 				if err == io.EOF {
@@ -83,6 +95,8 @@ func (tcp *tcpClient) connect(router *Switch) error {
 					warnf("TCP  connection to %v error (%v)", tcp.addr, err)
 				}
 			}
+
+			close(eof)
 		}
 
 		infof("TCP  connection failed ... retrying in %v", retryDelay)
@@ -104,57 +118,49 @@ func (tcp *tcpClient) listen(socket net.Conn, router *Switch) error {
 
 	defer socket.Close()
 
-	buffer := make([]byte, 2048)
-
 	for {
+		buffer := make([]byte, 2048)
 		N, err := socket.Read(buffer)
 		if err != nil {
 			return err
 		}
 
-		hex := dump(buffer[:N], "                                ")
-		debugf("TCP  received %v bytes from %v\n%s\n", N, socket.RemoteAddr(), hex)
+		tcp.received(buffer[:N], router, socket)
+	}
+}
 
-		ix := 0
-		for ix < N {
-			size := uint(buffer[ix])
-			size <<= 8
-			size += uint(buffer[ix+1])
+func (tcp *tcpClient) received(buffer []byte, router *Switch, socket net.Conn) {
+	hex := dump(buffer, "                                ")
+	debugf("TCP  received %v bytes from %v\n%s\n", len(buffer), socket.RemoteAddr(), hex)
 
-			id, message := depacketize(buffer[ix:])
+	var id uint32
+	var msg []byte
+	for len(buffer) > 0 {
+		id, msg, buffer = depacketize(buffer)
 
-			h := func(message []byte) {
-				tcp.send(socket, id, message)
-			}
+		h := func(message []byte) {
+			tcp.send(socket, id, message)
+		}
 
-			router.request(id, message, h)
+		switch tcp.mode {
+		case ModeNormal:
+			router.request(id, msg, h)
 
-			// if reply := relay(id, message); reply != nil && len(reply) > 0 {
-			// 	packet := packetize(id, reply)
-			//
-			// 	if N, err := socket.Write(packet); err != nil {
-			// 		warnf("error relaying reply to %v (%v)", socket.RemoteAddr(), err)
-			// 	} else if N != len(packet) {
-			// 		warnf("relayed reply with %v of %v bytes to %v", N, len(reply), socket.RemoteAddr())
-			// 	} else {
-			// 		infof("relayed reply with %v bytes to %v", len(reply), socket.RemoteAddr())
-			// 	}
-			// }
-
-			ix += 6 + int(size)
+		case ModeReverse:
+			router.reply(id, msg)
 		}
 	}
 }
 
-func (tcp *tcpClient) send(conn net.Conn, id uint32, message []byte) []byte {
-	packet := packetize(id, message)
+func (tcp *tcpClient) send(conn net.Conn, id uint32, msg []byte) []byte {
+	packet := packetize(id, msg)
 
 	if N, err := conn.Write(packet); err != nil {
 		warnf("error sending message to %v (%v)", conn.RemoteAddr(), err)
 	} else if N != len(packet) {
-		warnf("TCP  sent %v of %v bytes to %v", N, len(message), conn.RemoteAddr())
+		warnf("TCP  sent %v of %v bytes to %v", N, len(msg), conn.RemoteAddr())
 	} else {
-		infof("TCP  sent %v bytes to %v", len(message), conn.RemoteAddr())
+		infof("TCP  sent %v bytes to %v", len(msg), conn.RemoteAddr())
 	}
 
 	return nil

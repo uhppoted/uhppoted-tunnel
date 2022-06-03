@@ -9,6 +9,17 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/log"
 )
 
+type Mode int
+
+const (
+	ModeNormal Mode = iota
+	ModeReverse
+)
+
+func (m Mode) String() string {
+	return []string{"normal", "reverse"}[m]
+}
+
 type relay func(uint32, []byte)
 
 type UDP interface {
