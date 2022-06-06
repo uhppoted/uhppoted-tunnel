@@ -2,19 +2,21 @@
 
 # uhppoted-tunnel
 
+_IN DEVELOPMENT_
+
 Tunnels UDP packets between a pair of machines to enable UHPPOTE controller remote access.
 
 Technically it's not really a tunnel, except in the sense that as a packet you enter a dark
 forbidding hole, mysterious and possibly unspeakable things occur and you emerge some time
 later blinking in the light in an entirely different place. So probably more a relay or a 
-proxy .. but we're going to go with _tunnel_ anyway.
+proxy .. but we're going with _tunnel_ anyway.
 
 ## Raison d'être
 
 For those **so** annoying times when it would ne nice to run the UHPPOTE _AccessControl_ application
 but the controller is in one place and the host machine is in another (or perhaps on a VPS in Norway) 
 which means UDP broadcast doesn't just work. And poking holes in the firewall and/or fixing the NAT
-or setting up a VPN is just more trouble than it's worth.
+or setting up a VPN is either not going to happen or is more trouble than it's worth.
 
 Also useful for remotely using
 - [uhppote-cli](https://github.com/uhppoted/uhppote-cli)
@@ -110,13 +112,44 @@ background.
 
 Command line:
 
-` uhppoted-tunnel [--debug] [--console]`
+` uhppoted-tunnel [--debug] [--console] --udp <UDP spec> --pipe <pipe spec>`
 
 ```
-  --console     Runs the HTTP server endpoint as a console application, logging events to the console.
+  --udp <spec> Defines the tunnel UDP connection. May be: 
+               - listen:<UDP bind address> (e.g. --udp listen:0.0.0.0:60000)
+               - broadcast:<UDP broadcast address> (e.g. --udp broadcast:192.168.1.255:60005)
+
+  --pipe <spec> Defines the tunnel pair TCP connection. May be: 
+                - tcp/server:<TCP bind address> (e.g. --pipe tcp/server:0.0.0.0:12345)
+                - tcp/client:<TCP connect address> (e.g. --pipe tcp/client:127.0.0.1:12345)
+
+  --console     Runs the UDP tunnel as a console application, logging events to the console.
   --debug       Displays verbose debugging information, in particular the communications with the 
                 UHPPOTE controllers
 ```
+
+Tunnels operate in pairs - one on the 'host', listening for commands from e.g. the _AccessControl_ application
+or _uhppote-cli_ and the other on the 'client' local to the controller, which sends the commands to the controller(s)
+and returns the replies to the 'host'.
+
+A 'normal' tunnel has the 'host' configured as a TCP server to listen for incoming connections from the client e.g.:
+```
+host
+  uhppoted-tunnel --udp listen:0.0.0.0:60000          --pipe tcp/server:0.0.0.0:12345
+
+client
+  uhppoted-tunne; --udp broadcast:192.168.1.255:60005 --pipe tcp/client:127.0.0.1:12345
+```
+
+A 'reverse' connection has the 'host' configured as TCP client, connecting to the 'client' e.g.:
+```
+host
+   uhppoted-tunnel --udp listen:0.0.0.0:60000 --pipe tcp/client:127.0.0.1:12345
+
+client
+   uhppoted-tunnel --udp broadcast:192.168.1.255:60005 --pipe tcp/server:0.0.0.0:12345
+```
+
 
 ### `daemonize`
 

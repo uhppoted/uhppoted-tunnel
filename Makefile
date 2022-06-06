@@ -41,7 +41,6 @@ vet: test
 
 lint: vet
 	golint ./...
-	npx eslint httpd/html/javascript/*.js
 
 benchmark: build
 	go test -count 5 -bench=.  ./system/events
@@ -68,8 +67,8 @@ debug: build
 	go test -run Test ./...
 
 delve: build
-#   dlv exec ./bin/uhppoted-httpd -- --debug --console
-	dlv test github.com/uhppoted/uhppoted-httpd/system/interfaces -- run TestLANSet
+#   dlv exec ./bin/uhppoted-tunnel -- --debug --console
+	dlv test github.com/uhppoted/uhppoted-tunnel -- run Test*
 
 version: build
 	$(CMD) version
@@ -95,9 +94,9 @@ reverse-client: build
 vultr: build
 	$(CMD) --debug --console --remote 66.42.65.202:8080
 
-daemonize: build
-	sudo $(CMD) daemonize
+# daemonize: build
+# 	sudo $(CMD) daemonize
 
-undaemonize: build
-	sudo $(CMD) undaemonize
+# undaemonize: build
+# 	sudo $(CMD) undaemonize
 
