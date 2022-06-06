@@ -13,6 +13,7 @@
 - [ ] Make UDP broadcast timeout configurable
 
 ## Miscellaneous
+- [ ] Remove dependency on uhppoted-lib and uhppote-core
 - [ ] Encode packet with protocol buffers
 - [ ] lockfiles
       - command line option

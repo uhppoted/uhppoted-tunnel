@@ -76,6 +76,7 @@ Without using `make`:
 ```
 git clone https://github.com/uhppoted/uhppoted-tunnel.git
 cd uhppoted-tunnel
+mkdir bin
 go build -trimpath -o bin ./...
 ```
 
@@ -128,20 +129,21 @@ Command line:
                 UHPPOTE controllers
 ```
 
-Tunnels operate in pairs - one on the 'host', listening for commands from e.g. the _AccessControl_ application
-or _uhppote-cli_ and the other on the 'client' local to the controller, which sends the commands to the controller(s)
-and returns the replies to the 'host'.
+Tunnels operate in pairs - one on the _host_, listening for commands from e.g. the _AccessControl_ application
+or _uhppote-cli_ and the other on the _client_ local to the controller, which sends the commands to the controller(s)
+and returns the replies to the _host_.
 
-A 'normal' tunnel has the 'host' configured as a TCP server to listen for incoming connections from the client e.g.:
+A _normal_ tunnel has the _host_ configured as a TCP server to listen for incoming connections from the client
+machine e.g.:
 ```
 host
-  uhppoted-tunnel --udp listen:0.0.0.0:60000          --pipe tcp/server:0.0.0.0:12345
+  uhppoted-tunnel --udp listen:0.0.0.0:60000  --pipe tcp/server:0.0.0.0:12345
 
 client
   uhppoted-tunne; --udp broadcast:192.168.1.255:60005 --pipe tcp/client:127.0.0.1:12345
 ```
 
-A 'reverse' connection has the 'host' configured as TCP client, connecting to the 'client' e.g.:
+A _reverse_ connection has the _host_ configured as a TCP client, connecting to the _client_ machine e.g.:
 ```
 host
    uhppoted-tunnel --udp listen:0.0.0.0:60000 --pipe tcp/client:127.0.0.1:12345
