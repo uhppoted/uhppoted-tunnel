@@ -82,7 +82,7 @@ func (udp *udpBroadcast) send(id uint32, message []byte) []byte {
 			warnf("%v", err)
 		}
 
-		if err := socket.SetReadDeadline(time.Now().Add(5000 * time.Millisecond)); err != nil {
+		if err := socket.SetReadDeadline(time.Now().Add(1000 * time.Millisecond)); err != nil {
 			warnf("%v", err)
 		}
 

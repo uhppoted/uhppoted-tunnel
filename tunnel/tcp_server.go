@@ -99,10 +99,8 @@ func (tcp *tcpServer) received(buffer []byte, router *Switch, socket net.Conn) {
 	hex := dump(buffer, "                                ")
 	debugf("TCP  received %v bytes from %v\n%s\n", len(buffer), socket.RemoteAddr(), hex)
 
-	var id uint32
-	var msg []byte
 	for len(buffer) > 0 {
-		id, msg, buffer = depacketize(buffer)
+		id, msg, remaining := depacketize(buffer)
 
 		switch tcp.mode {
 		case ModeNormal:
@@ -113,6 +111,8 @@ func (tcp *tcpServer) received(buffer []byte, router *Switch, socket net.Conn) {
 				tcp.send(socket, id, message)
 			})
 		}
+
+		buffer = remaining
 	}
 }
 
@@ -120,10 +120,10 @@ func (tcp *tcpServer) send(conn net.Conn, id uint32, message []byte) {
 	packet := packetize(id, message)
 
 	if N, err := conn.Write(packet); err != nil {
-		warnf("error sending message to %v (%v)", conn.RemoteAddr(), err)
+		warnf("TCP  msg %v  error sending message to %v (%v)", id, conn.RemoteAddr(), err)
 	} else if N != len(packet) {
-		warnf("TCP  sent %v of %v bytes to %v", N, len(message), conn.RemoteAddr())
+		warnf("TCP  msg %v  sent %v of %v bytes to %v", id, N, len(message), conn.RemoteAddr())
 	} else {
-		infof("TCP  sent %v bytes to %v", len(message), conn.RemoteAddr())
+		infof("TCP  msg %v sent %v bytes to %v", id, len(message), conn.RemoteAddr())
 	}
 }
