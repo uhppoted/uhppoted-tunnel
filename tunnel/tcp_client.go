@@ -34,7 +34,7 @@ func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration, mode
 		maxRetryDelay: maxRetryDelay,
 		timeout:       5 * time.Second,
 		mode:          mode,
-		ch:            make(chan message),
+		ch:            make(chan message, 16),
 	}
 
 	return &in, nil
@@ -79,7 +79,7 @@ func (tcp *tcpClient) connect(router *Switch) error {
 				for {
 					select {
 					case msg := <-tcp.ch:
-						infof("TCP  relaying message %v to %v", msg.id, socket.RemoteAddr())
+						infof("TCP  msg %v  relaying to %v", msg.id, socket.RemoteAddr())
 						tcp.send(socket, msg.id, msg.message)
 
 					case <-eof:
@@ -125,7 +125,9 @@ func (tcp *tcpClient) listen(socket net.Conn, router *Switch) error {
 			return err
 		}
 
-		tcp.received(buffer[:N], router, socket)
+		go func() {
+			tcp.received(buffer[:N], router, socket)
+		}()
 	}
 }
 
