@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"net"
+
+	"github.com/uhppoted/uhppoted-tunnel/router"
 )
 
 type udpListen struct {
@@ -34,18 +36,14 @@ func NewUDPListen(spec string) (*udpListen, error) {
 func (udp *udpListen) Close() {
 }
 
-func (udp *udpListen) Run(relay relay) error {
-	router := Switch{
-		relay: relay,
-	}
-
-	return udp.listen(&router)
+func (udp *udpListen) Run(router *router.Switch) error {
+	return udp.listen(router)
 }
 
 func (udp *udpListen) Send(id uint32, message []byte) {
 }
 
-func (udp *udpListen) listen(router *Switch) error {
+func (udp *udpListen) listen(router *router.Switch) error {
 	socket, err := net.ListenUDP("udp", udp.addr)
 	if err != nil {
 		return fmt.Errorf("Error creating UDP listen socket (%v)", err)
@@ -55,41 +53,34 @@ func (udp *udpListen) listen(router *Switch) error {
 
 	defer socket.Close()
 
-	infof("UDP  listening on %v", udp.addr)
+	infof("UDP", "listening on %v", udp.addr)
 
 	for {
 		buffer := make([]byte, 2048) // NTS buffer is handed off to router
 
 		if N, remote, err := socket.ReadFromUDP(buffer); err != nil {
 			if err == io.EOF {
-				infof("UDP  listen socket %v closed ", socket)
+				infof("UDP", "listen socket %v closed ", socket)
 				break
 			}
-			warnf("UDP  error reading from socket (%v)", err)
+			warnf("UDP", "error reading from socket (%v)", err)
 		} else {
 			id := nextID()
-			udp.dump(buffer[:N], "request %v  %v bytes from %v", id, N, remote)
+			dumpf(buffer[:N], "UDP  request %v  %v bytes from %v", id, N, remote)
 
 			h := func(reply []byte) {
-				udp.dump(reply, "reply  %v bytes for %v", len(reply), remote)
+				dumpf(reply, "UDP  reply %v  %v bytes for %v", id, len(reply), remote)
 
 				if N, err := socket.WriteToUDP(reply, remote); err != nil {
-					warnf("%v", err)
+					warnf("UDP", "%v", err)
 				} else {
 					debugf("UDP  sent %v bytes to %v\n", N, remote)
 				}
 			}
 
-			router.request(id, buffer[:N], h)
+			router.Request(id, buffer[:N], h)
 		}
 	}
 
 	return nil
-}
-
-func (udp *udpListen) dump(message []byte, format string, args ...any) {
-	hex := dump(message, "                                ")
-	preamble := fmt.Sprintf(format, args...)
-
-	debugf("UDP  %v\n%s", preamble, hex)
 }

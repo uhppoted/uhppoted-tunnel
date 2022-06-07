@@ -1,16 +1,11 @@
 # TODO
 
-- [x] Reverse tunnel
-- [x] `depacketize` should return the remaining buffer
-- [x] Cleanup TCPClient on broken pipe
-- [x] Check works with multiple replies
-- [x] reverse-host/client: not always getting all replies
-
-- [ ] Move handlers back to TCP/UDP and just use s.relay in switch
-- [ ] Clean up switch handlers after timeout
+- [x] Clean up handlers after timeout
+- [ ] enable debug if --debug
 - [ ] Routing matrix
 - [ ] Replace handler functions with channels
 - [ ] Make UDP broadcast timeout configurable
+- [ ] Close()
 
 ## Miscellaneous
 - [ ] Remove dependency on uhppoted-lib and uhppote-core

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net"
 	"time"
+
+	"github.com/uhppoted/uhppoted-tunnel/router"
 )
 
 type udpBroadcast struct {
@@ -41,15 +43,11 @@ func NewUDPBroadcast(spec string) (*udpBroadcast, error) {
 func (udp *udpBroadcast) Close() {
 }
 
-func (udp *udpBroadcast) Run(relay relay) error {
-	router := Switch{
-		relay: relay,
-	}
-
+func (udp *udpBroadcast) Run(router *router.Switch) error {
 	for {
 		select {
 		case msg := <-udp.ch:
-			router.reply(msg.id, msg.message)
+			router.Reply(msg.id, msg.message)
 		}
 	}
 }
@@ -70,31 +68,31 @@ func (udp *udpBroadcast) send(id uint32, message []byte) []byte {
 	debugf("UDP  broadcast%v\n%s\n", "", hex)
 
 	if bind, err := net.ResolveUDPAddr("udp", "0.0.0.0:0"); err != nil {
-		warnf("%v", err)
+		warnf("UDP", "%v", err)
 	} else if socket, err := net.ListenUDP("udp", bind); err != nil {
-		warnf("%v", err)
+		warnf("UDP", "%v", err)
 	} else if socket == nil {
-		warnf("invalid UDP socket (%v)", socket)
+		warnf("UDP", "invalid UDP socket (%v)", socket)
 	} else {
 		defer socket.Close()
 
 		if err := socket.SetWriteDeadline(time.Now().Add(1000 * time.Millisecond)); err != nil {
-			warnf("%v", err)
+			warnf("UDP", "%v", err)
 		}
 
 		if err := socket.SetReadDeadline(time.Now().Add(1000 * time.Millisecond)); err != nil {
-			warnf("%v", err)
+			warnf("UDP", "%v", err)
 		}
 
 		if N, err := socket.WriteToUDP(message, udp.addr); err != nil {
-			warnf("%v", err)
+			warnf("UDP", "%v", err)
 		} else {
 			debugf("UDP  sent %v bytes to %v\n", N, udp.addr)
 
 			reply := make([]byte, 2048)
 
 			if N, remote, err := socket.ReadFromUDP(reply); err != nil {
-				warnf("%v", err)
+				warnf("UDP", "%v", err)
 			} else {
 				hex := dump(reply[:N], "                                ")
 				debugf("UDP  received %v bytes from %v\n%s", N, remote, hex)

@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/uhppoted/uhppoted-tunnel/log"
+	"github.com/uhppoted/uhppoted-tunnel/router"
 )
 
 type Mode int
@@ -20,17 +21,15 @@ func (m Mode) String() string {
 	return []string{"normal", "reverse"}[m]
 }
 
-type relay func(uint32, []byte)
-
 type UDP interface {
 	Close()
-	Run(relay) error
+	Run(*router.Switch) error
 	Send(uint32, []byte)
 }
 
 type TCP interface {
 	Close()
-	Run(relay) error
+	Run(*router.Switch) error
 	Send(uint32, []byte)
 }
 
@@ -47,30 +46,31 @@ func NewTunnel(udp UDP, tcp TCP) *Tunnel {
 }
 
 func (t *Tunnel) Run(interrupt chan os.Signal) {
-	infof("%v", "uhppoted-tunnel::run")
+	infof("", "%v", "uhppoted-tunnel::run")
 
-	p := func(id uint32, message []byte) {
-		t.tcp.Send(id, message)
-	}
-
-	q := func(id uint32, message []byte) {
+	q := router.NewSwitch(func(id uint32, message []byte) {
 		t.udp.Send(id, message)
-	}
+	})
+
+	p := router.NewSwitch(func(id uint32, message []byte) {
+		t.tcp.Send(id, message)
+	})
 
 	go func() {
-		if err := t.udp.Run(p); err != nil {
+		if err := t.udp.Run(&p); err != nil {
 			fatalf("%v", err)
 		}
 	}()
 
 	go func() {
-		if err := t.tcp.Run(q); err != nil {
+		if err := t.tcp.Run(&q); err != nil {
 			fatalf("%v", err)
 		}
 	}()
 
 	<-interrupt
 
+	router.Close()
 	t.udp.Close()
 	t.tcp.Close()
 }
@@ -81,20 +81,33 @@ func dump(m []byte, prefix string) string {
 	return fmt.Sprintf("%s", regex.ReplaceAllString(hex.Dump(m), prefix+"$1"))
 }
 
+func dumpf(message []byte, format string, args ...any) {
+	hex := dump(message, "                                ")
+	preamble := fmt.Sprintf(format, args...)
+
+	debugf("UDP  %v\n%s", preamble, hex)
+}
+
 func debugf(format string, args ...any) {
 	log.Debugf(format, args...)
 }
 
-func infof(format string, args ...any) {
-	log.Infof(format, args...)
+func infof(tag string, format string, args ...any) {
+	f := fmt.Sprintf("%-5v %v", tag, format)
+
+	log.Infof(f, args...)
 }
 
-func warnf(format string, args ...any) {
-	log.Warnf(format, args...)
+func warnf(tag, format string, args ...any) {
+	f := fmt.Sprintf("%-5v %v", tag, format)
+
+	log.Warnf(f, args...)
 }
 
-func errorf(format string, args ...any) {
-	log.Errorf(format, args...)
+func errorf(tag string, format string, args ...any) {
+	f := fmt.Sprintf("%-5v %v", tag, format)
+
+	log.Errorf(f, args...)
 }
 
 func fatalf(format string, args ...any) {

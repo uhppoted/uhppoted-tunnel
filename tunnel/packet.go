@@ -28,7 +28,7 @@ func packetize(id uint32, message []byte) []byte {
 
 func depacketize(buffer []byte) (uint32, []byte, []byte) {
 	if len(buffer) < 6 {
-		warnf("invalid packet (%v bytes)", len(buffer))
+		warnf("", "invalid packet (%v bytes)", len(buffer))
 	} else {
 		N := int(buffer[0])
 		N <<= 8
@@ -43,7 +43,7 @@ func depacketize(buffer []byte) (uint32, []byte, []byte) {
 		id += uint32(buffer[5])
 
 		if N > len(buffer[6:]) {
-			warnf("invalid packet - expected %v bytes, got %v bytes", N+6, len(buffer))
+			warnf("", "invalid packet - expected %v bytes, got %v bytes", N+6, len(buffer))
 		} else {
 			return id, buffer[6 : 6+N], buffer[6+N:]
 		}

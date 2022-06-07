@@ -5,6 +5,8 @@ import (
 	"io"
 	"net"
 	"sync"
+
+	"github.com/uhppoted/uhppoted-tunnel/router"
 )
 
 type tcpServer struct {
@@ -37,12 +39,8 @@ func NewTCPServer(spec string, mode Mode) (*tcpServer, error) {
 func (tcp *tcpServer) Close() {
 }
 
-func (tcp *tcpServer) Run(relay relay) error {
-	router := Switch{
-		relay: relay,
-	}
-
-	return tcp.listen(&router)
+func (tcp *tcpServer) Run(router *router.Switch) error {
+	return tcp.listen(router)
 }
 
 func (tcp *tcpServer) Send(id uint32, message []byte) {
@@ -55,22 +53,22 @@ func (tcp *tcpServer) Send(id uint32, message []byte) {
 	}
 }
 
-func (tcp *tcpServer) listen(router *Switch) error {
+func (tcp *tcpServer) listen(router *router.Switch) error {
 	socket, err := net.Listen("tcp", fmt.Sprintf("%v", tcp.addr))
 	if err != nil {
 		return err
 	}
 
-	infof("TCP  listening on %v", socket.Addr())
+	infof("TCP", "listening on %v", socket.Addr())
 
 	for {
 		if client, err := socket.Accept(); err != nil {
-			errorf("%v", err)
+			errorf("TCP", "%v", err)
 		} else {
-			infof("TCP  incoming connection (%v)", client.RemoteAddr())
+			infof("TCP", "incoming connection (%v)", client.RemoteAddr())
 
 			if socket, ok := client.(*net.TCPConn); !ok {
-				errorf("TCP  %v", "invalid TCP socket")
+				errorf("TCP", "%v", "invalid TCP socket")
 			} else {
 				tcp.Lock()
 				tcp.connections[socket] = struct{}{}
@@ -81,10 +79,10 @@ func (tcp *tcpServer) listen(router *Switch) error {
 						buffer := make([]byte, 2048) // buffer is handed off to router
 						if N, err := socket.Read(buffer); err != nil {
 							if err == io.EOF {
-								infof("TCP  client connection %v closed ", socket.RemoteAddr())
+								infof("TCP", "client connection %v closed ", socket.RemoteAddr())
 								break
 							}
-							warnf("TCP  error reading from socket (%v)", err)
+							warnf("TCP", "error reading from socket (%v)", err)
 						} else {
 							tcp.received(buffer[:N], router, socket)
 						}
@@ -95,7 +93,7 @@ func (tcp *tcpServer) listen(router *Switch) error {
 	}
 }
 
-func (tcp *tcpServer) received(buffer []byte, router *Switch, socket net.Conn) {
+func (tcp *tcpServer) received(buffer []byte, router *router.Switch, socket net.Conn) {
 	hex := dump(buffer, "                                ")
 	debugf("TCP  received %v bytes from %v\n%s\n", len(buffer), socket.RemoteAddr(), hex)
 
@@ -104,10 +102,10 @@ func (tcp *tcpServer) received(buffer []byte, router *Switch, socket net.Conn) {
 
 		switch tcp.mode {
 		case ModeNormal:
-			router.reply(id, msg)
+			router.Reply(id, msg)
 
 		case ModeReverse:
-			router.request(id, msg, func(message []byte) {
+			router.Request(id, msg, func(message []byte) {
 				tcp.send(socket, id, message)
 			})
 		}
@@ -120,10 +118,10 @@ func (tcp *tcpServer) send(conn net.Conn, id uint32, message []byte) {
 	packet := packetize(id, message)
 
 	if N, err := conn.Write(packet); err != nil {
-		warnf("TCP  msg %v  error sending message to %v (%v)", id, conn.RemoteAddr(), err)
+		warnf("TCP", "msg %v  error sending message to %v (%v)", id, conn.RemoteAddr(), err)
 	} else if N != len(packet) {
-		warnf("TCP  msg %v  sent %v of %v bytes to %v", id, N, len(message), conn.RemoteAddr())
+		warnf("TCP", "msg %v  sent %v of %v bytes to %v", id, N, len(message), conn.RemoteAddr())
 	} else {
-		infof("TCP  msg %v sent %v bytes to %v", id, len(message), conn.RemoteAddr())
+		infof("TCP", "msg %v sent %v bytes to %v", id, len(message), conn.RemoteAddr())
 	}
 }
