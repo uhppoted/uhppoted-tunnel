@@ -2,11 +2,11 @@
 
 - [x] Change command line args to `--portal` and `--pipe`
 - [x] Remove _mode_ hack
-- [ ] Enable debug if --debug
+- [x] Enable debug if --debug
+- [ ] Close()
 - [ ] Routing matrix
 - (?) Replace handler functions with channels
 - [ ] Make UDP broadcast timeout configurable
-- [ ] Close()
 - [ ] lockfiles
       - command line option
 

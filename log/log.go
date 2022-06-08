@@ -5,8 +5,12 @@ import (
 	syslog "log"
 )
 
+var Debug = false
+
 func Debugf(format string, args ...any) {
-	syslog.Printf("%-5v  %v", "DEBUG", fmt.Sprintf(format, args...))
+	if Debug {
+		syslog.Printf("%-5v  %v", "DEBUG", fmt.Sprintf(format, args...))
+	}
 }
 
 func Infof(format string, args ...any) {

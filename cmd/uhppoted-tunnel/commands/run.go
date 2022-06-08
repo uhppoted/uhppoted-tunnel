@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/uhppoted/uhppoted-tunnel/log"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
 )
 
@@ -142,5 +143,7 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 }
 
 func (cmd *Run) run(t *tunnel.Tunnel, interrupt chan os.Signal) {
+	log.Debug = cmd.debug
+
 	t.Run(interrupt)
 }
