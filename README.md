@@ -13,9 +13,9 @@ proxy .. but we're going with _tunnel_ anyway.
 
 ## Raison d'être
 
-For those **so** annoying times when it would ne nice to run the UHPPOTE _AccessControl_ application
+For those **so** annoying times when it would be nice to run the UHPPOTE _AccessControl_ application
 but the controller is in one place and the host machine is in another (or perhaps on a VPS in Norway) 
-which means UDP broadcast doesn't just work. And poking holes in the firewall and/or fixing the NAT
+which means UDP broadcast doesn't just work. And poking holes in the firewall and tweaking the NAT
 or setting up a VPN is either not going to happen or is more trouble than it's worth.
 
 Also useful for remotely using
@@ -76,8 +76,7 @@ Without using `make`:
 ```
 git clone https://github.com/uhppoted/uhppoted-tunnel.git
 cd uhppoted-tunnel
-mkdir bin
-go build -trimpath -o bin ./...
+go build -trimpath -o bin/ ./...
 ```
 
 The above commands build the `uhppoted-tunnel` executable to the `bin` directory.
@@ -171,5 +170,4 @@ Command line:
 
 `uhppoted-tunnel undaemonize `
 
-## Supporting files
 
