@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"sync"
 
 	"github.com/uhppoted/uhppoted-tunnel/log"
 	"github.com/uhppoted/uhppoted-tunnel/router"
@@ -59,9 +60,28 @@ func (t *Tunnel) Run(interrupt chan os.Signal) {
 
 	<-interrupt
 
-	router.Close()
-	t.udp.Close()
-	t.tcp.Close()
+	infof("","closing")
+
+	var wg sync.WaitGroup
+
+	wg.Add(3)
+	go func() {
+		defer wg.Done()
+		router.Close()
+	}()
+
+	go func() {
+		defer wg.Done()
+		t.udp.Close()
+	}()
+
+	go func() {
+		defer wg.Done()
+		t.tcp.Close()
+	}()
+
+	wg.Wait()
+	infof("","closed")
 }
 
 func dump(m []byte, prefix string) string {

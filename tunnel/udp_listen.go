@@ -9,7 +9,8 @@ import (
 )
 
 type udpListen struct {
-	addr *net.UDPAddr
+	addr   *net.UDPAddr
+	closed chan struct{}
 }
 
 func NewUDPListen(spec string) (*udpListen, error) {
@@ -27,23 +28,18 @@ func NewUDPListen(spec string) (*udpListen, error) {
 	}
 
 	udp := udpListen{
-		addr: addr,
+		addr:   addr,
+		closed: make(chan struct{}),
 	}
 
 	return &udp, nil
 }
 
 func (udp *udpListen) Close() {
+	close(udp.closed)
 }
 
 func (udp *udpListen) Run(router *router.Switch) error {
-	return udp.listen(router)
-}
-
-func (udp *udpListen) Send(id uint32, message []byte) {
-}
-
-func (udp *udpListen) listen(router *router.Switch) error {
 	socket, err := net.ListenUDP("udp", udp.addr)
 	if err != nil {
 		return fmt.Errorf("Error creating UDP listen socket (%v)", err)
@@ -53,6 +49,19 @@ func (udp *udpListen) listen(router *router.Switch) error {
 
 	defer socket.Close()
 
+	go func() {
+		udp.listen(socket, router)
+	}()
+
+	<-udp.closed
+
+	return nil
+}
+
+func (udp *udpListen) Send(id uint32, message []byte) {
+}
+
+func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) error {
 	infof("UDP", "listening on %v", udp.addr)
 
 	for {

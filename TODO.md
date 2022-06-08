@@ -4,6 +4,13 @@
 - [x] Remove _mode_ hack
 - [x] Enable debug if --debug
 - [ ] Close()
+      - [ ] shutdown cleanly
+            - [x] router
+            - [ ] UDP broadcast
+            - [ ] UDP listen
+            - [ ] TCP client
+            - [ ] TCP server
+      - [ ] with timeout
 - [ ] Routing matrix
 - (?) Replace handler functions with channels
 - [ ] Make UDP broadcast timeout configurable

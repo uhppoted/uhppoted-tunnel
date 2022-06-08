@@ -12,6 +12,7 @@ import (
 type tcpServer struct {
 	addr        *net.TCPAddr
 	connections map[net.Conn]struct{}
+	closed      chan struct{}
 	sync.RWMutex
 }
 
@@ -29,6 +30,7 @@ func NewTCPServer(spec string) (*tcpServer, error) {
 	out := tcpServer{
 		addr:        addr,
 		connections: map[net.Conn]struct{}{},
+		closed:      make(chan struct{}),
 	}
 
 	return &out, nil
@@ -38,7 +40,20 @@ func (tcp *tcpServer) Close() {
 }
 
 func (tcp *tcpServer) Run(router *router.Switch) error {
-	return tcp.listen(router)
+	socket, err := net.Listen("tcp", fmt.Sprintf("%v", tcp.addr))
+	if err != nil {
+		return err
+	}
+
+	defer socket.Close()
+
+	go func() {
+		tcp.listen(socket, router)
+	}()
+
+	<-tcp.closed
+
+	return nil
 }
 
 func (tcp *tcpServer) Send(id uint32, message []byte) {
@@ -51,12 +66,7 @@ func (tcp *tcpServer) Send(id uint32, message []byte) {
 	}
 }
 
-func (tcp *tcpServer) listen(router *router.Switch) error {
-	socket, err := net.Listen("tcp", fmt.Sprintf("%v", tcp.addr))
-	if err != nil {
-		return err
-	}
-
+func (tcp *tcpServer) listen(socket net.Listener, router *router.Switch) {
 	infof("TCP", "listening on %v", socket.Addr())
 
 	for {

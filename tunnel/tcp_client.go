@@ -15,6 +15,7 @@ type tcpClient struct {
 	maxRetryDelay time.Duration
 	timeout       time.Duration
 	ch            chan message
+	closed        chan struct{}
 }
 
 const RETRY_MIN_DELAY = 5 * time.Second
@@ -35,17 +36,24 @@ func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tc
 		maxRetryDelay: maxRetryDelay,
 		timeout:       5 * time.Second,
 		ch:            make(chan message, 16),
+		closed:        make(chan struct{}),
 	}
 
 	return &in, nil
 }
 
 func (tcp *tcpClient) Close() {
-
+	close(tcp.closed)
 }
 
 func (tcp *tcpClient) Run(router *router.Switch) error {
-	return tcp.connect(router)
+	go func() {
+		tcp.connect(router)
+	}()
+
+	<-tcp.closed
+
+	return nil
 }
 
 func (tcp *tcpClient) Send(id uint32, msg []byte) {

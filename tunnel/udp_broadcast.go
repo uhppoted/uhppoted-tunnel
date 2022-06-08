@@ -9,8 +9,9 @@ import (
 )
 
 type udpBroadcast struct {
-	addr *net.UDPAddr
-	ch   chan message
+	addr   *net.UDPAddr
+	ch     chan message
+	closed chan struct{}
 }
 
 type message struct {
@@ -33,14 +34,16 @@ func NewUDPBroadcast(spec string) (*udpBroadcast, error) {
 	}
 
 	out := udpBroadcast{
-		addr: addr,
-		ch:   make(chan message),
+		addr:   addr,
+		ch:     make(chan message),
+		closed: make(chan struct{}),
 	}
 
 	return &out, nil
 }
 
 func (udp *udpBroadcast) Close() {
+	close(udp.closed)
 }
 
 func (udp *udpBroadcast) Run(router *router.Switch) error {
@@ -48,6 +51,10 @@ func (udp *udpBroadcast) Run(router *router.Switch) error {
 		select {
 		case msg := <-udp.ch:
 			router.Received(msg.id, msg.message, nil)
+
+		case <-udp.closed:
+			infof("UDP", "closed")
+			return nil
 		}
 	}
 }
