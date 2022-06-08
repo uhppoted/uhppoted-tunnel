@@ -47,7 +47,7 @@ func (udp *udpBroadcast) Run(router *router.Switch) error {
 	for {
 		select {
 		case msg := <-udp.ch:
-			router.Reply(msg.id, msg.message)
+			router.Received(msg.id, msg.message, nil)
 		}
 	}
 }

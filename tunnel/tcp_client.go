@@ -14,13 +14,12 @@ type tcpClient struct {
 	maxRetries    int
 	maxRetryDelay time.Duration
 	timeout       time.Duration
-	mode          Mode
 	ch            chan message
 }
 
 const RETRY_MIN_DELAY = 5 * time.Second
 
-func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration, mode Mode) (*tcpClient, error) {
+func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tcpClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -35,7 +34,6 @@ func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration, mode
 		maxRetries:    maxRetries,
 		maxRetryDelay: maxRetryDelay,
 		timeout:       5 * time.Second,
-		mode:          mode,
 		ch:            make(chan message, 16),
 	}
 
@@ -135,20 +133,11 @@ func (tcp *tcpClient) received(buffer []byte, router *router.Switch, socket net.
 
 	for len(buffer) > 0 {
 		id, msg, remaining := depacketize(buffer)
-
-		h := func(message []byte) {
-			tcp.send(socket, id, message)
-		}
-
-		switch tcp.mode {
-		case ModeNormal:
-			router.Request(id, msg, h)
-
-		case ModeReverse:
-			router.Reply(id, msg)
-		}
-
 		buffer = remaining
+
+		router.Received(id, msg, func(message []byte) {
+			tcp.send(socket, id, message)
+		})
 	}
 }
 

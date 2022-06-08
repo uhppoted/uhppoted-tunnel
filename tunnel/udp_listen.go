@@ -78,7 +78,7 @@ func (udp *udpListen) listen(router *router.Switch) error {
 				}
 			}
 
-			router.Request(id, buffer[:N], h)
+			router.Received(id, buffer[:N], h)
 		}
 	}
 

@@ -1,7 +1,8 @@
 # TODO
 
 - [x] Change command line args to `--portal` and `--pipe`
-- [ ] enable debug if --debug
+- [x] Remove _mode_ hack
+- [ ] Enable debug if --debug
 - [ ] Routing matrix
 - (?) Replace handler functions with channels
 - [ ] Make UDP broadcast timeout configurable

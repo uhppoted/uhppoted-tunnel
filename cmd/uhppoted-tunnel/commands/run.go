@@ -65,15 +65,6 @@ func (cmd *Run) Help() {
 func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 	var portal tunnel.UDP
 	var pipe tunnel.TCP
-	var mode = tunnel.ModeNormal
-
-	if strings.HasPrefix(cmd.portal, "broadcast:") && strings.HasPrefix(cmd.pipe, "tcp/server:") {
-		mode = tunnel.ModeReverse
-	}
-
-	if strings.HasPrefix(cmd.portal, "listen:") && strings.HasPrefix(cmd.pipe, "tcp/client:") {
-		mode = tunnel.ModeReverse
-	}
 
 	// ... create UDP packet handler
 	switch {
@@ -103,12 +94,12 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		return
 
 	case strings.HasPrefix(cmd.pipe, "tcp/client:"):
-		if pipe, err = tunnel.NewTCPClient(cmd.pipe[11:], cmd.maxRetries, cmd.maxRetryDelay, mode); err != nil {
+		if pipe, err = tunnel.NewTCPClient(cmd.pipe[11:], cmd.maxRetries, cmd.maxRetryDelay); err != nil {
 			return
 		}
 
 	case strings.HasPrefix(cmd.pipe, "tcp/server:"):
-		if pipe, err = tunnel.NewTCPServer(cmd.pipe[11:], mode); err != nil {
+		if pipe, err = tunnel.NewTCPServer(cmd.pipe[11:]); err != nil {
 			return
 		}
 

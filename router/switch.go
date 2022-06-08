@@ -51,23 +51,27 @@ func NewSwitch(f func(uint32, []byte)) Switch {
 	}
 }
 
-func (s *Switch) Request(id uint32, message []byte, h func([]byte)) {
-	router.Add(id, h)
+func (s *Switch) Received(id uint32, message []byte, h func([]byte)) {
+	hf := router.get(id)
 
-	go func() {
-		s.relay(id, message)
-	}()
-}
-
-func (s *Switch) Reply(id uint32, message []byte) {
-	if hf := router.Get(id); hf != nil {
+	switch {
+	case hf != nil:
 		go func() {
 			hf(message)
+		}()
+
+	default:
+		if h != nil {
+			router.add(id, h)
+		}
+
+		go func() {
+			s.relay(id, message)
 		}()
 	}
 }
 
-func (r *Router) Add(id uint32, h func([]byte)) {
+func (r *Router) add(id uint32, h func([]byte)) {
 	router.Lock()
 	defer router.Unlock()
 
@@ -77,7 +81,7 @@ func (r *Router) Add(id uint32, h func([]byte)) {
 	}
 }
 
-func (r *Router) Get(id uint32) func([]byte) {
+func (r *Router) get(id uint32) func([]byte) {
 	if h, ok := r.handlers[id]; ok && h.f != nil {
 		h.touched = time.Now()
 		return h.f

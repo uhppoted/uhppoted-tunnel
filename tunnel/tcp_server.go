@@ -12,11 +12,10 @@ import (
 type tcpServer struct {
 	addr        *net.TCPAddr
 	connections map[net.Conn]struct{}
-	mode        Mode
 	sync.RWMutex
 }
 
-func NewTCPServer(spec string, mode Mode) (*tcpServer, error) {
+func NewTCPServer(spec string) (*tcpServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -29,7 +28,6 @@ func NewTCPServer(spec string, mode Mode) (*tcpServer, error) {
 
 	out := tcpServer{
 		addr:        addr,
-		mode:        mode,
 		connections: map[net.Conn]struct{}{},
 	}
 
@@ -99,18 +97,11 @@ func (tcp *tcpServer) received(buffer []byte, router *router.Switch, socket net.
 
 	for len(buffer) > 0 {
 		id, msg, remaining := depacketize(buffer)
-
-		switch tcp.mode {
-		case ModeNormal:
-			router.Reply(id, msg)
-
-		case ModeReverse:
-			router.Request(id, msg, func(message []byte) {
-				tcp.send(socket, id, message)
-			})
-		}
-
 		buffer = remaining
+
+		router.Received(id, msg, func(message []byte) {
+			tcp.send(socket, id, message)
+		})
 	}
 }
 

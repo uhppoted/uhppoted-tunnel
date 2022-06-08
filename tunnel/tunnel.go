@@ -10,17 +10,6 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/router"
 )
 
-type Mode int
-
-const (
-	ModeNormal Mode = iota
-	ModeReverse
-)
-
-func (m Mode) String() string {
-	return []string{"normal", "reverse"}[m]
-}
-
 type UDP interface {
 	Close()
 	Run(*router.Switch) error
