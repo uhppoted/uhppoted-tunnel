@@ -60,7 +60,7 @@ func (t *Tunnel) Run(interrupt chan os.Signal) {
 
 	<-interrupt
 
-	infof("","closing")
+	infof("", "closing")
 
 	var wg sync.WaitGroup
 
@@ -81,7 +81,7 @@ func (t *Tunnel) Run(interrupt chan os.Signal) {
 	}()
 
 	wg.Wait()
-	infof("","closed")
+	infof("", "closed")
 }
 
 func dump(m []byte, prefix string) string {
