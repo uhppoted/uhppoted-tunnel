@@ -1,9 +1,11 @@
 package commands
 
 import (
+	"crypto/sha1"
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -109,31 +111,33 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		return
 	}
 
-	// // ... create lockfile
-	// if err := os.MkdirAll(cmd.workdir, os.ModeDir|os.ModePerm); err != nil {
-	// 	return fmt.Errorf("Unable to create working directory '%v': %v", cmd.workdir, err)
-	// }
-	//
-	// pid := fmt.Sprintf("%d\n", os.Getpid())
-	// lockfile := filepath.Join(cmd.workdir, fmt.Sprintf("%s.pid", SERVICE))
-	//
-	// if _, err := os.Stat(lockfile); err == nil {
-	// 	return fmt.Errorf("PID lockfile '%v' already in use", lockfile)
-	// } else if !os.IsNotExist(err) {
-	// 	return fmt.Errorf("Error checking PID lockfile '%v' (%v)", lockfile, err)
-	// }
-	//
-	// if err := os.WriteFile(lockfile, []byte(pid), 0644); err != nil {
-	// 	return fmt.Errorf("Unable to create PID lockfile: %v", err)
-	// }
-	//
-	// defer func() {
-	// 	if err := recover(); err != nil {
-	// 		log.Fatalf("%-5s %v\n", "FATAL", err)
-	// 	}
-	// }()
-	//
-	// defer os.Remove(lockfile)
+	// ... create lockfile
+
+	if err := os.MkdirAll(cmd.workdir, os.ModeDir|os.ModePerm); err != nil {
+		return fmt.Errorf("Unable to create working directory '%v': %v", cmd.workdir, err)
+	}
+
+	pid := fmt.Sprintf("%d\n", os.Getpid())
+	hash := sha1.Sum([]byte(cmd.portal + cmd.pipe))
+	lockfile := filepath.Join(cmd.workdir, fmt.Sprintf("%s-%x.pid", SERVICE, hash))
+
+	if _, err := os.Stat(lockfile); err == nil {
+		return fmt.Errorf("PID lockfile '%v' already in use", lockfile)
+	} else if !os.IsNotExist(err) {
+		return fmt.Errorf("Error checking PID lockfile '%v' (%v)", lockfile, err)
+	}
+
+	if err := os.WriteFile(lockfile, []byte(pid), 0644); err != nil {
+		return fmt.Errorf("Unable to create PID lockfile: %v", err)
+	}
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Fatalf("%-5s %v\n", "FATAL", err)
+		}
+	}()
+
+	defer os.Remove(lockfile)
 
 	t := tunnel.NewTunnel(portal, pipe)
 

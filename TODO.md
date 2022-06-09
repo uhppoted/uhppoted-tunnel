@@ -1,16 +1,15 @@
 # TODO
 
-- [ ] lockfiles
-      - command line option
+- [x] lockfiles
 
 - [ ] Close()
-      - [ ] shutdown cleanly
+      - [ ] shutdown cleanly with timeout
             - [x] router
             - [ ] UDP broadcast
             - [ ] UDP listen
             - [ ] TCP client
             - [ ] TCP server
-      - [ ] with timeout
+
 - [ ] Routing matrix
 - (?) Replace handler functions with channels
 - [ ] Make UDP broadcast timeout configurable

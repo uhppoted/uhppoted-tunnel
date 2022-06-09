@@ -7,7 +7,7 @@ import (
 	core "github.com/uhppoted/uhppote-core/uhppote"
 	lib "github.com/uhppoted/uhppoted-lib/command"
 
-	"github.com/uhppoted/uhppoted-tunnel/cmd/uhppoted-tunnel/commands"
+	"github.com/uhppoted/uhppoted-tunnel/commands"
 )
 
 var cli = []lib.Command{
