@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -14,7 +15,8 @@ type Switch struct {
 type Router struct {
 	handlers map[uint32]handler
 	idletime time.Duration
-	closed   chan bool
+	closing  chan struct{}
+	closed   chan struct{}
 	sync.RWMutex
 }
 
@@ -26,16 +28,21 @@ type handler struct {
 var router = Router{
 	handlers: map[uint32]handler{},
 	idletime: 15 * time.Second,
-	closed:   make(chan bool),
+	closing:  make(chan struct{}),
+	closed:   make(chan struct{}),
 }
 
 var ticker = time.NewTicker(15 * time.Second)
 
 func init() {
 	go func() {
+		defer func() {
+			router.closed <- struct{}{}
+		}()
+
 		for {
 			select {
-			case <-router.closed:
+			case <-router.closing:
 				return
 
 			case <-ticker.C:
@@ -110,9 +117,24 @@ func (r *Router) Sweep() {
 }
 
 func Close() {
-	router.closed <- true
+	router.closing <- struct{}{}
+
+	timeout := time.NewTimer(5 * time.Second)
+	select {
+	case <-router.closed:
+		infof("ROUTER", "closed")
+
+	case <-timeout.C:
+		infof("ROUTER", "close timeout")
+	}
 }
 
 func debugf(format string, args ...any) {
 	log.Debugf(format, args...)
+}
+
+func infof(tag, format string, args ...any) {
+	f := fmt.Sprintf("%-6v %v", tag, format)
+
+	log.Infof(f, args...)
 }

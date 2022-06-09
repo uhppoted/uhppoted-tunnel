@@ -1,8 +1,8 @@
 # TODO
 
-- [x] Change command line args to `--portal` and `--pipe`
-- [x] Remove _mode_ hack
-- [x] Enable debug if --debug
+- [ ] lockfiles
+      - command line option
+
 - [ ] Close()
       - [ ] shutdown cleanly
             - [x] router
@@ -14,8 +14,6 @@
 - [ ] Routing matrix
 - (?) Replace handler functions with channels
 - [ ] Make UDP broadcast timeout configurable
-- [ ] lockfiles
-      - command line option
 
 ## Miscellaneous
 - [ ] HTTP POST portal

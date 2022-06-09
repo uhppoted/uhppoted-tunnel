@@ -1,6 +1,7 @@
 package tunnel
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -61,18 +62,20 @@ func (udp *udpListen) Run(router *router.Switch) error {
 func (udp *udpListen) Send(id uint32, message []byte) {
 }
 
-func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) error {
+func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) {
 	infof("UDP", "listening on %v", udp.addr)
 
 	for {
 		buffer := make([]byte, 2048) // NTS buffer is handed off to router
 
 		if N, remote, err := socket.ReadFromUDP(buffer); err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				infof("UDP", "listen socket %v closed ", socket)
-				break
+			} else {
+				warnf("UDP", "error reading from socket (%v)", err)
 			}
-			warnf("UDP", "error reading from socket (%v)", err)
+
+			return
 		} else {
 			id := nextID()
 			dumpf(buffer[:N], "UDP  request %v  %v bytes from %v", id, N, remote)
@@ -90,6 +93,4 @@ func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) error {
 			router.Received(id, buffer[:N], h)
 		}
 	}
-
-	return nil
 }
