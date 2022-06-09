@@ -24,6 +24,7 @@ type Run struct {
 	workdir       string
 	logFile       string
 	logFileSize   int
+	logLevel      string
 }
 
 const MAX_RETRIES = -1
@@ -39,6 +40,7 @@ func (r *Run) FlagSet() *flag.FlagSet {
 	flagset.DurationVar(&r.maxRetryDelay, "max-retry-delay", MAX_RETRY_DELAY, "Maximum delay between retrying failed connections")
 	flagset.DurationVar(&r.udpTimeout, "udp-timeout", UDP_TIMEOUT, "Time limit to wait for UDP replies")
 	flagset.BoolVar(&r.console, "console", false, "Runs as a console application rather than a service")
+	flagset.StringVar(&r.logLevel, "log-level", "info", "Sets the log level (debug, info, warn or error)")
 	flagset.BoolVar(&r.debug, "debug", false, "Enables detailed debugging logs")
 
 	return flagset
@@ -150,7 +152,8 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 }
 
 func (cmd *Run) run(t *tunnel.Tunnel, interrupt chan os.Signal) {
-	log.Debug = cmd.debug
+	log.SetDebug(cmd.debug)
+	log.SetLevel(cmd.logLevel)
 
 	t.Run(interrupt)
 }
