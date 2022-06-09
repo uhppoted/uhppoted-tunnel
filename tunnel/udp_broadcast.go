@@ -9,9 +9,10 @@ import (
 )
 
 type udpBroadcast struct {
-	addr   *net.UDPAddr
-	ch     chan message
-	closed chan struct{}
+	addr    *net.UDPAddr
+	timeout time.Duration
+	ch      chan message
+	closed  chan struct{}
 }
 
 type message struct {
@@ -19,7 +20,7 @@ type message struct {
 	message []byte
 }
 
-func NewUDPBroadcast(spec string) (*udpBroadcast, error) {
+func NewUDPBroadcast(spec string, timeout time.Duration) (*udpBroadcast, error) {
 	addr, err := net.ResolveUDPAddr("udp", spec)
 	if err != nil {
 		return nil, err
@@ -34,9 +35,10 @@ func NewUDPBroadcast(spec string) (*udpBroadcast, error) {
 	}
 
 	out := udpBroadcast{
-		addr:   addr,
-		ch:     make(chan message),
-		closed: make(chan struct{}),
+		addr:    addr,
+		timeout: timeout,
+		ch:      make(chan message),
+		closed:  make(chan struct{}),
 	}
 
 	return &out, nil
@@ -87,7 +89,7 @@ func (udp *udpBroadcast) send(id uint32, message []byte) []byte {
 			warnf("UDP", "%v", err)
 		}
 
-		if err := socket.SetReadDeadline(time.Now().Add(1000 * time.Millisecond)); err != nil {
+		if err := socket.SetReadDeadline(time.Now().Add(udp.timeout)); err != nil {
 			warnf("UDP", "%v", err)
 		}
 

@@ -82,13 +82,13 @@ host: build
 	$(CMD) --console --portal udp/listen:0.0.0.0:60000 --pipe tcp/server:0.0.0.0:12345
 
 client: build
-	$(CMD) --console --portal udp/broadcast:192.168.1.255:60005 --pipe tcp/client:127.0.0.1:12345
+	$(CMD) --console --portal udp/broadcast:192.168.1.255:60005 --pipe tcp/client:127.0.0.1:12345 --udp-timeout 1s
 
 reverse-host: build
-	$(CMD) --debug --console --portal udp/listen:0.0.0.0:60000 --pipe tcp/client:127.0.0.1:12345
+	$(CMD) --console --portal udp/listen:0.0.0.0:60000 --pipe tcp/client:127.0.0.1:12345
 
 reverse-client: build
-	$(CMD) --debug --console --portal udp/broadcast:192.168.1.255:60005 --pipe tcp/server:0.0.0.0:12345
+	$(CMD) --console --portal udp/broadcast:192.168.1.255:60005 --pipe tcp/server:0.0.0.0:12345 --udp-timeout 1s
 
 # daemonize: build
 # 	sudo $(CMD) daemonize

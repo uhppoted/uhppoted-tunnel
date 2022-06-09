@@ -1,6 +1,7 @@
 # TODO
 
 - [x] lockfiles
+- [x] Make UDP broadcast timeout configurable
 
 - [ ] Close()
       - [ ] shutdown cleanly with timeout
@@ -12,7 +13,6 @@
 
 - [ ] Routing matrix
 - (?) Replace handler functions with channels
-- [ ] Make UDP broadcast timeout configurable
 
 ## Miscellaneous
 - [ ] HTTP POST portal

@@ -19,6 +19,7 @@ type Run struct {
 	pipe          string
 	maxRetries    int
 	maxRetryDelay time.Duration
+	udpTimeout    time.Duration
 	debug         bool
 	workdir       string
 	logFile       string
@@ -27,6 +28,7 @@ type Run struct {
 
 const MAX_RETRIES = -1
 const MAX_RETRY_DELAY = 5 * time.Minute
+const UDP_TIMEOUT = 5 * time.Second
 
 func (r *Run) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("", flag.ExitOnError)
@@ -35,6 +37,7 @@ func (r *Run) FlagSet() *flag.FlagSet {
 	flagset.StringVar(&r.pipe, "pipe", "", "TCP pipe connection e.g. tcp/server:0.0.0.0:54321 or tcp/client:101.102.103.104:54321")
 	flagset.IntVar(&r.maxRetries, "max-retries", MAX_RETRIES, "Maximum number of times to retry failed connection. Defaults to -1 (retry forever)")
 	flagset.DurationVar(&r.maxRetryDelay, "max-retry-delay", MAX_RETRY_DELAY, "Maximum delay between retrying failed connections")
+	flagset.DurationVar(&r.udpTimeout, "udp-timeout", UDP_TIMEOUT, "Time limit to wait for UDP replies")
 	flagset.BoolVar(&r.console, "console", false, "Runs as a console application rather than a service")
 	flagset.BoolVar(&r.debug, "debug", false, "Enables detailed debugging logs")
 
@@ -81,7 +84,7 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		}
 
 	case strings.HasPrefix(cmd.portal, "udp/broadcast:"):
-		if portal, err = tunnel.NewUDPBroadcast(cmd.portal[14:]); err != nil {
+		if portal, err = tunnel.NewUDPBroadcast(cmd.portal[14:], cmd.udpTimeout); err != nil {
 			return
 		}
 
