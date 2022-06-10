@@ -9,9 +9,10 @@ import (
 )
 
 type udpListen struct {
-	addr    *net.UDPAddr
-	closing chan struct{}
-	closed  chan struct{}
+	addr       *net.UDPAddr
+	retryDelay time.Duration
+	closing    chan struct{}
+	closed     chan struct{}
 }
 
 func NewUDPListen(spec string) (*udpListen, error) {
@@ -29,9 +30,10 @@ func NewUDPListen(spec string) (*udpListen, error) {
 	}
 
 	udp := udpListen{
-		addr:    addr,
-		closing: make(chan struct{}),
-		closed:  make(chan struct{}),
+		addr:       addr,
+		retryDelay: 15 * time.Second,
+		closing:    make(chan struct{}),
+		closed:     make(chan struct{}),
 	}
 
 	return &udp, nil
@@ -40,7 +42,7 @@ func NewUDPListen(spec string) (*udpListen, error) {
 func (udp *udpListen) Close() {
 	close(udp.closing)
 
-	timeout := time.NewTimer(5 * time.Second)
+	timeout := time.NewTimer(30 * time.Second)
 	select {
 	case <-udp.closed:
 		infof("UDP", "closed")
@@ -53,9 +55,12 @@ func (udp *udpListen) Close() {
 func (udp *udpListen) Run(router *router.Switch) (err error) {
 	var socket *net.UDPConn
 	var closing = false
+	var delay = 0 * time.Second
 
 	go func() {
 		for !closing {
+			time.Sleep(delay)
+
 			socket, err = net.ListenUDP("udp", udp.addr)
 			if err != nil {
 				return
@@ -64,9 +69,9 @@ func (udp *udpListen) Run(router *router.Switch) (err error) {
 				return
 			}
 
-			println(".... listening")
+			delay = udp.retryDelay
+
 			udp.listen(socket, router)
-			println(".... listened")
 		}
 
 		udp.closed <- struct{}{}
