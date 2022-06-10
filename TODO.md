@@ -1,13 +1,13 @@
 # TODO
 
 - [x] Error:  `WARN   TCP    msg 26  .... write: broken pipe`
-- [ ] udp.listen relisten on error until closed
-- (?) Log to logfile
+- [x] udp.listen - relisten on error until closed
+- [ ] daemonize
 
 - [ ] Close()
       - [ ] shutdown cleanly with timeout
             - [x] router
-            - [ ] UDP broadcast
+            - [x] UDP broadcast
             - [ ] UDP listen
             - [ ] TCP client
             - [ ] TCP server
@@ -21,7 +21,6 @@
 - [ ] gRPC portal
 - [ ] Remove dependency on uhppoted-lib and uhppote-core
 - [ ] Encode packet with protocol buffers
-- [ ] daemonize
 - [ ] undaemonize
 - [ ] SSL + mutual auth
 - [ ] Check interop with events

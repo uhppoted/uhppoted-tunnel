@@ -1,17 +1,17 @@
 package tunnel
 
 import (
-	"errors"
 	"fmt"
-	"io"
 	"net"
+	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/router"
 )
 
 type udpListen struct {
-	addr   *net.UDPAddr
-	closed chan struct{}
+	addr    *net.UDPAddr
+	closing chan struct{}
+	closed  chan struct{}
 }
 
 func NewUDPListen(spec string) (*udpListen, error) {
@@ -29,32 +29,53 @@ func NewUDPListen(spec string) (*udpListen, error) {
 	}
 
 	udp := udpListen{
-		addr:   addr,
-		closed: make(chan struct{}),
+		addr:    addr,
+		closing: make(chan struct{}),
+		closed:  make(chan struct{}),
 	}
 
 	return &udp, nil
 }
 
 func (udp *udpListen) Close() {
-	close(udp.closed)
+	close(udp.closing)
+
+	timeout := time.NewTimer(5 * time.Second)
+	select {
+	case <-udp.closed:
+		infof("UDP", "closed")
+
+	case <-timeout.C:
+		infof("UDP", "close timeout")
+	}
 }
 
-func (udp *udpListen) Run(router *router.Switch) error {
-	socket, err := net.ListenUDP("udp", udp.addr)
-	if err != nil {
-		return fmt.Errorf("Error creating UDP listen socket (%v)", err)
-	} else if socket == nil {
-		return fmt.Errorf("Failed to create UDP listen socket (%v)", socket)
-	}
-
-	defer socket.Close()
+func (udp *udpListen) Run(router *router.Switch) (err error) {
+	var socket *net.UDPConn
+	var closing = false
 
 	go func() {
-		udp.listen(socket, router)
+		for !closing {
+			socket, err = net.ListenUDP("udp", udp.addr)
+			if err != nil {
+				return
+			} else if socket == nil {
+				err = fmt.Errorf("Failed to create UDP listen socket (%v)", socket)
+				return
+			}
+
+			println(".... listening")
+			udp.listen(socket, router)
+			println(".... listened")
+		}
+
+		udp.closed <- struct{}{}
 	}()
 
-	<-udp.closed
+	<-udp.closing
+
+	closing = true
+	socket.Close()
 
 	return nil
 }
@@ -65,32 +86,30 @@ func (udp *udpListen) Send(id uint32, message []byte) {
 func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) {
 	infof("UDP", "listening on %v", udp.addr)
 
+	defer socket.Close()
+
 	for {
 		buffer := make([]byte, 2048) // NTS buffer is handed off to router
 
-		if N, remote, err := socket.ReadFromUDP(buffer); err != nil {
-			if errors.Is(err, io.EOF) {
-				infof("UDP", "listen socket %v closed ", socket)
-			} else {
-				warnf("UDP", "error reading from socket (%v)", err)
-			}
-
+		N, remote, err := socket.ReadFromUDP(buffer)
+		if err != nil {
+			warnf("UDP", "%v", err)
 			return
-		} else {
-			id := nextID()
-			dumpf(buffer[:N], "UDP  request %v  %v bytes from %v", id, N, remote)
-
-			h := func(reply []byte) {
-				dumpf(reply, "UDP  reply %v  %v bytes for %v", id, len(reply), remote)
-
-				if N, err := socket.WriteToUDP(reply, remote); err != nil {
-					warnf("UDP", "%v", err)
-				} else {
-					debugf("UDP", "sent %v bytes to %v\n", N, remote)
-				}
-			}
-
-			router.Received(id, buffer[:N], h)
 		}
+
+		id := nextID()
+		dumpf(buffer[:N], "UDP  request %v  %v bytes from %v", id, N, remote)
+
+		h := func(reply []byte) {
+			dumpf(reply, "UDP  reply %v  %v bytes for %v", id, len(reply), remote)
+
+			if N, err := socket.WriteToUDP(reply, remote); err != nil {
+				warnf("UDP", "%v", err)
+			} else {
+				debugf("UDP", "sent %v bytes to %v\n", N, remote)
+			}
+		}
+
+		router.Received(id, buffer[:N], h)
 	}
 }
