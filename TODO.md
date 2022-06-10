@@ -3,6 +3,8 @@
 - [x] Error:  `WARN   TCP    msg 26  .... write: broken pipe`
 - [x] udp.listen - relisten on error until closed
 - [ ] daemonize
+      - [ ] daemonize client/server separately
+      - [ ] portal/pipe
 
 - [ ] Close()
       - [ ] shutdown cleanly with timeout
@@ -14,12 +16,12 @@
 
 - (?) Routing matrix
 - (?) Replace handler functions with channels
+- [ ] Remove dependency on uhppoted-lib and uhppote-core
 
 ## Miscellaneous
 
 - [ ] HTTP POST portal
 - [ ] gRPC portal
-- [ ] Remove dependency on uhppoted-lib and uhppote-core
 - [ ] Encode packet with protocol buffers
 - [ ] undaemonize
 - [ ] SSL + mutual auth

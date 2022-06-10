@@ -11,7 +11,7 @@ import (
 )
 
 var cli = []lib.Command{
-	// &commands.DAEMONIZE,
+	&commands.DAEMONIZE,
 	// &commands.UNDAEMONIZE,
 	&lib.Version{
 		Application: commands.SERVICE,
