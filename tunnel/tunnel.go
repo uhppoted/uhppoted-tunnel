@@ -94,11 +94,13 @@ func dumpf(message []byte, format string, args ...any) {
 	hex := dump(message, "                                ")
 	preamble := fmt.Sprintf(format, args...)
 
-	debugf("UDP  %v\n%s", preamble, hex)
+	debugf("UDP", "%v\n%s", preamble, hex)
 }
 
-func debugf(format string, args ...any) {
-	log.Debugf(format, args...)
+func debugf(tag, format string, args ...any) {
+	f := fmt.Sprintf("%-6v %v", tag, format)
+
+	log.Debugf(f, args...)
 }
 
 func infof(tag string, format string, args ...any) {

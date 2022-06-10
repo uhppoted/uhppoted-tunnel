@@ -95,6 +95,10 @@ func (tcp *tcpServer) listen(socket net.Listener, router *router.Switch) {
 							tcp.received(buffer[:N], router, socket)
 						}
 					}
+
+					tcp.Lock()
+					delete(tcp.connections, socket)
+					tcp.Unlock()
 				}(socket)
 			}
 		}
@@ -103,7 +107,7 @@ func (tcp *tcpServer) listen(socket net.Listener, router *router.Switch) {
 
 func (tcp *tcpServer) received(buffer []byte, router *router.Switch, socket net.Conn) {
 	hex := dump(buffer, "                                ")
-	debugf("TCP  received %v bytes from %v\n%s\n", len(buffer), socket.RemoteAddr(), hex)
+	debugf("TCP", "received %v bytes from %v\n%s\n", len(buffer), socket.RemoteAddr(), hex)
 
 	for len(buffer) > 0 {
 		id, msg, remaining := depacketize(buffer)

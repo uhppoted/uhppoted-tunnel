@@ -86,7 +86,7 @@ func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) {
 				if N, err := socket.WriteToUDP(reply, remote); err != nil {
 					warnf("UDP", "%v", err)
 				} else {
-					debugf("UDP  sent %v bytes to %v\n", N, remote)
+					debugf("UDP", "sent %v bytes to %v\n", N, remote)
 				}
 			}
 

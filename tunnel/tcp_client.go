@@ -137,7 +137,7 @@ func (tcp *tcpClient) listen(socket net.Conn, router *router.Switch) error {
 
 func (tcp *tcpClient) received(buffer []byte, router *router.Switch, socket net.Conn) {
 	hex := dump(buffer, "                                ")
-	debugf("TCP  received %v bytes from %v\n%s\n", len(buffer), socket.RemoteAddr(), hex)
+	debugf("TCP", "received %v bytes from %v\n%s\n", len(buffer), socket.RemoteAddr(), hex)
 
 	for len(buffer) > 0 {
 		id, msg, remaining := depacketize(buffer)
