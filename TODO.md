@@ -1,7 +1,5 @@
 # TODO
 
-- [x] Error:  `WARN   TCP    msg 26  .... write: broken pipe`
-- [x] udp.listen - relisten on error until closed
 - [ ] daemonize
       - [ ] daemonize client/server separately
       - [ ] portal/pipe
@@ -10,7 +8,7 @@
       - [ ] shutdown cleanly with timeout
             - [x] router
             - [x] UDP broadcast
-            - [ ] UDP listen
+            - [x] UDP listen
             - [ ] TCP client
             - [ ] TCP server
 

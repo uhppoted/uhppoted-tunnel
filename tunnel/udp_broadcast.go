@@ -12,6 +12,7 @@ type udpBroadcast struct {
 	addr    *net.UDPAddr
 	timeout time.Duration
 	ch      chan message
+	closing chan struct{}
 	closed  chan struct{}
 }
 
@@ -38,6 +39,7 @@ func NewUDPBroadcast(spec string, timeout time.Duration) (*udpBroadcast, error) 
 		addr:    addr,
 		timeout: timeout,
 		ch:      make(chan message),
+		closing: make(chan struct{}),
 		closed:  make(chan struct{}),
 	}
 
@@ -45,20 +47,36 @@ func NewUDPBroadcast(spec string, timeout time.Duration) (*udpBroadcast, error) 
 }
 
 func (udp *udpBroadcast) Close() {
-	close(udp.closed)
+	infof("UDP", "closing")
+	close(udp.closing)
+
+	timeout := time.NewTimer(5 * time.Second)
+	select {
+	case <-udp.closed:
+		infof("UDP", "closed")
+
+	case <-timeout.C:
+		infof("UDP", "close timeout")
+	}
+
+	infof("UDP", "closed")
 }
 
 func (udp *udpBroadcast) Run(router *router.Switch) error {
+loop:
 	for {
 		select {
 		case msg := <-udp.ch:
 			router.Received(msg.id, msg.message, nil)
 
-		case <-udp.closed:
-			infof("UDP", "closed")
-			return nil
+		case <-udp.closing:
+			break loop
 		}
 	}
+
+	close(udp.closed)
+
+	return nil
 }
 
 func (udp *udpBroadcast) Send(id uint32, msg []byte) {

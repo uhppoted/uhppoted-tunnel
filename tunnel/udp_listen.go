@@ -42,7 +42,7 @@ func NewUDPListen(spec string) (*udpListen, error) {
 func (udp *udpListen) Close() {
 	close(udp.closing)
 
-	timeout := time.NewTimer(30 * time.Second)
+	timeout := time.NewTimer(5 * time.Second)
 	select {
 	case <-udp.closed:
 		infof("UDP", "closed")
