@@ -91,7 +91,7 @@ func (udp *udpBroadcast) Send(id uint32, msg []byte) {
 }
 
 func (udp *udpBroadcast) send(id uint32, message []byte) []byte {
-	hex := dump(message, "                                ")
+	hex := dump(message, "                                  ")
 	debugf("UDP", "broadcast%v\n%s\n", "", hex)
 
 	if bind, err := net.ResolveUDPAddr("udp", "0.0.0.0:0"); err != nil {
@@ -121,7 +121,7 @@ func (udp *udpBroadcast) send(id uint32, message []byte) []byte {
 			if N, remote, err := socket.ReadFromUDP(reply); err != nil {
 				warnf("UDP", "%v", err)
 			} else {
-				hex := dump(reply[:N], "                                ")
+				hex := dump(reply[:N], "                                  ")
 				debugf("UDP", "received %v bytes from %v\n%s", N, remote, hex)
 
 				return reply[:N]

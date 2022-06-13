@@ -51,6 +51,9 @@ type Daemonize struct {
 	logdir  string
 	config  string
 	etc     string
+	label   string
+	portal  string
+	pipe    string
 }
 
 func (cmd *Daemonize) Name() string {
@@ -58,7 +61,13 @@ func (cmd *Daemonize) Name() string {
 }
 
 func (cmd *Daemonize) FlagSet() *flag.FlagSet {
-	return flag.NewFlagSet("daemonize", flag.ExitOnError)
+	flagset := flag.NewFlagSet("daemonize", flag.ExitOnError)
+
+	flagset.StringVar(&cmd.label, "label", "", "Identifying label for the service (to distinguish multiple tunnels running on the same machine)")
+	flagset.StringVar(&cmd.portal, "portal", "", "UDP connection e.g. udp/listen:0.0.0.0:60000 or udp/broadcast:255.255.255.255:60000")
+	flagset.StringVar(&cmd.pipe, "pipe", "", "TCP pipe connection e.g. tcp/server:0.0.0.0:54321 or tcp/client:101.102.103.104:54321")
+
+	return flagset
 }
 
 func (cmd *Daemonize) Description() string {
@@ -71,7 +80,7 @@ func (cmd *Daemonize) Usage() string {
 
 func (cmd *Daemonize) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s daemonize\n", SERVICE)
+	fmt.Printf("  Usage: %s daemonize --portal <UDP connection> --pipe <TCP connection> --label <label>\n", SERVICE)
 	fmt.Println()
 	fmt.Printf("    Daemonizes %s as a service/daemon that runs on startup\n", SERVICE)
 	fmt.Println()
@@ -80,6 +89,41 @@ func (cmd *Daemonize) Help() {
 }
 
 func (cmd *Daemonize) Execute(args ...interface{}) error {
+	if cmd.label == "" {
+		return fmt.Errorf("--label argument is required")
+	} else {
+		cmd.plist = fmt.Sprintf("com.github.uhppoted.%v-%v.plist", SERVICE, cmd.label)
+	}
+
+	// ... check UDP packet handler
+	switch {
+	case cmd.portal == "":
+		return fmt.Errorf("--portal argument is required")
+
+	case strings.HasPrefix(cmd.portal, "udp/listen:"):
+		// portal = cmd.portal[11:]
+
+	case strings.HasPrefix(cmd.portal, "udp/broadcast:"):
+		// portal = cmd.portal[14:]
+
+	default:
+		return fmt.Errorf("Invalid --portal argument (%v)", cmd.portal)
+	}
+
+	// ... check TCP/IP pipe
+	switch {
+	case cmd.pipe == "":
+		return fmt.Errorf("--pipe argument is required")
+
+	case strings.HasPrefix(cmd.pipe, "tcp/client:"):
+
+	case strings.HasPrefix(cmd.pipe, "tcp/server:"):
+
+	default:
+		return fmt.Errorf("Invalid --pipe argument (%v)", cmd.pipe)
+	}
+
+	// ... install daemon
 	dir := filepath.Dir(cmd.config)
 	r := bufio.NewReader(os.Stdin)
 
@@ -143,7 +187,7 @@ func (cmd *Daemonize) execute() error {
 	fmt.Println()
 	fmt.Printf("   The daemon will start automatically on the next system restart - to start it manually, execute the following command:\n")
 	fmt.Println()
-	fmt.Printf("   sudo launchctl load /Library/LaunchDaemons/com.github.uhppoted.%s.plist\n", SERVICE)
+	fmt.Printf("   sudo launchctl load /Library/LaunchDaemons/com.github.uhppoted.%v-%v.plist\n", SERVICE, cmd.label)
 	fmt.Println()
 	fmt.Println()
 
@@ -158,10 +202,16 @@ func (cmd *Daemonize) launchd(i *info) error {
 	}
 
 	pl := plist{
-		Label:             i.Label,
-		Program:           i.Executable,
-		WorkingDirectory:  cmd.workdir,
-		ProgramArguments:  []string{},
+		Label:            i.Label,
+		Program:          i.Executable,
+		WorkingDirectory: cmd.workdir,
+		ProgramArguments: []string{
+			path, // ref. https://apple.stackexchange.com/questions/110644/getting-launchd-to-read-program-arguments-correctly
+			"--portal",
+			cmd.portal,
+			"--pipe",
+			cmd.pipe,
+		},
 		KeepAlive:         true,
 		RunAtLoad:         true,
 		StandardOutPath:   i.StdLogFile,

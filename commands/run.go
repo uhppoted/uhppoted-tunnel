@@ -55,7 +55,7 @@ func (cmd *Run) Description() string {
 }
 
 func (cmd *Run) Usage() string {
-	return "uhppoted-tunnel [--debug] [--in <connection>] [--out <connection>] [--logfile <file>] [--logfilesize <bytes>] [--pid <file>]"
+	return "uhppoted-tunnel [--debug] [--console] --portal <UDP connection> --pipe <TCP connection>"
 }
 
 func (cmd *Run) Help() {

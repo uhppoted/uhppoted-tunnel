@@ -1,8 +1,13 @@
 # TODO
 
 - [ ] daemonize
-      - [ ] daemonize client/server separately
       - [ ] portal/pipe
+      - [ ] daemonize client/server separately
+
+- [ ] undaemonize
+    - [x] MacOS
+    - [ ] Linux
+    - [ ] Windows
 
 - [ ] Close()
       - [ ] shutdown cleanly with timeout
@@ -12,16 +17,15 @@
             - [ ] TCP client
             - [ ] TCP server
 
-- (?) Routing matrix
-- (?) Replace handler functions with channels
 - [ ] Remove dependency on uhppoted-lib and uhppote-core
 
 ## Miscellaneous
 
+- [ ] SSL + mutual auth
 - [ ] HTTP POST portal
 - [ ] gRPC portal
-- [ ] Encode packet with protocol buffers
-- [ ] undaemonize
-- [ ] SSL + mutual auth
 - [ ] Check interop with events
+- (?) Encode packet with protocol buffers
 - (?) Wrap [libevent](https://libevent.org)
+- (?) Routing matrix
+- (?) Replace handler functions with channels

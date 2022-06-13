@@ -12,7 +12,7 @@ import (
 
 var cli = []lib.Command{
 	&commands.DAEMONIZE,
-	// &commands.UNDAEMONIZE,
+	&commands.UNDAEMONIZE,
 	&lib.Version{
 		Application: commands.SERVICE,
 		Version:     core.VERSION,
