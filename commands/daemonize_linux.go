@@ -56,7 +56,7 @@ const logRotateTemplate = `{{range .LogFiles}}{{. }} {{end}}{
     notifempty
     su uhppoted uhppoted
     postrotate
-       /usr/bin/killall -HUP uhppoted-httpd
+       /usr/bin/killall -HUP uhppoted-tunnel
     endscript
 }
 `
@@ -215,7 +215,7 @@ func (cmd *Daemonize) execute() error {
 	fmt.Println()
 	// fmt.Printf("     > sudo ufw allow from %s to any port 60000 proto udp\n", bind.IP)
 	fmt.Println()
-	fmt.Println("   The firewall may also need additional rules to allow external access to the HTTP server e.g. for UFW:")
+	fmt.Println("   The firewall may also need additional rules to allow external access to the tunnel e.g. for UFW:")
 	fmt.Println()
 	// fmt.Printf("     > sudo ufw allow from %s to any port 8080 proto tcp\n", bind.IP)
 	// fmt.Printf("     > sudo ufw allow from %s to any port 8443 proto tcp\n", bind.IP)

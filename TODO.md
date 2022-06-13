@@ -2,7 +2,8 @@
 
 - [ ] daemonize
       - [ ] portal/pipe
-      - [ ] daemonize client/server separately
+      - [x] daemonize client/server separately
+      - [ ] UFW firewall rules
 
 - [ ] undaemonize
     - [x] MacOS
