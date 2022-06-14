@@ -22,6 +22,7 @@ type Undaemonize struct {
 	logdir  string
 	config  string
 	etc     string
+	label   string
 }
 
 func (cmd *Undaemonize) Name() string {
@@ -29,7 +30,11 @@ func (cmd *Undaemonize) Name() string {
 }
 
 func (cmd *Undaemonize) FlagSet() *flag.FlagSet {
-	return flag.NewFlagSet("undaemonize", flag.ExitOnError)
+	flagset := flag.NewFlagSet("undaemonize", flag.ExitOnError)
+
+	flagset.StringVar(&cmd.label, "label", "", "Identifying label for the service (to distinguish multiple tunnels running on the same machine)")
+
+	return flagset
 }
 
 func (cmd *Undaemonize) Description() string {
@@ -42,7 +47,7 @@ func (cmd *Undaemonize) Usage() string {
 
 func (cmd *Undaemonize) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s undaemonize\n", SERVICE)
+	fmt.Printf("  Usage: %s undaemonize [--label <label>]\n", SERVICE)
 	fmt.Println()
 	fmt.Printf("    Deregisters %s from launchd as a service/daemon", SERVICE)
 	fmt.Println()
@@ -52,6 +57,11 @@ func (cmd *Undaemonize) Help() {
 
 func (cmd *Undaemonize) Execute(args ...interface{}) error {
 	fmt.Println("   ... undaemonizing")
+
+	service := SERVICE
+	if cmd.label != "" {
+		service = fmt.Sprintf("%v-%v", SERVICE, cmd.label)
+	}
 
 	if err := cmd.systemd(); err != nil {
 		return err
@@ -65,7 +75,7 @@ func (cmd *Undaemonize) Execute(args ...interface{}) error {
 		return err
 	}
 
-	fmt.Printf("   ... %s unregistered as a systemd service\n", SERVICE)
+	fmt.Printf("   ... %s unregistered as a systemd service\n", service)
 	fmt.Printf(`
        NOTE: Configuration files in %s,
              working files in %s,
@@ -78,7 +88,12 @@ func (cmd *Undaemonize) Execute(args ...interface{}) error {
 }
 
 func (cmd *Undaemonize) systemd() error {
-	path := filepath.Join("/etc/systemd/system", fmt.Sprintf("%s.service", SERVICE))
+	service := SERVICE
+	if cmd.label != "" {
+		service = fmt.Sprintf("%v-%v", SERVICE, cmd.label)
+	}
+
+	path := filepath.Join("/etc/systemd/system", fmt.Sprintf("%v.service", service))
 	_, err := os.Stat(path)
 	if err != nil && !os.IsNotExist(err) {
 		return err
@@ -89,14 +104,14 @@ func (cmd *Undaemonize) systemd() error {
 		return nil
 	}
 
-	fmt.Printf("   ... stopping %s service\n", SERVICE)
-	command := exec.Command("systemctl", "stop", SERVICE)
+	fmt.Printf("   ... stopping %s service\n", service)
+	command := exec.Command("systemctl", "stop", service)
 	out, err := command.CombinedOutput()
 	if strings.TrimSpace(string(out)) != "" {
 		fmt.Printf("   > %s\n", out)
 	}
 	if err != nil {
-		return fmt.Errorf("ERROR: Failed to stop '%s' (%v)\n", SERVICE, err)
+		return fmt.Errorf("ERROR: Failed to stop '%s' (%v)\n", service, err)
 	}
 
 	fmt.Printf("   ... removing '%s'\n", path)
@@ -109,7 +124,12 @@ func (cmd *Undaemonize) systemd() error {
 }
 
 func (cmd *Undaemonize) logrotate() error {
-	path := filepath.Join("/etc/logrotate.d", SERVICE)
+	service := SERVICE
+	if cmd.label != "" {
+		service = fmt.Sprintf("%v-%v", SERVICE, cmd.label)
+	}
+
+	path := filepath.Join("/etc/logrotate.d", service)
 
 	fmt.Printf("   ... removing '%s'\n", path)
 
@@ -122,8 +142,13 @@ func (cmd *Undaemonize) logrotate() error {
 }
 
 func (cmd *Undaemonize) clean() error {
+	pid := fmt.Sprintf("/var/uhppoted/%v.pid", SERVICE)
+	if cmd.label != "" {
+		pid = fmt.Sprintf("/var/uhppoted/%v-%v.pid", SERVICE, cmd.label)
+	}
+
 	files := []string{
-		filepath.Join(cmd.workdir, fmt.Sprintf("%s.pid", SERVICE)),
+		filepath.Join(cmd.workdir, fmt.Sprintf("%s.pid", pid)),
 	}
 
 	directories := []string{

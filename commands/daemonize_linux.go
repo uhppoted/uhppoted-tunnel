@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
+	"net"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -12,7 +13,6 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
-	// "github.com/uhppoted/uhppoted-lib/config"
 )
 
 type usergroup string
@@ -21,6 +21,8 @@ type info struct {
 	Description   string
 	Documentation string
 	Executable    string
+	Portal        string
+	Pipe          string
 	PID           string
 	User          string
 	Group         string
@@ -36,7 +38,7 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-ExecStart={{.Executable}}
+ExecStart={{.Executable}} --portal {{.Portal}} --pipe {{.Pipe}}
 PIDFile={{.PID}}
 User={{.User}}
 Group={{.Group}}
@@ -78,6 +80,9 @@ type Daemonize struct {
 	config    string
 	html      string
 	etc       string
+	label     string
+	portal    string
+	pipe      string
 }
 
 func (cmd *Daemonize) Name() string {
@@ -86,6 +91,10 @@ func (cmd *Daemonize) Name() string {
 
 func (cmd *Daemonize) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("daemonize", flag.ExitOnError)
+
+	flagset.StringVar(&cmd.label, "label", "", "Identifying label for the service (to distinguish multiple tunnels running on the same machine)")
+	flagset.StringVar(&cmd.portal, "portal", "", "UDP connection e.g. udp/listen:0.0.0.0:60000 or udp/broadcast:255.255.255.255:60000")
+	flagset.StringVar(&cmd.pipe, "pipe", "", "TCP pipe connection e.g. tcp/server:0.0.0.0:54321 or tcp/client:101.102.103.104:54321")
 	flagset.Var(&cmd.usergroup, "user", "user:group for uhppoted-tunnel service")
 
 	return flagset
@@ -96,24 +105,70 @@ func (cmd *Daemonize) Description() string {
 }
 
 func (cmd *Daemonize) Usage() string {
-	return "daemonize [--user <user:group>]"
+	return "daemonize [--user <user:group>] --portal <UDP connection> --pipe <TCP connection> [--label <label>]"
 }
 
 func (cmd *Daemonize) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s daemonize [--user <user:group>]\n", SERVICE)
+	fmt.Printf("  Usage: %s daemonize [--user <user:group>] --portal <UDP connection> --pipe <TCP connection> [--label <label>]\n", SERVICE)
 	fmt.Println()
 	fmt.Printf("    Registers %s as a systemd service/daemon that runs on startup.\n", SERVICE)
 	fmt.Println("      Defaults to the user:group uhppoted:uhppoted unless otherwise specified")
 	fmt.Println("      with the --user option")
+	fmt.Println()
+	fmt.Println("   --portal <connection>  Specifies the UDP connection to use for the daemon/service")
+	fmt.Println("   --pipe   <connection>  Specifies the TCP connection to use for the daemon/service")
+	fmt.Println("   --label  <label>       Suffix to append to the service to uniquely identify different tunnels")
+	fmt.Println("                          running on the same machine")
 	fmt.Println()
 
 	helpOptions(cmd.FlagSet())
 }
 
 func (cmd *Daemonize) Execute(args ...interface{}) error {
-	dir := filepath.Dir(cmd.config)
 	r := bufio.NewReader(os.Stdin)
+
+	if cmd.label == "" {
+		fmt.Println()
+		fmt.Printf("     **** WARNING: running daemonize without the --label option will overwrite any existing uhppoted-tunnel service.\n")
+		fmt.Println()
+		fmt.Printf("     Enter 'yes' to continue with the installation: ")
+
+		text, err := r.ReadString('\n')
+		if err != nil || strings.TrimSpace(text) != "yes" {
+			fmt.Println()
+			fmt.Printf("     -- installation cancelled --")
+			fmt.Println()
+			return nil
+		}
+	}
+	// ... check UDP packet handler
+	switch {
+	case cmd.portal == "":
+		return fmt.Errorf("--portal argument is required")
+
+	case strings.HasPrefix(cmd.portal, "udp/listen:"):
+
+	case strings.HasPrefix(cmd.portal, "udp/broadcast:"):
+
+	default:
+		return fmt.Errorf("Invalid --portal argument (%v)", cmd.portal)
+	}
+
+	// ... check TCP/IP pipe
+	switch {
+	case cmd.pipe == "":
+		return fmt.Errorf("--pipe argument is required")
+
+	case strings.HasPrefix(cmd.pipe, "tcp/client:"):
+
+	case strings.HasPrefix(cmd.pipe, "tcp/server:"):
+
+	default:
+		return fmt.Errorf("Invalid --pipe argument (%v)", cmd.pipe)
+	}
+
+	dir := filepath.Dir(cmd.config)
 
 	fmt.Println()
 	fmt.Printf("     **** PLEASE MAKE SURE YOU HAVE A BACKUP COPY OF THE CONFIGURATION INFORMATION AND KEYS IN %s ***\n", dir)
@@ -137,6 +192,11 @@ func (cmd *Daemonize) execute() error {
 		return err
 	}
 
+	service := fmt.Sprintf("%v", SERVICE)
+	if cmd.label != "" {
+		service = fmt.Sprintf("%v-%v", SERVICE, cmd.label)
+	}
+
 	uid, gid, err := getUserGroup(string(cmd.usergroup))
 	if err != nil {
 		fmt.Println()
@@ -150,6 +210,11 @@ func (cmd *Daemonize) execute() error {
 		username = u.Username
 	}
 
+	pid := fmt.Sprintf("/var/uhppoted/%v.pid", SERVICE)
+	if cmd.label != "" {
+		pid = fmt.Sprintf("/var/uhppoted/%v-%v.pid", SERVICE, cmd.label)
+	}
+
 	fmt.Println()
 	fmt.Println("   ... daemonizing")
 
@@ -157,13 +222,15 @@ func (cmd *Daemonize) execute() error {
 		Description:   "UHPPOTE UTO311-L0x access card controllers UDP tunnel service/daemon ",
 		Documentation: "https://github.com/uhppoted/uhppoted-tunnel",
 		Executable:    executable,
-		PID:           fmt.Sprintf("/var/uhppoted/%s.pid", SERVICE),
+		Portal:        cmd.portal,
+		Pipe:          cmd.pipe,
+		PID:           pid,
 		User:          "uhppoted",
 		Group:         "uhppoted",
 		Uid:           uid,
 		Gid:           gid,
 		LogFiles: []string{
-			fmt.Sprintf("/var/log/uhppoted/%s.log", SERVICE),
+			fmt.Sprintf("/var/log/uhppoted/%s.log", service),
 		},
 	}
 
@@ -186,16 +253,6 @@ func (cmd *Daemonize) execute() error {
 		return err
 	}
 
-	// if err := cmd.conf(i, unpacked, grules); err != nil {
-	// 	return err
-	// } else if err = os.Chown(cmd.config, uid, gid); err != nil {
-	// 	return err
-	// }
-
-	// if _, err := cmd.genTLSkeys(i); err != nil {
-	// 	return err
-	// }
-
 	if err := filepath.WalkDir(cmd.etc, chown); err != nil {
 		return err
 	}
@@ -204,26 +261,52 @@ func (cmd *Daemonize) execute() error {
 		return err
 	}
 
-	fmt.Printf("   ... %s registered as a systemd service\n", SERVICE)
+	// .. get network addresses for UFW
+	var udp *net.UDPAddr
+	var tcp *net.TCPAddr
+
+	switch {
+	case strings.HasPrefix(cmd.portal, "udp/listen:"):
+		udp, _ = net.ResolveUDPAddr("udp", cmd.portal[11:])
+
+	case strings.HasPrefix(cmd.portal, "udp/broadcast:"):
+		udp, _ = net.ResolveUDPAddr("udp", cmd.portal[14:])
+	}
+
+	switch {
+	case strings.HasPrefix(cmd.pipe, "tcp/client:"):
+		tcp, _ = net.ResolveTCPAddr("tcp", cmd.pipe[11:])
+
+	case strings.HasPrefix(cmd.pipe, "tcp/server:"):
+		tcp, _ = net.ResolveTCPAddr("tcp", cmd.pipe[11:])
+	}
+
+	fmt.Printf("   ... %s registered as a systemd service\n", service)
 	fmt.Println()
 	fmt.Println("   The daemon will start automatically on the next system restart - to start it manually, execute the following command:")
 	fmt.Println()
-	fmt.Printf("     > sudo systemctl start  %s\n", SERVICE)
-	fmt.Printf("     > sudo systemctl status %s\n", SERVICE)
+	fmt.Printf("     > sudo systemctl start  %s\n", service)
+	fmt.Printf("     > sudo systemctl status %s\n", service)
 	fmt.Println()
-	fmt.Println("   The firewall may need additional rules to allow UDP broadcast e.g. for UFW:")
-	fmt.Println()
-	// fmt.Printf("     > sudo ufw allow from %s to any port 60000 proto udp\n", bind.IP)
-	fmt.Println()
-	fmt.Println("   The firewall may also need additional rules to allow external access to the tunnel e.g. for UFW:")
-	fmt.Println()
-	// fmt.Printf("     > sudo ufw allow from %s to any port 8080 proto tcp\n", bind.IP)
-	// fmt.Printf("     > sudo ufw allow from %s to any port 8443 proto tcp\n", bind.IP)
-	fmt.Println()
+
+	if udp != nil {
+		fmt.Println("   The firewall may need additional rules to allow UDP broadcast e.g. for UFW:")
+		fmt.Println()
+		fmt.Printf("     > sudo ufw allow from %s to any port 60000 proto udp\n", udp)
+		fmt.Println()
+	}
+
+	if tcp != nil {
+		fmt.Println("   The firewall may need additional rules to allow external access to the tunnel TCP pipe e.g. for UFW:")
+		fmt.Println()
+		fmt.Printf("     > sudo ufw allow from %s to any port 8080 proto tcp\n", tcp)
+		fmt.Println()
+	}
+
 	fmt.Printf("   The installation can be verified by running the %v service in 'console' mode:\n", SERVICE)
 	fmt.Println()
 	fmt.Printf("     > sudo su %v\n", username)
-	fmt.Printf("     > ./%v --debug --console\n", SERVICE)
+	fmt.Printf("     > ./%v --debug --console --portal %v --pipe %v\n", SERVICE, cmd.portal, cmd.pipe)
 	fmt.Println()
 	fmt.Println()
 
@@ -231,7 +314,11 @@ func (cmd *Daemonize) execute() error {
 }
 
 func (cmd *Daemonize) systemd(i *info) error {
-	service := fmt.Sprintf("%s.service", SERVICE)
+	service := fmt.Sprintf("%v.service", SERVICE)
+	if cmd.label != "" {
+		service = fmt.Sprintf("%v-%v.service", SERVICE, cmd.label)
+	}
+
 	path := filepath.Join("/etc/systemd/system", service)
 	t := template.Must(template.New(service).Parse(serviceTemplate))
 
@@ -271,8 +358,13 @@ func (cmd *Daemonize) mkdirs(i *info) error {
 }
 
 func (cmd *Daemonize) logrotate(i *info) error {
-	path := filepath.Join("/etc/logrotate.d", SERVICE)
-	t := template.Must(template.New(fmt.Sprintf("%s.logrotate", SERVICE)).Parse(logRotateTemplate))
+	service := fmt.Sprintf("%v.service", SERVICE)
+	if cmd.label != "" {
+		service = fmt.Sprintf("%v-%v.service", SERVICE, cmd.label)
+	}
+
+	path := filepath.Join("/etc/logrotate.d", service)
+	t := template.Must(template.New(fmt.Sprintf("%s.logrotate", service)).Parse(logRotateTemplate))
 
 	fmt.Printf("   ... creating '%s'\n", path)
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)

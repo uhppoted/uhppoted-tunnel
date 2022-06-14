@@ -1,9 +1,9 @@
 # TODO
 
 - [ ] daemonize
-      - [ ] Make --label optional but recommended
+      - [x] Make --label optional but recommended
       - [ ] Linux
-            - [ ] UFW firewall rules
+            - [x] UFW firewall rules
       - [ ] Windows
 
 - [ ] undaemonize
@@ -17,7 +17,11 @@
             - [x] UDP broadcast
             - [x] UDP listen
             - [ ] TCP client
-            - [ ] TCP server
+            - [x] TCP server
+            - [ ] Fix closing/error/retry loop logic in UDP/TCP listen
+                  - [ ] backoff
+                  - [ ] error handling
+                  - (?) Condition handler a la LISP
 
 - [ ] Remove dependency on uhppoted-lib and uhppote-core
 

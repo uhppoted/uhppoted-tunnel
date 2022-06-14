@@ -91,8 +91,10 @@ reverse-client: build
 	$(CMD) --debug --console --portal udp/broadcast:192.168.1.255:60005 --pipe tcp/server:0.0.0.0:12345 --udp-timeout 1s
 
 daemonize: build
+	# sudo $(CMD) daemonize --portal udp/listen:0.0.0.0:60000 --pipe tcp/server:0.0.0.0:12345
 	sudo $(CMD) daemonize --portal udp/listen:0.0.0.0:60000 --pipe tcp/server:0.0.0.0:12345 --label qwerty
 
 undaemonize: build
+	# sudo $(CMD) undaemonize
 	sudo $(CMD) undaemonize --label qwerty
 

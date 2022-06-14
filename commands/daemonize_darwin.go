@@ -63,9 +63,9 @@ func (cmd *Daemonize) Name() string {
 func (cmd *Daemonize) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("daemonize", flag.ExitOnError)
 
-	flagset.StringVar(&cmd.label, "label", "", "Identifying label for the service (to distinguish multiple tunnels running on the same machine)")
 	flagset.StringVar(&cmd.portal, "portal", "", "UDP connection e.g. udp/listen:0.0.0.0:60000 or udp/broadcast:255.255.255.255:60000")
 	flagset.StringVar(&cmd.pipe, "pipe", "", "TCP pipe connection e.g. tcp/server:0.0.0.0:54321 or tcp/client:101.102.103.104:54321")
+	flagset.StringVar(&cmd.label, "label", "", "(optional) Identifying label for the service to distinguish multiple tunnels running on the same machine")
 
 	return flagset
 }
@@ -80,7 +80,7 @@ func (cmd *Daemonize) Usage() string {
 
 func (cmd *Daemonize) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s daemonize --portal <UDP connection> --pipe <TCP connection> --label <label>\n", SERVICE)
+	fmt.Printf("  Usage: %s daemonize --portal <UDP connection> --pipe <TCP connection> [--label <label>]\n", SERVICE)
 	fmt.Println()
 	fmt.Printf("    Daemonizes %s as a service/daemon that runs on startup\n", SERVICE)
 	fmt.Println()
@@ -89,8 +89,21 @@ func (cmd *Daemonize) Help() {
 }
 
 func (cmd *Daemonize) Execute(args ...interface{}) error {
+	r := bufio.NewReader(os.Stdin)
+
 	if cmd.label == "" {
-		return fmt.Errorf("--label argument is required")
+		fmt.Println()
+		fmt.Printf("     **** WARNING: running daemonize without the --label option will overwrite any existing uhppoted-tunnel daemon.\n")
+		fmt.Println()
+		fmt.Printf("     Enter 'yes' to continue with the installation: ")
+
+		text, err := r.ReadString('\n')
+		if err != nil || strings.TrimSpace(text) != "yes" {
+			fmt.Println()
+			fmt.Printf("     -- installation cancelled --")
+			fmt.Println()
+			return nil
+		}
 	} else {
 		cmd.plist = fmt.Sprintf("com.github.uhppoted.%v-%v.plist", SERVICE, cmd.label)
 	}
@@ -125,7 +138,6 @@ func (cmd *Daemonize) Execute(args ...interface{}) error {
 
 	// ... install daemon
 	dir := filepath.Dir(cmd.config)
-	r := bufio.NewReader(os.Stdin)
 
 	fmt.Println()
 	fmt.Printf("     **** PLEASE MAKE SURE YOU HAVE A BACKUP COPY OF ANY CONFIGURATION INFORMATION AND KEYS IN %s ***\n", dir)
@@ -152,8 +164,13 @@ func (cmd *Daemonize) execute() error {
 		return err
 	}
 
+	label := fmt.Sprintf("com.github.uhppoted.%s", SERVICE)
+	if cmd.label != "" {
+		label = fmt.Sprintf("com.github.uhppoted.%s-%v", SERVICE, cmd.label)
+	}
+
 	i := info{
-		Label:      fmt.Sprintf("com.github.uhppoted.%s", SERVICE),
+		Label:      label,
 		Executable: executable,
 		StdLogFile: filepath.Join(cmd.logdir, fmt.Sprintf("%s.log", SERVICE)),
 		ErrLogFile: filepath.Join(cmd.logdir, fmt.Sprintf("%s.err", SERVICE)),
@@ -175,19 +192,11 @@ func (cmd *Daemonize) execute() error {
 		return err
 	}
 
-	// if err := cmd.conf(i, unpacked, grules); err != nil {
-	// 	return err
-	// }
-
-	// if _, err := cmd.genTLSkeys(i); err != nil {
-	// 	return err
-	// }
-
 	fmt.Printf("   ... %s registered as a LaunchDaemon\n", i.Label)
 	fmt.Println()
 	fmt.Printf("   The daemon will start automatically on the next system restart - to start it manually, execute the following command:\n")
 	fmt.Println()
-	fmt.Printf("   sudo launchctl load /Library/LaunchDaemons/com.github.uhppoted.%v-%v.plist\n", SERVICE, cmd.label)
+	fmt.Printf("   sudo launchctl load /Library/LaunchDaemons/%v.plist\n", label)
 	fmt.Println()
 	fmt.Println()
 

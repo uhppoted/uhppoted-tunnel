@@ -51,7 +51,7 @@ func (cmd *Undaemonize) Usage() string {
 
 func (cmd *Undaemonize) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s undaemonize --label <label>\n", SERVICE)
+	fmt.Printf("  Usage: %s undaemonize [--label <label>]\n", SERVICE)
 	fmt.Println()
 	fmt.Printf("    Deregisters %s from launchd as a service/daemon", SERVICE)
 	fmt.Println()
@@ -60,9 +60,7 @@ func (cmd *Undaemonize) Help() {
 }
 
 func (cmd *Undaemonize) Execute(args ...interface{}) error {
-	if cmd.label == "" {
-		return fmt.Errorf("--label argument is required")
-	} else {
+	if cmd.label != "" {
 		cmd.plist = fmt.Sprintf("com.github.uhppoted.%v-%v.plist", SERVICE, cmd.label)
 	}
 
