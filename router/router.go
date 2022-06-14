@@ -117,6 +117,7 @@ func (r *Router) Sweep() {
 }
 
 func Close() {
+	infof("ROUTER", "closing")
 	router.closing <- struct{}{}
 
 	timeout := time.NewTimer(5 * time.Second)

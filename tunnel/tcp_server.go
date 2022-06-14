@@ -5,13 +5,16 @@ import (
 	"io"
 	"net"
 	"sync"
+	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/router"
 )
 
 type tcpServer struct {
 	addr        *net.TCPAddr
+	retryDelay  time.Duration
 	connections map[net.Conn]struct{}
+	closing     chan struct{}
 	closed      chan struct{}
 	sync.RWMutex
 }
@@ -29,7 +32,9 @@ func NewTCPServer(spec string) (*tcpServer, error) {
 
 	out := tcpServer{
 		addr:        addr,
+		retryDelay:  15 * time.Second,
 		connections: map[net.Conn]struct{}{},
+		closing:     make(chan struct{}),
 		closed:      make(chan struct{}),
 	}
 
@@ -37,21 +42,52 @@ func NewTCPServer(spec string) (*tcpServer, error) {
 }
 
 func (tcp *tcpServer) Close() {
+	infof("TCP", "closing")
+	close(tcp.closing)
+
+	timeout := time.NewTimer(5 * time.Second)
+	select {
+	case <-tcp.closed:
+		infof("TCP", "closed")
+
+	case <-timeout.C:
+		infof("TCP", "close timeout")
+	}
 }
 
-func (tcp *tcpServer) Run(router *router.Switch) error {
-	socket, err := net.Listen("tcp", fmt.Sprintf("%v", tcp.addr))
-	if err != nil {
-		return err
-	}
-
-	defer socket.Close()
+func (tcp *tcpServer) Run(router *router.Switch) (err error) {
+	var socket net.Listener
+	var closing = false
+	var delay = 0 * time.Second
 
 	go func() {
-		tcp.listen(socket, router)
+		for !closing {
+			time.Sleep(delay)
+
+			socket, err = net.Listen("tcp", fmt.Sprintf("%v", tcp.addr))
+			if err != nil {
+				warnf("TCP", "%v", err)
+
+			} else if socket == nil {
+				warnf("TCP", "%v", fmt.Errorf("Failed to create TCP listen socket (%v)", socket))
+			}
+
+			delay = tcp.retryDelay
+
+			tcp.listen(socket, router)
+		}
+
+		for k, _ := range tcp.connections {
+			k.Close()
+		}
+
+		tcp.closed <- struct{}{}
 	}()
 
-	<-tcp.closed
+	<-tcp.closing
+
+	closing = true
+	socket.Close()
 
 	return nil
 }
@@ -69,38 +105,43 @@ func (tcp *tcpServer) Send(id uint32, message []byte) {
 func (tcp *tcpServer) listen(socket net.Listener, router *router.Switch) {
 	infof("TCP", "listening on %v", socket.Addr())
 
+	defer socket.Close()
+
 	for {
-		if client, err := socket.Accept(); err != nil {
+		client, err := socket.Accept()
+		if err != nil {
 			errorf("TCP", "%v", err)
+			return
+		}
+
+		infof("TCP", "incoming connection (%v)", client.RemoteAddr())
+
+		if socket, ok := client.(*net.TCPConn); !ok {
+			warnf("TCP", "%v", "invalid TCP socket")
 		} else {
-			infof("TCP", "incoming connection (%v)", client.RemoteAddr())
+			tcp.Lock()
+			tcp.connections[socket] = struct{}{}
+			tcp.Unlock()
 
-			if socket, ok := client.(*net.TCPConn); !ok {
-				errorf("TCP", "%v", "invalid TCP socket")
-			} else {
-				tcp.Lock()
-				tcp.connections[socket] = struct{}{}
-				tcp.Unlock()
-
-				go func(socket *net.TCPConn) {
-					for {
-						buffer := make([]byte, 2048) // buffer is handed off to router
-						if N, err := socket.Read(buffer); err != nil {
-							if err == io.EOF {
-								infof("TCP", "client connection %v closed ", socket.RemoteAddr())
-								break
-							}
-							warnf("TCP", "error reading from socket (%v)", err)
+			go func(socket *net.TCPConn) {
+				for {
+					buffer := make([]byte, 2048) // buffer is handed off to router
+					if N, err := socket.Read(buffer); err != nil {
+						if err == io.EOF {
+							infof("TCP", "client connection %v closed ", socket.RemoteAddr())
 						} else {
-							tcp.received(buffer[:N], router, socket)
+							warnf("TCP", "%v", err)
 						}
+						break
+					} else {
+						tcp.received(buffer[:N], router, socket)
 					}
+				}
 
-					tcp.Lock()
-					delete(tcp.connections, socket)
-					tcp.Unlock()
-				}(socket)
-			}
+				tcp.Lock()
+				delete(tcp.connections, socket)
+				tcp.Unlock()
+			}(socket)
 		}
 	}
 }

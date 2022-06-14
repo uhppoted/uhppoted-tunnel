@@ -1,9 +1,10 @@
 # TODO
 
 - [ ] daemonize
-      - [ ] portal/pipe
-      - [x] daemonize client/server separately
-      - [ ] UFW firewall rules
+      - [ ] Make --label optional but recommended
+      - [ ] Linux
+            - [ ] UFW firewall rules
+      - [ ] Windows
 
 - [ ] undaemonize
     - [x] MacOS

@@ -40,6 +40,7 @@ func NewUDPListen(spec string) (*udpListen, error) {
 }
 
 func (udp *udpListen) Close() {
+	infof("UDP", "closing")
 	close(udp.closing)
 
 	timeout := time.NewTimer(5 * time.Second)
