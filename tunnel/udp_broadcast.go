@@ -58,8 +58,6 @@ func (udp *udpBroadcast) Close() {
 	case <-timeout.C:
 		infof("UDP", "close timeout")
 	}
-
-	infof("UDP", "closed")
 }
 
 func (udp *udpBroadcast) Run(router *router.Switch) error {

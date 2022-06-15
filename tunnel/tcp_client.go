@@ -15,6 +15,7 @@ type tcpClient struct {
 	maxRetryDelay time.Duration
 	timeout       time.Duration
 	ch            chan message
+	closing       chan struct{}
 	closed        chan struct{}
 }
 
@@ -36,6 +37,7 @@ func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tc
 		maxRetryDelay: maxRetryDelay,
 		timeout:       5 * time.Second,
 		ch:            make(chan message, 16),
+		closing:       make(chan struct{}),
 		closed:        make(chan struct{}),
 	}
 
@@ -43,15 +45,22 @@ func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tc
 }
 
 func (tcp *tcpClient) Close() {
-	close(tcp.closed)
+	infof("TCP", "closing")
+	close(tcp.closing)
+
+	timeout := time.NewTimer(5 * time.Second)
+	select {
+	case <-tcp.closed:
+		infof("TCP", "closed")
+
+	case <-timeout.C:
+		infof("TCP", "close timeout")
+	}
 }
 
 func (tcp *tcpClient) Run(router *router.Switch) error {
-	go func() {
-		tcp.connect(router)
-	}()
-
-	<-tcp.closed
+	tcp.connect(router)
+	tcp.closed <- struct{}{}
 
 	return nil
 }
@@ -63,11 +72,12 @@ func (tcp *tcpClient) Send(id uint32, msg []byte) {
 	}
 }
 
-func (tcp *tcpClient) connect(router *router.Switch) error {
+func (tcp *tcpClient) connect(router *router.Switch) {
 	retryDelay := RETRY_MIN_DELAY
 	retries := 0
+	closing := false
 
-	for tcp.maxRetries < 0 || retries < tcp.maxRetries {
+	for !closing {
 		infof("TCP", "connecting to %v", tcp.addr)
 
 		if socket, err := net.Dial("tcp", fmt.Sprintf("%v", tcp.addr)); err != nil {
@@ -88,6 +98,11 @@ func (tcp *tcpClient) connect(router *router.Switch) error {
 
 					case <-eof:
 						return
+
+					case <-tcp.closing:
+						closing = true
+						socket.Close()
+						return
 					}
 				}
 			}()
@@ -103,18 +118,25 @@ func (tcp *tcpClient) connect(router *router.Switch) error {
 			close(eof)
 		}
 
-		infof("TCP", "connection failed ... retrying in %v", retryDelay)
+		if closing {
+			break
+		}
 
+		// ... retry
+		retries++
+		if tcp.maxRetries >= 0 && retries > tcp.maxRetries {
+			warnf("TCP", "Connect to %v failed (retry count exceeded %v)", tcp.addr, tcp.maxRetries)
+			return
+		}
+
+		infof("TCP", "connection failed ... retrying in %v", retryDelay)
 		time.Sleep(retryDelay)
 
-		retries++
 		retryDelay *= 2
 		if retryDelay > tcp.maxRetryDelay {
 			retryDelay = tcp.maxRetryDelay
 		}
 	}
-
-	return fmt.Errorf("Connect to %v failed (retry count exceeded %v)", tcp.addr, tcp.maxRetries)
 }
 
 func (tcp *tcpClient) listen(socket net.Conn, router *router.Switch) error {

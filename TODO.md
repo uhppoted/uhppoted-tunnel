@@ -1,7 +1,8 @@
 # TODO
 
 - [ ] daemonize
-      - [x] Make --label optional but recommended
+      - [x] --label optional but recommended
+            - (?) lockfile
       - [ ] Linux
             - [x] UFW firewall rules
       - [ ] Windows
@@ -16,8 +17,9 @@
             - [x] router
             - [x] UDP broadcast
             - [x] UDP listen
-            - [ ] TCP client
+            - [x] TCP client
             - [x] TCP server
+            - [ ] Ignore warnings if closing
             - [ ] Fix closing/error/retry loop logic in UDP/TCP listen
                   - [ ] backoff
                   - [ ] error handling
