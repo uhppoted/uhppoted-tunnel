@@ -258,7 +258,6 @@ func (cmd *Daemonize) execute() error {
 
 	// .. get network addresses for UFW
 	var udp *net.UDPAddr
-	var tcp *net.TCPAddr
 
 	switch {
 	case strings.HasPrefix(cmd.portal, "udp/listen:"):
@@ -266,14 +265,6 @@ func (cmd *Daemonize) execute() error {
 
 	case strings.HasPrefix(cmd.portal, "udp/broadcast:"):
 		udp, _ = net.ResolveUDPAddr("udp", cmd.portal[14:])
-	}
-
-	switch {
-	case strings.HasPrefix(cmd.pipe, "tcp/client:"):
-		tcp, _ = net.ResolveTCPAddr("tcp", cmd.pipe[11:])
-
-	case strings.HasPrefix(cmd.pipe, "tcp/server:"):
-		tcp, _ = net.ResolveTCPAddr("tcp", cmd.pipe[11:])
 	}
 
 	fmt.Printf("   ... %s registered as a systemd service\n", cmd.service)
