@@ -90,11 +90,11 @@ func dump(m []byte, prefix string) string {
 	return fmt.Sprintf("%s", regex.ReplaceAllString(hex.Dump(m), prefix+"$1"))
 }
 
-func dumpf(message []byte, format string, args ...any) {
-	hex := dump(message, "                                ")
+func dumpf(tag string, message []byte, format string, args ...any) {
+	hex := dump(message, "                                  ")
 	preamble := fmt.Sprintf(format, args...)
 
-	debugf("UDP", "%v\n%s", preamble, hex)
+	debugf(tag, "%v\n%s", preamble, hex)
 }
 
 func debugf(tag, format string, args ...any) {

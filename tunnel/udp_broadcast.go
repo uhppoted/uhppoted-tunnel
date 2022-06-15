@@ -89,8 +89,7 @@ func (udp *udpBroadcast) Send(id uint32, msg []byte) {
 }
 
 func (udp *udpBroadcast) send(id uint32, message []byte) []byte {
-	hex := dump(message, "                                  ")
-	debugf("UDP", "broadcast%v\n%s\n", "", hex)
+	dumpf("UDP", message, "broadcast (%v bytes)", len(message))
 
 	if bind, err := net.ResolveUDPAddr("udp", "0.0.0.0:0"); err != nil {
 		warnf("UDP", "%v", err)

@@ -104,10 +104,10 @@ func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) {
 		}
 
 		id := nextID()
-		dumpf(buffer[:N], "UDP  request %v  %v bytes from %v", id, N, remote)
+		dumpf("UDP", buffer[:N], "request %v  %v bytes from %v", id, N, remote)
 
 		h := func(reply []byte) {
-			dumpf(reply, "UDP  reply %v  %v bytes for %v", id, len(reply), remote)
+			dumpf("UDP", reply, "reply %v  %v bytes for %v", id, len(reply), remote)
 
 			if N, err := socket.WriteToUDP(reply, remote); err != nil {
 				warnf("UDP", "%v", err)

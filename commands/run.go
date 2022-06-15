@@ -14,17 +14,18 @@ import (
 )
 
 type Run struct {
-	console       bool
 	portal        string
 	pipe          string
 	maxRetries    int
 	maxRetryDelay time.Duration
 	udpTimeout    time.Duration
-	debug         bool
-	workdir       string
+	lockfile      string
 	logFile       string
 	logFileSize   int
 	logLevel      string
+	workdir       string
+	debug         bool
+	console       bool
 }
 
 const MAX_RETRIES = -1
@@ -36,11 +37,12 @@ func (r *Run) FlagSet() *flag.FlagSet {
 
 	flagset.StringVar(&r.portal, "portal", "", "UDP connection e.g. udp/listen:0.0.0.0:60000 or udp/broadcast:255.255.255.255:60000")
 	flagset.StringVar(&r.pipe, "pipe", "", "TCP pipe connection e.g. tcp/server:0.0.0.0:54321 or tcp/client:101.102.103.104:54321")
+	flagset.StringVar(&r.lockfile, "lockfile", "", "(optional) name of lockfile used to prevent running multiple copies of the service. A default lockfile name is generated if none is supplied")
 	flagset.IntVar(&r.maxRetries, "max-retries", MAX_RETRIES, "Maximum number of times to retry failed connection. Defaults to -1 (retry forever)")
 	flagset.DurationVar(&r.maxRetryDelay, "max-retry-delay", MAX_RETRY_DELAY, "Maximum delay between retrying failed connections")
 	flagset.DurationVar(&r.udpTimeout, "udp-timeout", UDP_TIMEOUT, "Time limit to wait for UDP replies")
-	flagset.BoolVar(&r.console, "console", false, "Runs as a console application rather than a service")
 	flagset.StringVar(&r.logLevel, "log-level", "info", "Sets the log level (debug, info, warn or error)")
+	flagset.BoolVar(&r.console, "console", false, "Runs as a console application rather than a service")
 	flagset.BoolVar(&r.debug, "debug", false, "Enables detailed debugging logs")
 
 	return flagset
@@ -55,7 +57,7 @@ func (cmd *Run) Description() string {
 }
 
 func (cmd *Run) Usage() string {
-	return "uhppoted-tunnel [--debug] [--console] --portal <UDP connection> --pipe <TCP connection>"
+	return "uhppoted-tunnel [--debug] [--console] [--lockfile <PID filepath>] --portal <UDP connection> --pipe <TCP connection>"
 }
 
 func (cmd *Run) Help() {
@@ -123,8 +125,12 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 	}
 
 	pid := fmt.Sprintf("%d\n", os.Getpid())
-	hash := sha1.Sum([]byte(cmd.portal + cmd.pipe))
-	lockfile := filepath.Join(cmd.workdir, fmt.Sprintf("%s-%x.pid", SERVICE, hash))
+	lockfile := cmd.lockfile
+
+	if lockfile == "" {
+		hash := sha1.Sum([]byte(cmd.portal + cmd.pipe))
+		lockfile = filepath.Join(cmd.workdir, fmt.Sprintf("%s-%x.pid", SERVICE, hash))
+	}
 
 	if _, err := os.Stat(lockfile); err == nil {
 		return fmt.Errorf("PID lockfile '%v' already in use", lockfile)

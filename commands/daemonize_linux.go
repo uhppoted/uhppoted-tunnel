@@ -38,7 +38,7 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-ExecStart={{.Executable}} --portal {{.Portal}} --pipe {{.Pipe}}
+ExecStart={{.Executable}} --lockfile {{.PID}} --portal {{.Portal}} --pipe {{.Pipe}}
 PIDFile={{.PID}}
 User={{.User}}
 Group={{.Group}}
@@ -69,6 +69,7 @@ var DAEMONIZE = Daemonize{
 	logdir:    "/var/log/uhppoted",
 	config:    "/etc/uhppoted/uhppoted.conf",
 	etc:       "/etc/uhppoted/tunnel",
+	service:   SERVICE,
 }
 
 var replacer *strings.Replacer
@@ -83,6 +84,7 @@ type Daemonize struct {
 	label     string
 	portal    string
 	pipe      string
+	service   string
 }
 
 func (cmd *Daemonize) Name() string {
@@ -141,7 +143,10 @@ func (cmd *Daemonize) Execute(args ...interface{}) error {
 			fmt.Println()
 			return nil
 		}
+	} else {
+		cmd.service = fmt.Sprintf("%v-%v", SERVICE, cmd.label)
 	}
+
 	// ... check UDP packet handler
 	switch {
 	case cmd.portal == "":
@@ -192,11 +197,6 @@ func (cmd *Daemonize) execute() error {
 		return err
 	}
 
-	service := fmt.Sprintf("%v", SERVICE)
-	if cmd.label != "" {
-		service = fmt.Sprintf("%v-%v", SERVICE, cmd.label)
-	}
-
 	uid, gid, err := getUserGroup(string(cmd.usergroup))
 	if err != nil {
 		fmt.Println()
@@ -210,11 +210,6 @@ func (cmd *Daemonize) execute() error {
 		username = u.Username
 	}
 
-	pid := fmt.Sprintf("/var/uhppoted/%v.pid", SERVICE)
-	if cmd.label != "" {
-		pid = fmt.Sprintf("/var/uhppoted/%v-%v.pid", SERVICE, cmd.label)
-	}
-
 	fmt.Println()
 	fmt.Println("   ... daemonizing")
 
@@ -224,13 +219,13 @@ func (cmd *Daemonize) execute() error {
 		Executable:    executable,
 		Portal:        cmd.portal,
 		Pipe:          cmd.pipe,
-		PID:           pid,
+		PID:           fmt.Sprintf("/var/uhppoted/%v.pid", cmd.service),
 		User:          "uhppoted",
 		Group:         "uhppoted",
 		Uid:           uid,
 		Gid:           gid,
 		LogFiles: []string{
-			fmt.Sprintf("/var/log/uhppoted/%s.log", service),
+			fmt.Sprintf("/var/log/uhppoted/%s.log", cmd.service),
 		},
 	}
 
@@ -281,25 +276,18 @@ func (cmd *Daemonize) execute() error {
 		tcp, _ = net.ResolveTCPAddr("tcp", cmd.pipe[11:])
 	}
 
-	fmt.Printf("   ... %s registered as a systemd service\n", service)
+	fmt.Printf("   ... %s registered as a systemd service\n", cmd.service)
 	fmt.Println()
 	fmt.Println("   The daemon will start automatically on the next system restart - to start it manually, execute the following command:")
 	fmt.Println()
-	fmt.Printf("     > sudo systemctl start  %s\n", service)
-	fmt.Printf("     > sudo systemctl status %s\n", service)
+	fmt.Printf("     > sudo systemctl start  %s\n", cmd.service)
+	fmt.Printf("     > sudo systemctl status %s\n", cmd.service)
 	fmt.Println()
 
 	if udp != nil {
 		fmt.Println("   The firewall may need additional rules to allow UDP broadcast e.g. for UFW:")
 		fmt.Println()
-		fmt.Printf("     > sudo ufw allow from %s to any port 60000 proto udp\n", udp)
-		fmt.Println()
-	}
-
-	if tcp != nil {
-		fmt.Println("   The firewall may need additional rules to allow external access to the tunnel TCP pipe e.g. for UFW:")
-		fmt.Println()
-		fmt.Printf("     > sudo ufw allow from %s to any port 8080 proto tcp\n", tcp)
+		fmt.Printf("     > sudo ufw allow 60000/udp\n")
 		fmt.Println()
 	}
 
@@ -314,13 +302,8 @@ func (cmd *Daemonize) execute() error {
 }
 
 func (cmd *Daemonize) systemd(i *info) error {
-	service := fmt.Sprintf("%v.service", SERVICE)
-	if cmd.label != "" {
-		service = fmt.Sprintf("%v-%v.service", SERVICE, cmd.label)
-	}
-
-	path := filepath.Join("/etc/systemd/system", service)
-	t := template.Must(template.New(service).Parse(serviceTemplate))
+	path := filepath.Join("/etc/systemd/system", fmt.Sprintf("%v.service", cmd.service))
+	t := template.Must(template.New(cmd.service).Parse(serviceTemplate))
 
 	fmt.Printf("   ... creating '%s'\n", path)
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
@@ -358,13 +341,8 @@ func (cmd *Daemonize) mkdirs(i *info) error {
 }
 
 func (cmd *Daemonize) logrotate(i *info) error {
-	service := fmt.Sprintf("%v.service", SERVICE)
-	if cmd.label != "" {
-		service = fmt.Sprintf("%v-%v.service", SERVICE, cmd.label)
-	}
-
-	path := filepath.Join("/etc/logrotate.d", service)
-	t := template.Must(template.New(fmt.Sprintf("%s.logrotate", service)).Parse(logRotateTemplate))
+	path := filepath.Join("/etc/logrotate.d", cmd.service)
+	t := template.Must(template.New(fmt.Sprintf("%s.logrotate", cmd.service)).Parse(logRotateTemplate))
 
 	fmt.Printf("   ... creating '%s'\n", path)
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
