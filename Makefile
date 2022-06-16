@@ -92,7 +92,8 @@ reverse-client: build
 
 daemonize: build
 	# sudo $(CMD) daemonize --portal udp/listen:0.0.0.0:60000 --pipe tcp/server:0.0.0.0:12345
-	sudo $(CMD) daemonize --portal udp/listen:0.0.0.0:60000 --pipe tcp/server:0.0.0.0:12345 --label qwerty
+	sudo $(CMD) daemonize --portal udp/listen:0.0.0.0:60000          --pipe tcp/server:0.0.0.0:12345   --label qwerty
+	sudo $(CMD) daemonize --portal udp/broadcast:192.168.1.255:60005 --pipe tcp/client:127.0.0.1:12345 --label uiop
 
 undaemonize: build
 	# sudo $(CMD) undaemonize

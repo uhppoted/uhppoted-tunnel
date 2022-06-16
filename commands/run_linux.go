@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -18,6 +19,10 @@ var RUN = Run{
 	workdir:     "/var/uhppoted",
 	logFile:     fmt.Sprintf("/var/log/uhppoted/%s.log", SERVICE),
 	logFileSize: 10,
+}
+
+func (cmd *Run) FlagSet() *flag.FlagSet {
+	return cmd.flags()
 }
 
 func (cmd *Run) Execute(args ...interface{}) error {

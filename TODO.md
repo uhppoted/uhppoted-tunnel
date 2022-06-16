@@ -1,18 +1,10 @@
 # TODO
 
-- [ ] daemonize
-      - [x] --label optional but recommended
-            - (?) lockfile
-      - [x] Linux
-            - [x] UFW firewall rules
-      - [ ] Windows
+- [x] daemonize
+      - [x] Windows
 
-- [ ] undaemonize
-    - [x] MacOS
-    - [x] Linux
-          - [x] `ERROR: remove /etc/logrotate.d/uhppoted-tunnnel-uiop: no such file or directory`
-          - [x] `/var/uhppoted/tunnel/var/uhppoted/uhppoted-tunnnel-qwerty.pid.pid`
-    - [ ] Windows
+- [x] undaemonize
+      - [x] Windows
 
 - [ ] Close()
       - [ ] shutdown cleanly with timeout

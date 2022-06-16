@@ -10,7 +10,6 @@ import (
 
 	"golang.org/x/sys/windows/svc/eventlog"
 	"golang.org/x/sys/windows/svc/mgr"
-	// "github.com/uhppoted/uhppoted-lib/config"
 )
 
 var DAEMONIZE = Daemonize{
@@ -36,6 +35,9 @@ type Daemonize struct {
 	logdir      string
 	config      string
 	etc         string
+	portal      string
+	pipe        string
+	label       string
 }
 
 var replacer = strings.NewReplacer(
@@ -49,7 +51,13 @@ func (cmd *Daemonize) Name() string {
 }
 
 func (cmd *Daemonize) FlagSet() *flag.FlagSet {
-	return flag.NewFlagSet("daemonize", flag.ExitOnError)
+	flagset := flag.NewFlagSet("daemonize", flag.ExitOnError)
+
+	flagset.StringVar(&cmd.portal, "portal", "", "UDP connection e.g. udp/listen:0.0.0.0:60000 or udp/broadcast:255.255.255.255:60000")
+	flagset.StringVar(&cmd.pipe, "pipe", "", "TCP pipe connection e.g. tcp/server:0.0.0.0:54321 or tcp/client:101.102.103.104:54321")
+	flagset.StringVar(&cmd.label, "label", "", "(optional) Identifying label for the service to distinguish multiple tunnels running on the same machine")
+
+	return flagset
 }
 
 func (cmd *Daemonize) Description() string {
@@ -71,8 +79,26 @@ func (cmd *Daemonize) Help() {
 }
 
 func (cmd *Daemonize) Execute(args ...interface{}) error {
-	dir := filepath.Dir(cmd.config)
 	r := bufio.NewReader(os.Stdin)
+
+	if cmd.label == "" {
+		fmt.Println()
+		fmt.Printf("     **** WARNING: running daemonize without the --label option will overwrite any existing uhppoted-tunnel service.\n")
+		fmt.Println()
+		fmt.Printf("     Enter 'yes' to continue with the installation: ")
+
+		text, err := r.ReadString('\n')
+		if err != nil || strings.TrimSpace(text) != "yes" {
+			fmt.Println()
+			fmt.Printf("     -- installation cancelled --")
+			fmt.Println()
+			return nil
+		}
+	} else {
+		cmd.name = fmt.Sprintf("%v-%v", SERVICE, cmd.label)
+	}
+
+	dir := filepath.Dir(cmd.config)
 
 	fmt.Println()
 	fmt.Printf("     **** PLEASE MAKE SURE YOU HAVE A BACKUP COPY OF THE CONFIGURATION INFORMATION AND KEYS IN %s ***\n", dir)
@@ -113,21 +139,13 @@ func (cmd *Daemonize) execute() error {
 		return err
 	}
 
-	// if err := cmd.conf(i, unpacked, grules); err != nil {
-	// 	return err
-	// }
-
-	// if _, err := cmd.genTLSkeys(i); err != nil {
-	// 	return err
-	// }
-
-	fmt.Printf("   ... %s registered as a Windows system service\n", SERVICE)
+	fmt.Printf("   ... %s registered as a Windows system service\n", cmd.name)
 	fmt.Println()
 	fmt.Println("   The service will start automatically on the next system restart. Start it manually from the")
 	fmt.Println("   'Services' application or from the command line by executing the following command:")
 	fmt.Println()
-	fmt.Printf("     > net start %s\n", SERVICE)
-	fmt.Printf("     > sc query %s\n", SERVICE)
+	fmt.Printf(`     > net start "%s"\n`, cmd.name)
+	fmt.Printf(`     > sc query "%s"\n`, cmd.name)
 	fmt.Println()
 
 	return nil
@@ -154,7 +172,19 @@ func (cmd *Daemonize) register(i *info) error {
 		return fmt.Errorf("service %s already exists", cmd.Name)
 	}
 
-	s, err = m.CreateService(cmd.name, i.Executable, config, "is", "auto-started")
+	args := []string{
+		"--portal",
+		cmd.portal,
+		"--pipe",
+		cmd.pipe,
+	}
+
+	if cmd.label != "" {
+		args = append(args, "--label")
+		args = append(args, cmd.label)
+	}
+
+	s, err = m.CreateService(cmd.name, i.Executable, config, args...)
 	if err != nil {
 		return err
 	}

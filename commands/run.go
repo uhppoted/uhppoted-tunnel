@@ -14,6 +14,7 @@ import (
 )
 
 type Run struct {
+	label         string
 	portal        string
 	pipe          string
 	maxRetries    int
@@ -32,7 +33,7 @@ const MAX_RETRIES = -1
 const MAX_RETRY_DELAY = 5 * time.Minute
 const UDP_TIMEOUT = 5 * time.Second
 
-func (r *Run) FlagSet() *flag.FlagSet {
+func (r *Run) flags() *flag.FlagSet {
 	flagset := flag.NewFlagSet("", flag.ExitOnError)
 
 	flagset.StringVar(&r.portal, "portal", "", "UDP connection e.g. udp/listen:0.0.0.0:60000 or udp/broadcast:255.255.255.255:60000")

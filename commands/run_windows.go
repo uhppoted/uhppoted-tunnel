@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -33,8 +34,21 @@ type service struct {
 	tunnel *tunnel.Tunnel
 }
 
+func (cmd *Run) FlagSet() *flag.FlagSet {
+	flagset := cmd.flags()
+
+	flagset.StringVar(&cmd.label, "label", "", "(optional) Identifying label for the service to distinguish multiple tunnels running on the same machine")
+
+	return flagset
+}
+
 func (cmd *Run) Execute(args ...interface{}) error {
-	log.Printf("%s service %s - %s (PID %d)\n", SERVICE, uhppote.VERSION, "Microsoft Windows", os.Getpid())
+	name := SERVICE
+	if cmd.label != "" {
+		name = fmt.Sprintf("%v-%v", SERVICE, cmd.label)
+	}
+
+	log.Printf("%s service %s - %s (PID %d)\n", name, uhppote.VERSION, "Microsoft Windows", os.Getpid())
 
 	f := func(t *tunnel.Tunnel) {
 		cmd.start(t)
@@ -55,7 +69,12 @@ func (cmd *Run) start(t *tunnel.Tunnel) {
 		return
 	}
 
-	if eventlogger, err := syslog.Open(SERVICE); err != nil {
+	name := SERVICE
+	if cmd.label != "" {
+		name = fmt.Sprintf("%v-%v", SERVICE, cmd.label)
+	}
+
+	if eventlogger, err := syslog.Open(name); err != nil {
 		events := eventlog.Ticker{Filename: cmd.logFile, MaxSize: cmd.logFileSize}
 
 		log.SetOutput(&events)
@@ -66,17 +85,17 @@ func (cmd *Run) start(t *tunnel.Tunnel) {
 	}
 
 	log.SetFlags(log.Ldate | log.Ltime | log.LUTC)
-	log.Printf("%s service - start\n", SERVICE)
+	log.Printf("%s service - start\n", name)
 
 	uhppoted := service{
-		name:   SERVICE,
+		name:   name,
 		cmd:    cmd,
 		tunnel: t,
 	}
 
-	log.Printf("%s service - starting\n", SERVICE)
+	log.Printf("%s service - starting\n", name)
 
-	if err := svc.Run(SERVICE, &uhppoted); err != nil {
+	if err := svc.Run(name, &uhppoted); err != nil {
 		fmt.Printf("   Unable to execute ServiceManager.Run request (%v)\n", err)
 		fmt.Println()
 		fmt.Printf("   To run %s as a command line application, type:\n", SERVICE)
@@ -96,11 +115,11 @@ func (cmd *Run) start(t *tunnel.Tunnel) {
 		return
 	}
 
-	log.Printf("%s daemon - started\n", SERVICE)
+	log.Printf("%s daemon - started\n", name)
 }
 
 func (s *service) Execute(args []string, r <-chan svc.ChangeRequest, status chan<- svc.Status) (ssec bool, errno uint32) {
-	log.Printf("%s service - Execute\n", SERVICE)
+	log.Printf("%s service - Execute\n", s.name)
 
 	const commands = svc.AcceptStop | svc.AcceptShutdown
 
@@ -123,33 +142,33 @@ loop:
 	for {
 		select {
 		case c := <-r:
-			log.Printf("%s service - select: %v  %v\n", SERVICE, c.Cmd, c.CurrentStatus)
+			log.Printf("%s service - select: %v  %v\n", s.name, c.Cmd, c.CurrentStatus)
 			switch c.Cmd {
 			case svc.Interrogate:
-				log.Printf("%s service - svc.Interrogate %v\n", SERVICE, c.CurrentStatus)
+				log.Printf("%s service - svc.Interrogate %v\n", s.name, c.CurrentStatus)
 				status <- c.CurrentStatus
 
 			case svc.Stop:
 				interrupt <- syscall.SIGINT
-				log.Printf("%s service- svc.Stop\n", SERVICE)
+				log.Printf("%s service- svc.Stop\n", s.name)
 				break loop
 
 			case svc.Shutdown:
 				interrupt <- syscall.SIGTERM
-				log.Printf("%s service - svc.Shutdown\n", SERVICE)
+				log.Printf("%s service - svc.Shutdown\n", s.name)
 				break loop
 
 			default:
-				log.Printf("%s service - svc.????? (%v)\n", SERVICE, c.Cmd)
+				log.Printf("%s service - svc.????? (%v)\n", s.name, c.Cmd)
 			}
 		}
 	}
 
-	log.Printf("%s service - stopping\n", SERVICE)
+	log.Printf("%s service - stopping\n", s.name)
 	status <- svc.Status{State: svc.StopPending}
 	wg.Wait()
 	status <- svc.Status{State: svc.Stopped}
-	log.Printf("%s service - stopped\n", SERVICE)
+	log.Printf("%s service - stopped\n", s.name)
 
 	return false, 0
 }

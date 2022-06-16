@@ -26,6 +26,7 @@ type Undaemonize struct {
 	logdir  string
 	config  string
 	etc     string
+	label   string
 }
 
 // Ref. https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--1000-1299-
@@ -36,7 +37,11 @@ func (cmd *Undaemonize) Name() string {
 }
 
 func (cmd *Undaemonize) FlagSet() *flag.FlagSet {
-	return flag.NewFlagSet("undaemonize", flag.ExitOnError)
+	flagset := flag.NewFlagSet("undaemonize", flag.ExitOnError)
+
+	flagset.StringVar(&cmd.label, "label", "", "Identifying label for the service (to distinguish multiple tunnels running on the same machine)")
+
+	return flagset
 }
 
 func (cmd *Undaemonize) Description() string {
@@ -58,6 +63,10 @@ func (cmd *Undaemonize) Help() {
 }
 
 func (cmd *Undaemonize) Execute(args ...interface{}) error {
+	if cmd.label != "" {
+		cmd.name = fmt.Sprintf("%v-%v", SERVICE, cmd.label)
+	}
+
 	fmt.Println("   ... undaemonizing")
 
 	if err := cmd.unregister(); err != nil {
@@ -68,11 +77,11 @@ func (cmd *Undaemonize) Execute(args ...interface{}) error {
 		return err
 	}
 
-	fmt.Printf("   ... %s deregistered as a Windows service\n", SERVICE)
+	fmt.Printf("   ... %s deregistered as a Windows service\n", cmd.name)
 	fmt.Printf(`
        NOTE: Configuration files in %s,
              working files in %s,
-             log files in %s
+             and log files in %s
              were not removed and should be deleted manually
 `, filepath.Dir(cmd.config), cmd.workdir, cmd.logdir)
 	fmt.Println()

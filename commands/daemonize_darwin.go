@@ -51,9 +51,9 @@ type Daemonize struct {
 	logdir  string
 	config  string
 	etc     string
-	label   string
 	portal  string
 	pipe    string
+	label   string
 }
 
 func (cmd *Daemonize) Name() string {
