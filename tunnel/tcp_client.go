@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/router"
+	"github.com/uhppoted/uhppoted-tunnel/types"
 )
 
 type tcpClient struct {
@@ -14,7 +15,7 @@ type tcpClient struct {
 	maxRetries    int
 	maxRetryDelay time.Duration
 	timeout       time.Duration
-	ch            chan message
+	ch            chan types.Message
 	closing       chan struct{}
 	closed        chan struct{}
 }
@@ -36,7 +37,7 @@ func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tc
 		maxRetries:    maxRetries,
 		maxRetryDelay: maxRetryDelay,
 		timeout:       5 * time.Second,
-		ch:            make(chan message, 16),
+		ch:            make(chan types.Message, 16),
 		closing:       make(chan struct{}),
 		closed:        make(chan struct{}),
 	}
@@ -67,7 +68,7 @@ func (tcp *tcpClient) Run(router *router.Switch) error {
 
 func (tcp *tcpClient) Send(id uint32, msg []byte) {
 	select {
-	case tcp.ch <- message{id: id, message: msg}:
+	case tcp.ch <- types.Message{ID: id, Message: msg}:
 	default:
 	}
 }
@@ -93,8 +94,8 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 				for {
 					select {
 					case msg := <-tcp.ch:
-						infof("TCP", "msg %v  relaying to %v", msg.id, socket.RemoteAddr())
-						tcp.send(socket, msg.id, msg.message)
+						infof("TCP", "msg %v  relaying to %v", msg.ID, socket.RemoteAddr())
+						tcp.send(socket, msg.ID, msg.Message)
 
 					case <-eof:
 						return

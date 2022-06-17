@@ -11,6 +11,7 @@ import (
 
 	"github.com/uhppoted/uhppoted-tunnel/log"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
+	"github.com/uhppoted/uhppoted-tunnel/tunnel/udp"
 )
 
 type Run struct {
@@ -84,12 +85,12 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		return
 
 	case strings.HasPrefix(cmd.portal, "udp/listen:"):
-		if portal, err = tunnel.NewUDPListen(cmd.portal[11:]); err != nil {
+		if portal, err = udp.NewUDPListen(cmd.portal[11:]); err != nil {
 			return
 		}
 
 	case strings.HasPrefix(cmd.portal, "udp/broadcast:"):
-		if portal, err = tunnel.NewUDPBroadcast(cmd.portal[14:], cmd.udpTimeout); err != nil {
+		if portal, err = udp.NewUDPBroadcast(cmd.portal[14:], cmd.udpTimeout); err != nil {
 			return
 		}
 

@@ -1,14 +1,6 @@
 package tunnel
 
-import (
-	"sync/atomic"
-)
-
-var PACKETID uint32 = 0
-
-func nextID() uint32 {
-	return atomic.AddUint32(&PACKETID, 1)
-}
+import ()
 
 func packetize(id uint32, message []byte) []byte {
 	packet := make([]byte, len(message)+6)

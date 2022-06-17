@@ -23,6 +23,11 @@ type TCP interface {
 	Send(uint32, []byte)
 }
 
+type Message struct {
+	id      uint32
+	message []byte
+}
+
 type Tunnel struct {
 	udp UDP
 	tcp TCP

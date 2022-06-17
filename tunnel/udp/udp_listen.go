@@ -1,4 +1,4 @@
-package tunnel
+package udp
 
 import (
 	"fmt"
