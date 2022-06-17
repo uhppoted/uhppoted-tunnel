@@ -3,3 +3,9 @@ bin
 dist
 go.work
 go.work.sum
+ca.cert
+ca.key
+server.cert
+server.key
+client.cert
+client.key

@@ -127,5 +127,7 @@ func errorf(tag string, format string, args ...any) {
 }
 
 func fatalf(format string, args ...any) {
-	log.Fatalf(format, args...)
+	f := fmt.Sprintf("%-6v %v", "", format)
+
+	log.Fatalf(f, args...)
 }

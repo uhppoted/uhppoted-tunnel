@@ -1,6 +1,9 @@
-package tcp
+package tls
 
 import (
+	"context"
+	"crypto/tls"
+	// "crypto/x509"
 	"fmt"
 	"io"
 	"net"
@@ -11,9 +14,12 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/router"
 )
 
-type tcpServer struct {
+type tlsServer struct {
 	tag         string
 	addr        *net.TCPAddr
+	ca          string
+	certificate string
+	key         string
 	retryDelay  time.Duration
 	connections map[net.Conn]struct{}
 	closing     chan struct{}
@@ -21,7 +27,7 @@ type tcpServer struct {
 	sync.RWMutex
 }
 
-func NewTCPServer(spec string) (*tcpServer, error) {
+func NewTLSServer(spec string) (*tlsServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -32,9 +38,12 @@ func NewTCPServer(spec string) (*tcpServer, error) {
 		return nil, fmt.Errorf("TCP host requires a non-zero port")
 	}
 
-	out := tcpServer{
-		tag:         "TCP",
+	out := tlsServer{
+		tag:         "TLS",
 		addr:        addr,
+		ca:          "ca.cert",
+		certificate: "server.cert",
+		key:         "server.key",
 		retryDelay:  15 * time.Second,
 		connections: map[net.Conn]struct{}{},
 		closing:     make(chan struct{}),
@@ -44,7 +53,7 @@ func NewTCPServer(spec string) (*tcpServer, error) {
 	return &out, nil
 }
 
-func (tcp *tcpServer) Close() {
+func (tcp *tlsServer) Close() {
 	infof(tcp.tag, "closing")
 	close(tcp.closing)
 
@@ -58,7 +67,27 @@ func (tcp *tcpServer) Close() {
 	}
 }
 
-func (tcp *tcpServer) Run(router *router.Switch) (err error) {
+func (tcp *tlsServer) Run(router *router.Switch) (err error) {
+	// ... initialise TLS keys and certificates
+	var certificate tls.Certificate
+
+	certificate, err = tls.LoadX509KeyPair(tcp.certificate, tcp.key)
+	if err != nil {
+		return
+	}
+
+	config := tls.Config{
+		Certificates: []tls.Certificate{certificate},
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+		},
+		PreferServerCipherSuites: true,
+		MinVersion:               tls.VersionTLS12,
+	}
+
 	var socket net.Listener
 	var closing = false
 	var delay = 0 * time.Second
@@ -67,7 +96,7 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 		for !closing {
 			time.Sleep(delay)
 
-			socket, err = net.Listen("tcp", fmt.Sprintf("%v", tcp.addr))
+			socket, err = tls.Listen("tcp", fmt.Sprintf("%v", tcp.addr), &config)
 			if err != nil {
 				warnf(tcp.tag, "%v", err)
 
@@ -95,7 +124,7 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 	return nil
 }
 
-func (tcp *tcpServer) Send(id uint32, message []byte) {
+func (tcp *tlsServer) Send(id uint32, message []byte) {
 	for c, _ := range tcp.connections {
 		if socket, ok := c.(*net.TCPConn); ok && socket != nil {
 			go func() {
@@ -105,7 +134,7 @@ func (tcp *tcpServer) Send(id uint32, message []byte) {
 	}
 }
 
-func (tcp *tcpServer) listen(socket net.Listener, router *router.Switch) {
+func (tcp *tlsServer) listen(socket net.Listener, router *router.Switch) {
 	infof(tcp.tag, "listening on %v", socket.Addr())
 
 	defer socket.Close()
@@ -119,15 +148,27 @@ func (tcp *tcpServer) listen(socket net.Listener, router *router.Switch) {
 
 		infof(tcp.tag, "incoming connection (%v)", client.RemoteAddr())
 
-		if socket, ok := client.(*net.TCPConn); !ok {
-			warnf(tcp.tag, "invalid TCP socket (%v)", socket)
+		if socket, ok := client.(*tls.Conn); !ok {
+			warnf(tcp.tag, "invalid TLS socket (%v)", socket)
 			client.Close()
 		} else {
+			state := socket.ConnectionState()
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+			defer cancel()
+
+			if !state.HandshakeComplete {
+				if err := socket.HandshakeContext(ctx); err != nil {
+					errorf(tcp.tag, "%v", err)
+					return
+				}
+			}
+
 			tcp.Lock()
 			tcp.connections[socket] = struct{}{}
 			tcp.Unlock()
 
-			go func(socket *net.TCPConn) {
+			go func(socket *tls.Conn) {
 				for {
 					buffer := make([]byte, 2048) // buffer is handed off to router
 					if N, err := socket.Read(buffer); err != nil {
@@ -150,7 +191,7 @@ func (tcp *tcpServer) listen(socket net.Listener, router *router.Switch) {
 	}
 }
 
-func (tcp *tcpServer) received(buffer []byte, router *router.Switch, socket net.Conn) {
+func (tcp *tlsServer) received(buffer []byte, router *router.Switch, socket net.Conn) {
 	dumpf(tcp.tag, buffer, "received %v bytes from %v", len(buffer), socket.RemoteAddr())
 
 	for len(buffer) > 0 {
@@ -163,7 +204,7 @@ func (tcp *tcpServer) received(buffer []byte, router *router.Switch, socket net.
 	}
 }
 
-func (tcp *tcpServer) send(conn net.Conn, id uint32, message []byte) {
+func (tcp *tlsServer) send(conn net.Conn, id uint32, message []byte) {
 	packet := protocol.Packetize(id, message)
 
 	if N, err := conn.Write(packet); err != nil {

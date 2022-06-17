@@ -1,4 +1,4 @@
-package tcp
+package tls
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/router"
 )
 
-type tcpClient struct {
+type tlsClient struct {
 	tag           string
 	addr          *net.TCPAddr
 	maxRetries    int
@@ -23,7 +23,7 @@ type tcpClient struct {
 
 const RETRY_MIN_DELAY = 5 * time.Second
 
-func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tcpClient, error) {
+func NewTLSClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tlsClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -33,8 +33,8 @@ func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tc
 		return nil, fmt.Errorf("unable to resolve TCP address '%v'", spec)
 	}
 
-	in := tcpClient{
-		tag:           "TCP",
+	in := tlsClient{
+		tag:           "TLS",
 		addr:          addr,
 		maxRetries:    maxRetries,
 		maxRetryDelay: maxRetryDelay,
@@ -47,7 +47,7 @@ func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tc
 	return &in, nil
 }
 
-func (tcp *tcpClient) Close() {
+func (tcp *tlsClient) Close() {
 	infof(tcp.tag, "closing")
 	close(tcp.closing)
 
@@ -61,21 +61,21 @@ func (tcp *tcpClient) Close() {
 	}
 }
 
-func (tcp *tcpClient) Run(router *router.Switch) error {
+func (tcp *tlsClient) Run(router *router.Switch) error {
 	tcp.connect(router)
 	tcp.closed <- struct{}{}
 
 	return nil
 }
 
-func (tcp *tcpClient) Send(id uint32, msg []byte) {
+func (tcp *tlsClient) Send(id uint32, msg []byte) {
 	select {
 	case tcp.ch <- protocol.Message{ID: id, Message: msg}:
 	default:
 	}
 }
 
-func (tcp *tcpClient) connect(router *router.Switch) {
+func (tcp *tlsClient) connect(router *router.Switch) {
 	retryDelay := RETRY_MIN_DELAY
 	retries := 0
 
@@ -141,7 +141,7 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 	}
 }
 
-func (tcp *tcpClient) listen(socket net.Conn, router *router.Switch) error {
+func (tcp *tlsClient) listen(socket net.Conn, router *router.Switch) error {
 	infof(tcp.tag, "connected  to %v", socket.RemoteAddr())
 
 	defer socket.Close()
@@ -159,7 +159,7 @@ func (tcp *tcpClient) listen(socket net.Conn, router *router.Switch) error {
 	}
 }
 
-func (tcp *tcpClient) received(buffer []byte, router *router.Switch, socket net.Conn) {
+func (tcp *tlsClient) received(buffer []byte, router *router.Switch, socket net.Conn) {
 	dumpf(tcp.tag, buffer, "received %v bytes from %v", len(buffer), socket.RemoteAddr())
 
 	for len(buffer) > 0 {
@@ -172,7 +172,7 @@ func (tcp *tcpClient) received(buffer []byte, router *router.Switch, socket net.
 	}
 }
 
-func (tcp *tcpClient) send(conn net.Conn, id uint32, msg []byte) []byte {
+func (tcp *tlsClient) send(conn net.Conn, id uint32, msg []byte) []byte {
 	packet := protocol.Packetize(id, msg)
 
 	if N, err := conn.Write(packet); err != nil {

@@ -1,21 +1,18 @@
 # TODO
 
-- [ ] SSL + mutual auth
+- [ ] TLS
+      - [x] close invalid client socket
+      - [ ] Cancel TLS handshake on close
+      - [ ] mutual auth
+
+- [ ] Remove lockfile on Fatal
 
 - [ ] shutdown cleanly with timeout
-      - [x] router
-      - [x] UDP broadcast
-      - [x] UDP listen
-      - [x] TCP server
-      - [x] TCP client
-            - [x] Close is slow when still trying to connect i.e. host not running
       - [ ] Ignore warnings if closing
       - [ ] Fix closing/error/retry loop logic in UDP/TCP listen
             - [ ] backoff
             - [ ] error handling
             - (?) Condition handler a la LISP
-
-- [ ] Remove dependency on uhppoted-lib and uhppote-core
 
 ## Miscellaneous
 
@@ -26,3 +23,5 @@
 - (?) Wrap [libevent](https://libevent.org) or use syscalls
 - (?) Routing matrix
 - (?) Replace handler functions with channels
+- (?) Remove dependency on uhppoted-lib and uhppote-core
+
