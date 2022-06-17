@@ -5,14 +5,14 @@ import (
 	"net"
 	"time"
 
+	"github.com/uhppoted/uhppoted-tunnel/protocol"
 	"github.com/uhppoted/uhppoted-tunnel/router"
-	"github.com/uhppoted/uhppoted-tunnel/types"
 )
 
 type udpBroadcast struct {
 	addr    *net.UDPAddr
 	timeout time.Duration
-	ch      chan types.Message
+	ch      chan protocol.Message
 	closing chan struct{}
 	closed  chan struct{}
 }
@@ -34,7 +34,7 @@ func NewUDPBroadcast(spec string, timeout time.Duration) (*udpBroadcast, error) 
 	out := udpBroadcast{
 		addr:    addr,
 		timeout: timeout,
-		ch:      make(chan types.Message),
+		ch:      make(chan protocol.Message),
 		closing: make(chan struct{}),
 		closed:  make(chan struct{}),
 	}
@@ -76,7 +76,7 @@ loop:
 func (udp *udpBroadcast) Send(id uint32, msg []byte) {
 	go func() {
 		if reply := udp.send(id, msg); reply != nil {
-			udp.ch <- types.Message{
+			udp.ch <- protocol.Message{
 				ID:      id,
 				Message: reply,
 			}
