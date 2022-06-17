@@ -11,6 +11,7 @@ import (
 
 	"github.com/uhppoted/uhppoted-tunnel/log"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
+	"github.com/uhppoted/uhppoted-tunnel/tunnel/tcp"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/udp"
 )
 
@@ -106,12 +107,12 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		return
 
 	case strings.HasPrefix(cmd.pipe, "tcp/client:"):
-		if pipe, err = tunnel.NewTCPClient(cmd.pipe[11:], cmd.maxRetries, cmd.maxRetryDelay); err != nil {
+		if pipe, err = tcp.NewTCPClient(cmd.pipe[11:], cmd.maxRetries, cmd.maxRetryDelay); err != nil {
 			return
 		}
 
 	case strings.HasPrefix(cmd.pipe, "tcp/server:"):
-		if pipe, err = tunnel.NewTCPServer(cmd.pipe[11:]); err != nil {
+		if pipe, err = tcp.NewTCPServer(cmd.pipe[11:]); err != nil {
 			return
 		}
 
