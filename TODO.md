@@ -7,8 +7,8 @@
       - [x] UDP broadcast
       - [x] UDP listen
       - [x] TCP server
-      - [ ] TCP client
-            - [ ] Close is slow when still trying to connect i.e. host not running
+      - [x] TCP client
+            - [x] Close is slow when still trying to connect i.e. host not running
       - [ ] Ignore warnings if closing
       - [ ] Fix closing/error/retry loop logic in UDP/TCP listen
             - [ ] backoff

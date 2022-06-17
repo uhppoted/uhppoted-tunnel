@@ -76,9 +76,8 @@ func (tcp *tcpClient) Send(id uint32, msg []byte) {
 func (tcp *tcpClient) connect(router *router.Switch) {
 	retryDelay := RETRY_MIN_DELAY
 	retries := 0
-	closing := false
 
-	for !closing {
+	for {
 		infof("TCP", "connecting to %v", tcp.addr)
 
 		if socket, err := net.Dial("tcp", fmt.Sprintf("%v", tcp.addr)); err != nil {
@@ -101,7 +100,6 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 						return
 
 					case <-tcp.closing:
-						closing = true
 						socket.Close()
 						return
 					}
@@ -119,10 +117,6 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 			close(eof)
 		}
 
-		if closing {
-			break
-		}
-
 		// ... retry
 		retries++
 		if tcp.maxRetries >= 0 && retries > tcp.maxRetries {
@@ -131,11 +125,16 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 		}
 
 		infof("TCP", "connection failed ... retrying in %v", retryDelay)
-		time.Sleep(retryDelay)
 
-		retryDelay *= 2
-		if retryDelay > tcp.maxRetryDelay {
-			retryDelay = tcp.maxRetryDelay
+		select {
+		case <-time.After(retryDelay):
+			retryDelay *= 2
+			if retryDelay > tcp.maxRetryDelay {
+				retryDelay = tcp.maxRetryDelay
+			}
+
+		case <-tcp.closing:
+			return
 		}
 	}
 }
