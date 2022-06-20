@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"os"
 	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
@@ -27,21 +26,12 @@ type tlsClient struct {
 
 const RETRY_MIN_DELAY = 5 * time.Second
 
-func NewTLSClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tlsClient, error) {
+func NewTLSClient(spec string, ca *x509.CertPool, keypair *tls.Certificate, maxRetries int, maxRetryDelay time.Duration) (*tlsClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
 	} else if addr == nil {
 		return nil, fmt.Errorf("unable to resolve TCP address '%v'", spec)
-	}
-
-	// ... initialise TLS keys and certificates
-	ca := x509.NewCertPool()
-
-	if bytes, err := os.ReadFile("ca.cert"); err != nil {
-		return nil, err
-	} else if !ca.AppendCertsFromPEM(bytes) {
-		return nil, fmt.Errorf("unable to parse CA certificate")
 	}
 
 	config := tls.Config{
@@ -56,11 +46,8 @@ func NewTLSClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tl
 		MinVersion:               tls.VersionTLS12,
 	}
 
-	certificate, err := tls.LoadX509KeyPair("client.cert", "client.key")
-	if err != nil {
-		warnf("TLS", "%v", err)
-	} else {
-		config.Certificates = []tls.Certificate{certificate}
+	if keypair != nil {
+		config.Certificates = []tls.Certificate{*keypair}
 	}
 
 	in := tlsClient{

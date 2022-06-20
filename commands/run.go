@@ -2,6 +2,8 @@ package commands
 
 import (
 	"crypto/sha1"
+	TLS "crypto/tls"
+	"crypto/x509"
 	"flag"
 	"fmt"
 	"os"
@@ -23,6 +25,9 @@ type Run struct {
 	maxRetries        int
 	maxRetryDelay     time.Duration
 	udpTimeout        time.Duration
+	caCertificate     string
+	certificate       string
+	key               string
 	requireClientAuth bool
 	lockfile          string
 	logFile           string
@@ -46,8 +51,13 @@ func (r *Run) flags() *flag.FlagSet {
 	flagset.IntVar(&r.maxRetries, "max-retries", MAX_RETRIES, "Maximum number of times to retry failed connection. Defaults to -1 (retry forever)")
 	flagset.DurationVar(&r.maxRetryDelay, "max-retry-delay", MAX_RETRY_DELAY, "Maximum delay between retrying failed connections")
 	flagset.DurationVar(&r.udpTimeout, "udp-timeout", UDP_TIMEOUT, "Time limit to wait for UDP replies")
-	flagset.StringVar(&r.logLevel, "log-level", "info", "Sets the log level (debug, info, warn or error)")
+
+	flagset.StringVar(&r.caCertificate, "ca-cert", "ca.cert", "File path for CA certificate PEM file (defaults to ca.cert)")
+	flagset.StringVar(&r.certificate, "cert", "", "File path for client/server TLS certificate PEM file (defaults to client.cert or server.cert)")
+	flagset.StringVar(&r.key, "key", "", "File path for client/server TLS key PEM file (defaults to client.key or server.key)")
 	flagset.BoolVar(&r.requireClientAuth, "client-auth", false, "Requires client authentication for TLS")
+
+	flagset.StringVar(&r.logLevel, "log-level", "info", "Sets the log level (debug, info, warn or error)")
 	flagset.BoolVar(&r.console, "console", false, "Runs as a console application rather than a service")
 	flagset.BoolVar(&r.debug, "debug", false, "Enables detailed debugging logs")
 
@@ -120,12 +130,24 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		}
 
 	case strings.HasPrefix(cmd.pipe, "tls/client:"):
-		if pipe, err = tls.NewTLSClient(cmd.pipe[11:], cmd.maxRetries, cmd.maxRetryDelay); err != nil {
+		var ca *x509.CertPool
+		var certificate *TLS.Certificate
+		if ca, err = tlsCA(cmd.caCertificate); err != nil {
+			return
+		} else if certificate, err = tlsClientKeyPair(cmd.certificate, cmd.key); err != nil {
+			return
+		} else if pipe, err = tls.NewTLSClient(cmd.pipe[11:], ca, certificate, cmd.maxRetries, cmd.maxRetryDelay); err != nil {
 			return
 		}
 
 	case strings.HasPrefix(cmd.pipe, "tls/server:"):
-		if pipe, err = tls.NewTLSServer(cmd.pipe[11:], cmd.requireClientAuth); err != nil {
+		var ca *x509.CertPool
+		var certificate *TLS.Certificate
+		if ca, err = tlsCA(cmd.caCertificate); err != nil {
+			return
+		} else if certificate, err = tlsServerKeyPair(cmd.certificate, cmd.key); err != nil {
+			return
+		} else if pipe, err = tls.NewTLSServer(cmd.pipe[11:], ca, *certificate, cmd.requireClientAuth); err != nil {
 			return
 		}
 
@@ -178,4 +200,54 @@ func (cmd *Run) run(t *tunnel.Tunnel, interrupt chan os.Signal) {
 	log.SetLevel(cmd.logLevel)
 
 	t.Run(interrupt)
+}
+
+func tlsCA(cacert string) (*x509.CertPool, error) {
+	if cacert == "" {
+		cacert = "ca.cert"
+	}
+
+	ca := x509.NewCertPool()
+	if bytes, err := os.ReadFile(cacert); err != nil {
+		return nil, err
+	} else if !ca.AppendCertsFromPEM(bytes) {
+		return nil, fmt.Errorf("unable to parse CA certificate")
+	}
+
+	return ca, nil
+}
+
+func tlsServerKeyPair(certfile, keyfile string) (*TLS.Certificate, error) {
+	if certfile == "" {
+		certfile = "server.cert"
+	}
+
+	if keyfile == "" {
+		keyfile = "server.key"
+	}
+
+	certificate, err := TLS.LoadX509KeyPair(certfile, keyfile)
+	if err != nil {
+		return nil, err
+	}
+
+	return &certificate, nil
+}
+
+func tlsClientKeyPair(certfile, keyfile string) (*TLS.Certificate, error) {
+	if certfile != "" && keyfile != "" {
+		certificate, err := TLS.LoadX509KeyPair(certfile, keyfile)
+		if err != nil {
+			return nil, err
+		}
+
+		return &certificate, nil
+	}
+
+	certificate, err := TLS.LoadX509KeyPair("client.cert", "client.key")
+	if err != nil {
+		return nil, nil
+	}
+
+	return &certificate, nil
 }

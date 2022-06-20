@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"os"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -31,7 +30,7 @@ type tlsServer struct {
 
 var ID uint32 = 0
 
-func NewTLSServer(spec string, requireClientCertificate bool) (*tlsServer, error) {
+func NewTLSServer(spec string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool) (*tlsServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -42,23 +41,9 @@ func NewTLSServer(spec string, requireClientCertificate bool) (*tlsServer, error
 		return nil, fmt.Errorf("TCP host requires a non-zero port")
 	}
 
-	// ... initialise TLS keys and certificates
-	ca := x509.NewCertPool()
-
-	if bytes, err := os.ReadFile("ca.cert"); err != nil {
-		return nil, err
-	} else if !ca.AppendCertsFromPEM(bytes) {
-		return nil, fmt.Errorf("unable to parse CA certificate")
-	}
-
-	certificate, err := tls.LoadX509KeyPair("server.cert", "server.key")
-	if err != nil {
-		return nil, err
-	}
-
 	config := tls.Config{
 		ClientCAs:    ca,
-		Certificates: []tls.Certificate{certificate},
+		Certificates: []tls.Certificate{keypair},
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
