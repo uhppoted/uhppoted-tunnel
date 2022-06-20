@@ -70,7 +70,6 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 			socket, err = net.Listen("tcp", fmt.Sprintf("%v", tcp.addr))
 			if err != nil {
 				warnf(tcp.tag, "%v", err)
-
 			} else if socket == nil {
 				warnf(tcp.tag, "%v", fmt.Errorf("Failed to create TCP listen socket (%v)", socket))
 			}
@@ -97,11 +96,9 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 
 func (tcp *tcpServer) Send(id uint32, message []byte) {
 	for c, _ := range tcp.connections {
-		if socket, ok := c.(*net.TCPConn); ok && socket != nil {
-			go func() {
-				tcp.send(socket, id, message)
-			}()
-		}
+		go func() {
+			tcp.send(c, id, message)
+		}()
 	}
 }
 

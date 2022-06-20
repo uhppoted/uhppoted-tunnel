@@ -1,9 +1,12 @@
 package tls
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"io"
 	"net"
+	"os"
 	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
@@ -13,6 +16,7 @@ import (
 type tlsClient struct {
 	tag           string
 	addr          *net.TCPAddr
+	config        tls.Config
 	maxRetries    int
 	maxRetryDelay time.Duration
 	timeout       time.Duration
@@ -23,7 +27,7 @@ type tlsClient struct {
 
 const RETRY_MIN_DELAY = 5 * time.Second
 
-func NewTLSClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tlsClient, error) {
+func NewTLSClient(spec string, cacert string, maxRetries int, maxRetryDelay time.Duration) (*tlsClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -33,9 +37,33 @@ func NewTLSClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tl
 		return nil, fmt.Errorf("unable to resolve TCP address '%v'", spec)
 	}
 
+	// ... initialise TLS keys and certificates
+
+	ca := x509.NewCertPool()
+
+	if bytes, err := os.ReadFile(cacert); err != nil {
+		return nil, err
+	} else if !ca.AppendCertsFromPEM(bytes) {
+		return nil, fmt.Errorf("unable to parse CA certificate")
+	}
+
+	config := tls.Config{
+		RootCAs: ca,
+		// Certificates: []tls.Certificate{certificate},
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+		},
+		PreferServerCipherSuites: true,
+		MinVersion:               tls.VersionTLS12,
+	}
+
 	in := tlsClient{
 		tag:           "TLS",
 		addr:          addr,
+		config:        config,
 		maxRetries:    maxRetries,
 		maxRetryDelay: maxRetryDelay,
 		timeout:       5 * time.Second,
@@ -82,7 +110,7 @@ func (tcp *tlsClient) connect(router *router.Switch) {
 	for {
 		infof(tcp.tag, "connecting to %v", tcp.addr)
 
-		if socket, err := net.Dial("tcp", fmt.Sprintf("%v", tcp.addr)); err != nil {
+		if socket, err := tls.Dial("tcp", fmt.Sprintf("%v", tcp.addr), &tcp.config); err != nil {
 			warnf(tcp.tag, "%v", err)
 		} else if socket == nil {
 			warnf(tcp.tag, "connect %v failed (%v)", tcp.addr, socket)

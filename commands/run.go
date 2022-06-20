@@ -35,6 +35,7 @@ type Run struct {
 const MAX_RETRIES = -1
 const MAX_RETRY_DELAY = 5 * time.Minute
 const UDP_TIMEOUT = 5 * time.Second
+const CACERT = "ca.cert"
 
 func (r *Run) flags() *flag.FlagSet {
 	flagset := flag.NewFlagSet("", flag.ExitOnError)
@@ -118,7 +119,7 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		}
 
 	case strings.HasPrefix(cmd.pipe, "tls/client:"):
-		if pipe, err = tls.NewTLSClient(cmd.pipe[11:], cmd.maxRetries, cmd.maxRetryDelay); err != nil {
+		if pipe, err = tls.NewTLSClient(cmd.pipe[11:], CACERT, cmd.maxRetries, cmd.maxRetryDelay); err != nil {
 			return
 		}
 

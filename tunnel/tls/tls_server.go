@@ -3,11 +3,11 @@ package tls
 import (
 	"context"
 	"crypto/tls"
-	// "crypto/x509"
 	"fmt"
 	"io"
 	"net"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
@@ -22,10 +22,13 @@ type tlsServer struct {
 	key         string
 	retryDelay  time.Duration
 	connections map[net.Conn]struct{}
+	pending     map[uint32]context.CancelFunc
 	closing     chan struct{}
 	closed      chan struct{}
 	sync.RWMutex
 }
+
+var ID uint32 = 0
 
 func NewTLSServer(spec string) (*tlsServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
@@ -46,6 +49,7 @@ func NewTLSServer(spec string) (*tlsServer, error) {
 		key:         "server.key",
 		retryDelay:  15 * time.Second,
 		connections: map[net.Conn]struct{}{},
+		pending:     map[uint32]context.CancelFunc{},
 		closing:     make(chan struct{}),
 		closed:      make(chan struct{}),
 	}
@@ -56,6 +60,10 @@ func NewTLSServer(spec string) (*tlsServer, error) {
 func (tcp *tlsServer) Close() {
 	infof(tcp.tag, "closing")
 	close(tcp.closing)
+
+	for _, f := range tcp.pending {
+		f()
+	}
 
 	timeout := time.NewTimer(5 * time.Second)
 	select {
@@ -126,11 +134,9 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 
 func (tcp *tlsServer) Send(id uint32, message []byte) {
 	for c, _ := range tcp.connections {
-		if socket, ok := c.(*net.TCPConn); ok && socket != nil {
-			go func() {
-				tcp.send(socket, id, message)
-			}()
-		}
+		go func() {
+			tcp.send(c, id, message)
+		}()
 	}
 }
 
@@ -146,6 +152,8 @@ func (tcp *tlsServer) listen(socket net.Listener, router *router.Switch) {
 			return
 		}
 
+		id := atomic.AddUint32(&ID, 1)
+
 		infof(tcp.tag, "incoming connection (%v)", client.RemoteAddr())
 
 		if socket, ok := client.(*tls.Conn); !ok {
@@ -153,19 +161,25 @@ func (tcp *tlsServer) listen(socket net.Listener, router *router.Switch) {
 			client.Close()
 		} else {
 			state := socket.ConnectionState()
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), 35*time.Second)
 
 			defer cancel()
+
+			tcp.Lock()
+			tcp.pending[id] = cancel
+			tcp.Unlock()
 
 			if !state.HandshakeComplete {
 				if err := socket.HandshakeContext(ctx); err != nil {
 					errorf(tcp.tag, "%v", err)
+					client.Close()
 					return
 				}
 			}
 
 			tcp.Lock()
 			tcp.connections[socket] = struct{}{}
+			delete(tcp.pending, id)
 			tcp.Unlock()
 
 			go func(socket *tls.Conn) {

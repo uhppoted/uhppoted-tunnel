@@ -2,8 +2,12 @@
 
 - [ ] TLS
       - [x] close invalid client socket
-      - [ ] Cancel TLS handshake on close
+      - [x] Cancel TLS handshake on close
       - [ ] mutual auth
+
+- [ ] TCP:server
+      - backoff on retry listen
+      - generalise backoff
 
 - [ ] Remove lockfile on Fatal
 
