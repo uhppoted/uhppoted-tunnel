@@ -17,25 +17,25 @@ import (
 )
 
 type Run struct {
-	label         string
-	portal        string
-	pipe          string
-	maxRetries    int
-	maxRetryDelay time.Duration
-	udpTimeout    time.Duration
-	lockfile      string
-	logFile       string
-	logFileSize   int
-	logLevel      string
-	workdir       string
-	debug         bool
-	console       bool
+	label             string
+	portal            string
+	pipe              string
+	maxRetries        int
+	maxRetryDelay     time.Duration
+	udpTimeout        time.Duration
+	requireClientAuth bool
+	lockfile          string
+	logFile           string
+	logFileSize       int
+	logLevel          string
+	workdir           string
+	debug             bool
+	console           bool
 }
 
 const MAX_RETRIES = -1
 const MAX_RETRY_DELAY = 5 * time.Minute
 const UDP_TIMEOUT = 5 * time.Second
-const CACERT = "ca.cert"
 
 func (r *Run) flags() *flag.FlagSet {
 	flagset := flag.NewFlagSet("", flag.ExitOnError)
@@ -47,6 +47,7 @@ func (r *Run) flags() *flag.FlagSet {
 	flagset.DurationVar(&r.maxRetryDelay, "max-retry-delay", MAX_RETRY_DELAY, "Maximum delay between retrying failed connections")
 	flagset.DurationVar(&r.udpTimeout, "udp-timeout", UDP_TIMEOUT, "Time limit to wait for UDP replies")
 	flagset.StringVar(&r.logLevel, "log-level", "info", "Sets the log level (debug, info, warn or error)")
+	flagset.BoolVar(&r.requireClientAuth, "client-auth", false, "Requires client authentication for TLS")
 	flagset.BoolVar(&r.console, "console", false, "Runs as a console application rather than a service")
 	flagset.BoolVar(&r.debug, "debug", false, "Enables detailed debugging logs")
 
@@ -119,12 +120,12 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		}
 
 	case strings.HasPrefix(cmd.pipe, "tls/client:"):
-		if pipe, err = tls.NewTLSClient(cmd.pipe[11:], CACERT, cmd.maxRetries, cmd.maxRetryDelay); err != nil {
+		if pipe, err = tls.NewTLSClient(cmd.pipe[11:], cmd.maxRetries, cmd.maxRetryDelay); err != nil {
 			return
 		}
 
 	case strings.HasPrefix(cmd.pipe, "tls/server:"):
-		if pipe, err = tls.NewTLSServer(cmd.pipe[11:]); err != nil {
+		if pipe, err = tls.NewTLSServer(cmd.pipe[11:], cmd.requireClientAuth); err != nil {
 			return
 		}
 

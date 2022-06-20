@@ -3,9 +3,11 @@ package tls
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"io"
 	"net"
+	"os"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -17,8 +19,7 @@ import (
 type tlsServer struct {
 	tag         string
 	addr        *net.TCPAddr
-	ca          string
-	certificate string
+	config      tls.Config
 	key         string
 	retryDelay  time.Duration
 	connections map[net.Conn]struct{}
@@ -30,7 +31,7 @@ type tlsServer struct {
 
 var ID uint32 = 0
 
-func NewTLSServer(spec string) (*tlsServer, error) {
+func NewTLSServer(spec string, requireClientCertificate bool) (*tlsServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -41,12 +42,41 @@ func NewTLSServer(spec string) (*tlsServer, error) {
 		return nil, fmt.Errorf("TCP host requires a non-zero port")
 	}
 
-	out := tlsServer{
+	// ... initialise TLS keys and certificates
+	ca := x509.NewCertPool()
+
+	if bytes, err := os.ReadFile("ca.cert"); err != nil {
+		return nil, err
+	} else if !ca.AppendCertsFromPEM(bytes) {
+		return nil, fmt.Errorf("unable to parse CA certificate")
+	}
+
+	certificate, err := tls.LoadX509KeyPair("server.cert", "server.key")
+	if err != nil {
+		return nil, err
+	}
+
+	config := tls.Config{
+		ClientCAs:    ca,
+		Certificates: []tls.Certificate{certificate},
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+		},
+		ClientAuth: tls.VerifyClientCertIfGiven,
+		MinVersion: tls.VersionTLS12,
+	}
+
+	if requireClientCertificate {
+		config.ClientAuth = tls.RequireAndVerifyClientCert
+	}
+
+	tcp := tlsServer{
 		tag:         "TLS",
 		addr:        addr,
-		ca:          "ca.cert",
-		certificate: "server.cert",
-		key:         "server.key",
+		config:      config,
 		retryDelay:  15 * time.Second,
 		connections: map[net.Conn]struct{}{},
 		pending:     map[uint32]context.CancelFunc{},
@@ -54,7 +84,7 @@ func NewTLSServer(spec string) (*tlsServer, error) {
 		closed:      make(chan struct{}),
 	}
 
-	return &out, nil
+	return &tcp, nil
 }
 
 func (tcp *tlsServer) Close() {
@@ -76,26 +106,6 @@ func (tcp *tlsServer) Close() {
 }
 
 func (tcp *tlsServer) Run(router *router.Switch) (err error) {
-	// ... initialise TLS keys and certificates
-	var certificate tls.Certificate
-
-	certificate, err = tls.LoadX509KeyPair(tcp.certificate, tcp.key)
-	if err != nil {
-		return
-	}
-
-	config := tls.Config{
-		Certificates: []tls.Certificate{certificate},
-		CipherSuites: []uint16{
-			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-		},
-		PreferServerCipherSuites: true,
-		MinVersion:               tls.VersionTLS12,
-	}
-
 	var socket net.Listener
 	var closing = false
 	var delay = 0 * time.Second
@@ -104,7 +114,7 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 		for !closing {
 			time.Sleep(delay)
 
-			socket, err = tls.Listen("tcp", fmt.Sprintf("%v", tcp.addr), &config)
+			socket, err = tls.Listen("tcp", fmt.Sprintf("%v", tcp.addr), &tcp.config)
 			if err != nil {
 				warnf(tcp.tag, "%v", err)
 
@@ -152,34 +162,17 @@ func (tcp *tlsServer) listen(socket net.Listener, router *router.Switch) {
 			return
 		}
 
-		id := atomic.AddUint32(&ID, 1)
-
 		infof(tcp.tag, "incoming connection (%v)", client.RemoteAddr())
 
 		if socket, ok := client.(*tls.Conn); !ok {
 			warnf(tcp.tag, "invalid TLS socket (%v)", socket)
 			client.Close()
+		} else if err := tcp.handshake(socket); err != nil {
+			warnf(tcp.tag, "%v", err)
+			client.Close()
 		} else {
-			state := socket.ConnectionState()
-			ctx, cancel := context.WithTimeout(context.Background(), 35*time.Second)
-
-			defer cancel()
-
-			tcp.Lock()
-			tcp.pending[id] = cancel
-			tcp.Unlock()
-
-			if !state.HandshakeComplete {
-				if err := socket.HandshakeContext(ctx); err != nil {
-					errorf(tcp.tag, "%v", err)
-					client.Close()
-					return
-				}
-			}
-
 			tcp.Lock()
 			tcp.connections[socket] = struct{}{}
-			delete(tcp.pending, id)
 			tcp.Unlock()
 
 			go func(socket *tls.Conn) {
@@ -203,6 +196,32 @@ func (tcp *tlsServer) listen(socket net.Listener, router *router.Switch) {
 			}(socket)
 		}
 	}
+}
+
+func (tcp *tlsServer) handshake(socket *tls.Conn) error {
+	id := atomic.AddUint32(&ID, 1)
+	state := socket.ConnectionState()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+	defer cancel()
+
+	tcp.Lock()
+	tcp.pending[id] = cancel
+	tcp.Unlock()
+
+	defer func() {
+		tcp.Lock()
+		delete(tcp.pending, id)
+		tcp.Unlock()
+	}()
+
+	if !state.HandshakeComplete {
+		if err := socket.HandshakeContext(ctx); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (tcp *tlsServer) received(buffer []byte, router *router.Switch, socket net.Conn) {

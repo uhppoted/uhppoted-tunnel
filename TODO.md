@@ -3,7 +3,8 @@
 - [ ] TLS
       - [x] close invalid client socket
       - [x] Cancel TLS handshake on close
-      - [ ] mutual auth
+      - [x] Mutual auth
+      - [ ] (optional) certicate config
 
 - [ ] TCP:server
       - backoff on retry listen
@@ -13,6 +14,7 @@
 
 - [ ] shutdown cleanly with timeout
       - [ ] Ignore warnings if closing
+      - [ ] Fix delay in TCP/TLS server retry
       - [ ] Fix closing/error/retry loop logic in UDP/TCP listen
             - [ ] backoff
             - [ ] error handling

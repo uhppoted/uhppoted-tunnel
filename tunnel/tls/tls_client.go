@@ -27,21 +27,18 @@ type tlsClient struct {
 
 const RETRY_MIN_DELAY = 5 * time.Second
 
-func NewTLSClient(spec string, cacert string, maxRetries int, maxRetryDelay time.Duration) (*tlsClient, error) {
+func NewTLSClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tlsClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
-	}
-
-	if addr == nil {
+	} else if addr == nil {
 		return nil, fmt.Errorf("unable to resolve TCP address '%v'", spec)
 	}
 
 	// ... initialise TLS keys and certificates
-
 	ca := x509.NewCertPool()
 
-	if bytes, err := os.ReadFile(cacert); err != nil {
+	if bytes, err := os.ReadFile("ca.cert"); err != nil {
 		return nil, err
 	} else if !ca.AppendCertsFromPEM(bytes) {
 		return nil, fmt.Errorf("unable to parse CA certificate")
@@ -49,7 +46,6 @@ func NewTLSClient(spec string, cacert string, maxRetries int, maxRetryDelay time
 
 	config := tls.Config{
 		RootCAs: ca,
-		// Certificates: []tls.Certificate{certificate},
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
@@ -58,6 +54,13 @@ func NewTLSClient(spec string, cacert string, maxRetries int, maxRetryDelay time
 		},
 		PreferServerCipherSuites: true,
 		MinVersion:               tls.VersionTLS12,
+	}
+
+	certificate, err := tls.LoadX509KeyPair("client.cert", "client.key")
+	if err != nil {
+		warnf("TLS", "%v", err)
+	} else {
+		config.Certificates = []tls.Certificate{certificate}
 	}
 
 	in := tlsClient{
