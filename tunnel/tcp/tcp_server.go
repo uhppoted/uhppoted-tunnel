@@ -96,9 +96,9 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 
 func (tcp *tcpServer) Send(id uint32, message []byte) {
 	for c, _ := range tcp.connections {
-		go func() {
-			tcp.send(c, id, message)
-		}()
+		go func(conn net.Conn) {
+			tcp.send(conn, id, message)
+		}(c)
 	}
 }
 

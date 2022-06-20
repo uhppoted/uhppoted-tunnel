@@ -18,7 +18,7 @@ import (
 type tlsServer struct {
 	tag         string
 	addr        *net.TCPAddr
-	config      tls.Config
+	config      *tls.Config
 	key         string
 	retryDelay  time.Duration
 	connections map[net.Conn]struct{}
@@ -61,7 +61,7 @@ func NewTLSServer(spec string, ca *x509.CertPool, keypair tls.Certificate, requi
 	tcp := tlsServer{
 		tag:         "TLS",
 		addr:        addr,
-		config:      config,
+		config:      &config,
 		retryDelay:  15 * time.Second,
 		connections: map[net.Conn]struct{}{},
 		pending:     map[uint32]context.CancelFunc{},
@@ -99,7 +99,7 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 		for !closing {
 			time.Sleep(delay)
 
-			socket, err = tls.Listen("tcp", fmt.Sprintf("%v", tcp.addr), &tcp.config)
+			socket, err = tls.Listen("tcp", fmt.Sprintf("%v", tcp.addr), tcp.config)
 			if err != nil {
 				warnf(tcp.tag, "%v", err)
 
@@ -129,9 +129,9 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 
 func (tcp *tlsServer) Send(id uint32, message []byte) {
 	for c, _ := range tcp.connections {
-		go func() {
-			tcp.send(c, id, message)
-		}()
+		go func(conn net.Conn) {
+			tcp.send(conn, id, message)
+		}(c)
 	}
 }
 

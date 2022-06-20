@@ -15,7 +15,7 @@ import (
 type tlsClient struct {
 	tag           string
 	addr          *net.TCPAddr
-	config        tls.Config
+	config        *tls.Config
 	maxRetries    int
 	maxRetryDelay time.Duration
 	timeout       time.Duration
@@ -53,7 +53,7 @@ func NewTLSClient(spec string, ca *x509.CertPool, keypair *tls.Certificate, maxR
 	in := tlsClient{
 		tag:           "TLS",
 		addr:          addr,
-		config:        config,
+		config:        &config,
 		maxRetries:    maxRetries,
 		maxRetryDelay: maxRetryDelay,
 		timeout:       5 * time.Second,
@@ -100,7 +100,7 @@ func (tcp *tlsClient) connect(router *router.Switch) {
 	for {
 		infof(tcp.tag, "connecting to %v", tcp.addr)
 
-		if socket, err := tls.Dial("tcp", fmt.Sprintf("%v", tcp.addr), &tcp.config); err != nil {
+		if socket, err := tls.Dial("tcp", fmt.Sprintf("%v", tcp.addr), tcp.config); err != nil {
 			warnf(tcp.tag, "%v", err)
 		} else if socket == nil {
 			warnf(tcp.tag, "connect %v failed (%v)", tcp.addr, socket)
