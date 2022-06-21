@@ -3,8 +3,8 @@
 - [x] Remove lockfile on Fatal
 
 - [ ] TCP/TLS:server
-      - backoff on retry listen
-      - generalise backoff
+      - [x] backoff on retry listen
+      - [ ] generalise backoff/retry
 
 - (?) Reorganize as --in and --out
 

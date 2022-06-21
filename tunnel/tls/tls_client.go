@@ -24,8 +24,6 @@ type tlsClient struct {
 	closed        chan struct{}
 }
 
-const RETRY_MIN_DELAY = 5 * time.Second
-
 func NewTLSClient(spec string, ca *x509.CertPool, keypair *tls.Certificate, maxRetries int, maxRetryDelay time.Duration) (*tlsClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {

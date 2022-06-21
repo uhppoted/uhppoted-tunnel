@@ -125,7 +125,7 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		}
 
 	case strings.HasPrefix(cmd.pipe, "tcp/server:"):
-		if pipe, err = tcp.NewTCPServer(cmd.pipe[11:]); err != nil {
+		if pipe, err = tcp.NewTCPServer(cmd.pipe[11:], cmd.maxRetries, cmd.maxRetryDelay); err != nil {
 			return
 		}
 
@@ -147,7 +147,7 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 			return
 		} else if certificate, err = tlsServerKeyPair(cmd.certificate, cmd.key); err != nil {
 			return
-		} else if pipe, err = tls.NewTLSServer(cmd.pipe[11:], ca, *certificate, cmd.requireClientAuth); err != nil {
+		} else if pipe, err = tls.NewTLSServer(cmd.pipe[11:], cmd.maxRetries, cmd.maxRetryDelay, ca, *certificate, cmd.requireClientAuth); err != nil {
 			return
 		}
 

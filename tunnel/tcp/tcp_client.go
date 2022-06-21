@@ -21,8 +21,6 @@ type tcpClient struct {
 	closed        chan struct{}
 }
 
-const RETRY_MIN_DELAY = 5 * time.Second
-
 func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tcpClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {

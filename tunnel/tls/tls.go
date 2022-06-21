@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"regexp"
 	"sync/atomic"
+	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/log"
 )
+
+const RETRY_MIN_DELAY = 5 * time.Second
 
 var PACKETID uint32 = 0
 

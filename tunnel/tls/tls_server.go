@@ -16,21 +16,22 @@ import (
 )
 
 type tlsServer struct {
-	tag         string
-	addr        *net.TCPAddr
-	config      *tls.Config
-	key         string
-	retryDelay  time.Duration
-	connections map[net.Conn]struct{}
-	pending     map[uint32]context.CancelFunc
-	closing     chan struct{}
-	closed      chan struct{}
+	tag           string
+	addr          *net.TCPAddr
+	config        *tls.Config
+	key           string
+	maxRetries    int
+	maxRetryDelay time.Duration
+	connections   map[net.Conn]struct{}
+	pending       map[uint32]context.CancelFunc
+	closing       chan struct{}
+	closed        chan struct{}
 	sync.RWMutex
 }
 
 var ID uint32 = 0
 
-func NewTLSServer(spec string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool) (*tlsServer, error) {
+func NewTLSServer(spec string, maxRetries int, maxRetryDelay time.Duration, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool) (*tlsServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -59,14 +60,15 @@ func NewTLSServer(spec string, ca *x509.CertPool, keypair tls.Certificate, requi
 	}
 
 	tcp := tlsServer{
-		tag:         "TLS",
-		addr:        addr,
-		config:      &config,
-		retryDelay:  15 * time.Second,
-		connections: map[net.Conn]struct{}{},
-		pending:     map[uint32]context.CancelFunc{},
-		closing:     make(chan struct{}),
-		closed:      make(chan struct{}),
+		tag:           "TLS",
+		addr:          addr,
+		config:        &config,
+		maxRetries:    maxRetries,
+		maxRetryDelay: maxRetryDelay,
+		connections:   map[net.Conn]struct{}{},
+		pending:       map[uint32]context.CancelFunc{},
+		closing:       make(chan struct{}),
+		closed:        make(chan struct{}),
 	}
 
 	return &tcp, nil
@@ -92,26 +94,43 @@ func (tcp *tlsServer) Close() {
 
 func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 	var socket net.Listener
-	var closing = false
-	var delay = 0 * time.Second
+	var retryDelay = 0 * time.Second
+	var retries = 0
 
 	go func() {
-		for !closing {
-			time.Sleep(delay)
-
+	loop:
+		for {
 			socket, err = tls.Listen("tcp", fmt.Sprintf("%v", tcp.addr), tcp.config)
 			if err != nil {
 				warnf(tcp.tag, "%v", err)
-
 			} else if socket == nil {
 				warnf(tcp.tag, "%v", fmt.Errorf("Failed to create TCP listen socket (%v)", socket))
+			} else {
+				retries = 0
+				retryDelay = RETRY_MIN_DELAY
+				tcp.listen(socket, router)
 			}
 
-			delay = tcp.retryDelay
+			// ... retry
+			retries++
+			if tcp.maxRetries >= 0 && retries > tcp.maxRetries {
+				warnf(tcp.tag, "Listen failed on %v failed (retry count exceeded %v)", tcp.addr, tcp.maxRetries)
+				return
+			}
 
-			tcp.listen(socket, router)
+			infof(tcp.tag, "listen failed ... retrying in %v", retryDelay)
+
+			select {
+			case <-time.After(retryDelay):
+				retryDelay *= 2
+				if retryDelay > tcp.maxRetryDelay {
+					retryDelay = tcp.maxRetryDelay
+				}
+
+			case <-tcp.closing:
+				break loop
+			}
 		}
-
 		for k, _ := range tcp.connections {
 			k.Close()
 		}
@@ -121,7 +140,6 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 
 	<-tcp.closing
 
-	closing = true
 	socket.Close()
 
 	return nil
