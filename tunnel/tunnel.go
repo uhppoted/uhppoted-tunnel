@@ -40,7 +40,7 @@ func NewTunnel(udp UDP, tcp TCP) *Tunnel {
 	}
 }
 
-func (t *Tunnel) Run(interrupt chan os.Signal) {
+func (t *Tunnel) Run(interrupt chan os.Signal) error {
 	infof("", "%v", "uhppoted-tunnel::run")
 
 	q := router.NewSwitch(func(id uint32, message []byte) {
@@ -51,19 +51,30 @@ func (t *Tunnel) Run(interrupt chan os.Signal) {
 		t.tcp.Send(id, message)
 	})
 
+	u := make(chan error)
+	v := make(chan error)
+
 	go func() {
 		if err := t.udp.Run(&p); err != nil {
-			fatalf("%v", err)
+			u <- err // fatalf("%v", err)
 		}
 	}()
 
 	go func() {
 		if err := t.tcp.Run(&q); err != nil {
-			fatalf("%v", err)
+			v <- err // fatalf("%v", err)
 		}
 	}()
 
-	<-interrupt
+	select {
+	case <-interrupt:
+
+	case err := <-u:
+		return err
+
+	case err := <-v:
+		return err
+	}
 
 	infof("", "closing")
 
@@ -87,6 +98,8 @@ func (t *Tunnel) Run(interrupt chan os.Signal) {
 
 	wg.Wait()
 	infof("", "closed")
+
+	return nil
 }
 
 func dump(m []byte, prefix string) string {

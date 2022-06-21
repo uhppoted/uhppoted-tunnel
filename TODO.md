@@ -1,16 +1,12 @@
 # TODO
 
-- [x] TLS
-      - [x] close invalid client socket
-      - [x] Cancel TLS handshake on close
-      - [x] Mutual auth
-      - [x] Certicate config
+- [x] Remove lockfile on Fatal
 
-- [ ] Remove lockfile on Fatal
-
-- [ ] TCP:server
+- [ ] TCP/TLS:server
       - backoff on retry listen
       - generalise backoff
+
+- (?) Reorganize as --in and --out
 
 - [ ] shutdown cleanly with timeout
       - [ ] Ignore warnings if closing

@@ -186,7 +186,9 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		}
 	}()
 
-	defer os.Remove(lockfile)
+	defer func() {
+		os.Remove(lockfile)
+	}()
 
 	t := tunnel.NewTunnel(portal, pipe)
 
@@ -199,7 +201,9 @@ func (cmd *Run) run(t *tunnel.Tunnel, interrupt chan os.Signal) {
 	log.SetDebug(cmd.debug)
 	log.SetLevel(cmd.logLevel)
 
-	t.Run(interrupt)
+	if err := t.Run(interrupt); err != nil {
+		log.Errorf("%-5s %v\n", "FATAL", err)
+	}
 }
 
 func tlsCA(cacert string) (*x509.CertPool, error) {
