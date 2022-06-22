@@ -2,9 +2,16 @@ package protocol
 
 import (
 	"fmt"
+	"sync/atomic"
 
 	"github.com/uhppoted/uhppoted-tunnel/log"
 )
+
+var PACKETID uint32 = 0
+
+func NextID() uint32 {
+	return atomic.AddUint32(&PACKETID, 1)
+}
 
 type Message struct {
 	ID      uint32

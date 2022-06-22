@@ -5,6 +5,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/uhppoted/uhppoted-tunnel/protocol"
 	"github.com/uhppoted/uhppoted-tunnel/router"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 )
@@ -106,7 +107,7 @@ func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) {
 			return
 		}
 
-		id := nextID()
+		id := protocol.NextID()
 		dumpf(udp.tag, buffer[:N], "request %v  %v bytes from %v", id, N, remote)
 
 		h := func(reply []byte) {

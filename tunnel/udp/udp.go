@@ -4,16 +4,9 @@ import (
 	"encoding/hex"
 	"fmt"
 	"regexp"
-	"sync/atomic"
 
 	"github.com/uhppoted/uhppoted-tunnel/log"
 )
-
-var PACKETID uint32 = 0
-
-func nextID() uint32 {
-	return atomic.AddUint32(&PACKETID, 1)
-}
 
 func dump(m []byte, prefix string) string {
 	regex := regexp.MustCompile("(?m)^(.*)")

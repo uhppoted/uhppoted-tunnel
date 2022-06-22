@@ -2,7 +2,9 @@
 
 - [x] Reorganize as --in and --out
 - [x] Generalise backoff/retry
-- [ ] Moved packet ID stuff to Conn
+- [x] Move packet ID stuff to `protocol`
+- [ ] Commonalise dumpf, infof, etc
+      - [ ] Remove ASCII translation from dump
 
 - [ ] shutdown cleanly with timeout
       - [ ] Ignore warnings if closing
