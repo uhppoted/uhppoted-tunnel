@@ -79,29 +79,28 @@ help: build
 	$(CMD) help help
 
 host: build
-	$(CMD) --debug --console --portal udp/listen:0.0.0.0:60000 --pipe tcp/server:0.0.0.0:12345
+	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/server:0.0.0.0:12345
 
 client: build
-	$(CMD) --debug --console --portal udp/broadcast:192.168.1.255:60005 --pipe tcp/client:127.0.0.1:12345 --udp-timeout 1s
+	$(CMD) --debug --console --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
 
 reverse-host: build
-	$(CMD) --debug --console --portal udp/listen:0.0.0.0:60000 --pipe tcp/client:127.0.0.1:12345
+	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/client:127.0.0.1:12345
 
 reverse-client: build
-	$(CMD) --debug --console --portal udp/broadcast:192.168.1.255:60005 --pipe tcp/server:0.0.0.0:12345 --udp-timeout 1s
+	$(CMD) --debug --console --in tcp/server:0.0.0.0:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
 
 tls-host: build
-	$(CMD) --debug --console --portal udp/listen:0.0.0.0:60000 --pipe tls/server:0.0.0.0:12345 --client-auth
+	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tls/server:0.0.0.0:12345 --client-auth
 
 tls-client: build
-	$(CMD) --debug --console --portal udp/broadcast:192.168.1.255:60005 --pipe tls/client:127.0.0.1:12345 --udp-timeout 1s
+	$(CMD) --debug --console --in tls/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
 
 daemonize: build
-	# sudo $(CMD) daemonize --portal udp/listen:0.0.0.0:60000 --pipe tcp/server:0.0.0.0:12345
-	sudo $(CMD) daemonize --portal udp/listen:0.0.0.0:60000          --pipe tcp/server:0.0.0.0:12345   --label qwerty
-	sudo $(CMD) daemonize --portal udp/broadcast:192.168.1.255:60005 --pipe tcp/client:127.0.0.1:12345 --label uiop
+	sudo $(CMD) daemonize --in  udp/listen:0.0.0.0:60000  --out tcp/server:0.0.0.0:12345          --label qwerty
+	sudo $(CMD) daemonize --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --label uiop
 
 undaemonize: build
-	# sudo $(CMD) undaemonize
 	sudo $(CMD) undaemonize --label qwerty
+	sudo $(CMD) undaemonize --label uiop
 

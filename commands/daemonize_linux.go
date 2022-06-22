@@ -21,8 +21,8 @@ type info struct {
 	Description   string
 	Documentation string
 	Executable    string
-	Portal        string
-	Pipe          string
+	In            string
+	Out           string
 	PID           string
 	User          string
 	Group         string
@@ -38,7 +38,7 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-ExecStart={{.Executable}} --lockfile {{.PID}} --portal {{.Portal}} --pipe {{.Pipe}}
+ExecStart={{.Executable}} --lockfile {{.PID}} --in {{.In}} --out {{.Out}}
 PIDFile={{.PID}}
 User={{.User}}
 Group={{.Group}}
@@ -82,8 +82,8 @@ type Daemonize struct {
 	html      string
 	etc       string
 	label     string
-	portal    string
-	pipe      string
+	in        string
+	out       string
 	service   string
 }
 
@@ -94,9 +94,9 @@ func (cmd *Daemonize) Name() string {
 func (cmd *Daemonize) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("daemonize", flag.ExitOnError)
 
+	flagset.StringVar(&cmd.in, "in", "", "tunnel connection that accepts requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
+	flagset.StringVar(&cmd.out, "out", "", "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
 	flagset.StringVar(&cmd.label, "label", "", "Identifying label for the service (to distinguish multiple tunnels running on the same machine)")
-	flagset.StringVar(&cmd.portal, "portal", "", "UDP connection e.g. udp/listen:0.0.0.0:60000 or udp/broadcast:255.255.255.255:60000")
-	flagset.StringVar(&cmd.pipe, "pipe", "", "TCP pipe connection e.g. tcp/server:0.0.0.0:54321 or tcp/client:101.102.103.104:54321")
 	flagset.Var(&cmd.usergroup, "user", "user:group for uhppoted-tunnel service")
 
 	return flagset
@@ -107,21 +107,16 @@ func (cmd *Daemonize) Description() string {
 }
 
 func (cmd *Daemonize) Usage() string {
-	return "daemonize [--user <user:group>] --portal <UDP connection> --pipe <TCP connection> [--label <label>]"
+	return "daemonize [--user <user:group>] --in <connection> --out <connection> [--label <label>]"
 }
 
 func (cmd *Daemonize) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s daemonize [--user <user:group>] --portal <UDP connection> --pipe <TCP connection> [--label <label>]\n", SERVICE)
+	fmt.Printf("  Usage: %s daemonize [--user <user:group>] --in <connection> --out <connection> [--label <label>]\n", SERVICE)
 	fmt.Println()
 	fmt.Printf("    Registers %s as a systemd service/daemon that runs on startup.\n", SERVICE)
 	fmt.Println("      Defaults to the user:group uhppoted:uhppoted unless otherwise specified")
 	fmt.Println("      with the --user option")
-	fmt.Println()
-	fmt.Println("   --portal <connection>  Specifies the UDP connection to use for the daemon/service")
-	fmt.Println("   --pipe   <connection>  Specifies the TCP connection to use for the daemon/service")
-	fmt.Println("   --label  <label>       Suffix to append to the service to uniquely identify different tunnels")
-	fmt.Println("                          running on the same machine")
 	fmt.Println()
 
 	helpOptions(cmd.FlagSet())
@@ -147,30 +142,37 @@ func (cmd *Daemonize) Execute(args ...interface{}) error {
 		cmd.service = fmt.Sprintf("%v-%v", SERVICE, cmd.label)
 	}
 
-	// ... check UDP packet handler
+	// ... check --in connection
 	switch {
-	case cmd.portal == "":
-		return fmt.Errorf("--portal argument is required")
+	case cmd.in == "":
+		return fmt.Errorf("--in argument is required")
 
-	case strings.HasPrefix(cmd.portal, "udp/listen:"):
-
-	case strings.HasPrefix(cmd.portal, "udp/broadcast:"):
+	case
+		strings.HasPrefix(cmd.in, "udp/listen:"),
+		strings.HasPrefix(cmd.in, "tcp/client:"),
+		strings.HasPrefix(cmd.in, "tcp/server:"),
+		strings.HasPrefix(cmd.in, "tls/client:"),
+		strings.HasPrefix(cmd.in, "tls/server:"):
+	// OK
 
 	default:
-		return fmt.Errorf("Invalid --portal argument (%v)", cmd.portal)
+		return fmt.Errorf("Invalid --in argument (%v)", cmd.in)
 	}
 
-	// ... check TCP/IP pipe
+	// ... check --out connection
 	switch {
-	case cmd.pipe == "":
-		return fmt.Errorf("--pipe argument is required")
+	case cmd.out == "":
+		return fmt.Errorf("--out argument is required")
 
-	case strings.HasPrefix(cmd.pipe, "tcp/client:"):
-
-	case strings.HasPrefix(cmd.pipe, "tcp/server:"):
+	case
+		strings.HasPrefix(cmd.out, "udp/broadcast:"),
+		strings.HasPrefix(cmd.out, "tcp/client:"),
+		strings.HasPrefix(cmd.out, "tcp/server:"),
+		strings.HasPrefix(cmd.out, "tls/client:"),
+		strings.HasPrefix(cmd.out, "tls/server:"):
 
 	default:
-		return fmt.Errorf("Invalid --pipe argument (%v)", cmd.pipe)
+		return fmt.Errorf("Invalid --out argument (%v)", cmd.out)
 	}
 
 	dir := filepath.Dir(cmd.config)
@@ -217,8 +219,8 @@ func (cmd *Daemonize) execute() error {
 		Description:   "UHPPOTE UTO311-L0x access card controllers UDP tunnel service/daemon ",
 		Documentation: "https://github.com/uhppoted/uhppoted-tunnel",
 		Executable:    executable,
-		Portal:        cmd.portal,
-		Pipe:          cmd.pipe,
+		In:            cmd.in,
+		Out:           cmd.out,
 		PID:           fmt.Sprintf("/var/uhppoted/%v.pid", cmd.service),
 		User:          "uhppoted",
 		Group:         "uhppoted",
@@ -260,11 +262,11 @@ func (cmd *Daemonize) execute() error {
 	var udp *net.UDPAddr
 
 	switch {
-	case strings.HasPrefix(cmd.portal, "udp/listen:"):
-		udp, _ = net.ResolveUDPAddr("udp", cmd.portal[11:])
+	case strings.HasPrefix(cmd.in, "udp/listen:"):
+		udp, _ = net.ResolveUDPAddr("udp", cmd.in[11:])
 
-	case strings.HasPrefix(cmd.portal, "udp/broadcast:"):
-		udp, _ = net.ResolveUDPAddr("udp", cmd.portal[14:])
+	case strings.HasPrefix(cmd.out, "udp/broadcast:"):
+		udp, _ = net.ResolveUDPAddr("udp", cmd.out[14:])
 	}
 
 	fmt.Printf("   ... %s registered as a systemd service\n", cmd.service)
@@ -285,7 +287,7 @@ func (cmd *Daemonize) execute() error {
 	fmt.Printf("   The installation can be verified by running the %v service in 'console' mode:\n", SERVICE)
 	fmt.Println()
 	fmt.Printf("     > sudo su %v\n", username)
-	fmt.Printf("     > ./%v --debug --console --portal %v --pipe %v\n", SERVICE, cmd.portal, cmd.pipe)
+	fmt.Printf("     > ./%v --debug --console --in %v --out %v\n", SERVICE, cmd.in, cmd.out)
 	fmt.Println()
 	fmt.Println()
 

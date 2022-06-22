@@ -1,12 +1,9 @@
 # TODO
 
-- [x] Remove lockfile on Fatal
+- [x] Reorganize as --in and --out
 
 - [ ] TCP/TLS:server
-      - [x] backoff on retry listen
       - [ ] generalise backoff/retry
-
-- (?) Reorganize as --in and --out
 
 - [ ] shutdown cleanly with timeout
       - [ ] Ignore warnings if closing

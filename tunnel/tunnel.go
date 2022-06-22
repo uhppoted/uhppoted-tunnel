@@ -11,13 +11,7 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/router"
 )
 
-type UDP interface {
-	Close()
-	Run(*router.Switch) error
-	Send(uint32, []byte)
-}
-
-type TCP interface {
+type Conn interface {
 	Close()
 	Run(*router.Switch) error
 	Send(uint32, []byte)
@@ -29,40 +23,40 @@ type Message struct {
 }
 
 type Tunnel struct {
-	udp UDP
-	tcp TCP
+	in  Conn
+	out Conn
 }
 
-func NewTunnel(udp UDP, tcp TCP) *Tunnel {
+func NewTunnel(in Conn, out Conn) *Tunnel {
 	return &Tunnel{
-		udp: udp,
-		tcp: tcp,
+		in:  in,
+		out: out,
 	}
 }
 
 func (t *Tunnel) Run(interrupt chan os.Signal) error {
 	infof("", "%v", "uhppoted-tunnel::run")
 
-	q := router.NewSwitch(func(id uint32, message []byte) {
-		t.udp.Send(id, message)
+	p := router.NewSwitch(func(id uint32, message []byte) {
+		t.out.Send(id, message)
 	})
 
-	p := router.NewSwitch(func(id uint32, message []byte) {
-		t.tcp.Send(id, message)
+	q := router.NewSwitch(func(id uint32, message []byte) {
+		t.in.Send(id, message)
 	})
 
 	u := make(chan error)
 	v := make(chan error)
 
 	go func() {
-		if err := t.udp.Run(&p); err != nil {
-			u <- err // fatalf("%v", err)
+		if err := t.in.Run(&p); err != nil {
+			u <- err
 		}
 	}()
 
 	go func() {
-		if err := t.tcp.Run(&q); err != nil {
-			v <- err // fatalf("%v", err)
+		if err := t.out.Run(&q); err != nil {
+			v <- err
 		}
 	}()
 
@@ -88,12 +82,12 @@ func (t *Tunnel) Run(interrupt chan os.Signal) error {
 
 	go func() {
 		defer wg.Done()
-		t.udp.Close()
+		t.in.Close()
 	}()
 
 	go func() {
 		defer wg.Done()
-		t.tcp.Close()
+		t.out.Close()
 	}()
 
 	wg.Wait()

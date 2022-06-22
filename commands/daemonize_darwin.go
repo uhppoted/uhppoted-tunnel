@@ -51,8 +51,8 @@ type Daemonize struct {
 	logdir  string
 	config  string
 	etc     string
-	portal  string
-	pipe    string
+	in      string
+	out     string
 	label   string
 }
 
@@ -63,8 +63,8 @@ func (cmd *Daemonize) Name() string {
 func (cmd *Daemonize) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("daemonize", flag.ExitOnError)
 
-	flagset.StringVar(&cmd.portal, "portal", "", "UDP connection e.g. udp/listen:0.0.0.0:60000 or udp/broadcast:255.255.255.255:60000")
-	flagset.StringVar(&cmd.pipe, "pipe", "", "TCP pipe connection e.g. tcp/server:0.0.0.0:54321 or tcp/client:101.102.103.104:54321")
+	flagset.StringVar(&cmd.in, "in", "", "tunnel connection that accepts requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
+	flagset.StringVar(&cmd.out, "out", "", "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
 	flagset.StringVar(&cmd.label, "label", "", "(optional) Identifying label for the service to distinguish multiple tunnels running on the same machine")
 
 	return flagset
@@ -80,7 +80,7 @@ func (cmd *Daemonize) Usage() string {
 
 func (cmd *Daemonize) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s daemonize --portal <UDP connection> --pipe <TCP connection> [--label <label>]\n", SERVICE)
+	fmt.Printf("  Usage: %s daemonize --in <connection> --out <connection> [--label <label>]\n", SERVICE)
 	fmt.Println()
 	fmt.Printf("    Daemonizes %s as a service/daemon that runs on startup\n", SERVICE)
 	fmt.Println()
@@ -108,32 +108,38 @@ func (cmd *Daemonize) Execute(args ...interface{}) error {
 		cmd.plist = fmt.Sprintf("com.github.uhppoted.%v-%v.plist", SERVICE, cmd.label)
 	}
 
-	// ... check UDP packet handler
+	// ... check --in connection
 	switch {
-	case cmd.portal == "":
-		return fmt.Errorf("--portal argument is required")
+	case cmd.in == "":
+		return fmt.Errorf("--in argument is required")
 
-	case strings.HasPrefix(cmd.portal, "udp/listen:"):
-		// portal = cmd.portal[11:]
-
-	case strings.HasPrefix(cmd.portal, "udp/broadcast:"):
-		// portal = cmd.portal[14:]
+	case
+		strings.HasPrefix(cmd.in, "udp/listen:"),
+		strings.HasPrefix(cmd.in, "tcp/client:"),
+		strings.HasPrefix(cmd.in, "tcp/server:"),
+		strings.HasPrefix(cmd.in, "tls/client:"),
+		strings.HasPrefix(cmd.in, "tls/server:"):
+	// OK
 
 	default:
-		return fmt.Errorf("Invalid --portal argument (%v)", cmd.portal)
+		return fmt.Errorf("Invalid --in argument (%v)", cmd.in)
 	}
 
-	// ... check TCP/IP pipe
+	// ... check --out connection
 	switch {
-	case cmd.pipe == "":
-		return fmt.Errorf("--pipe argument is required")
+	case cmd.out == "":
+		return fmt.Errorf("--out argument is required")
 
-	case strings.HasPrefix(cmd.pipe, "tcp/client:"):
-
-	case strings.HasPrefix(cmd.pipe, "tcp/server:"):
+	case
+		strings.HasPrefix(cmd.out, "udp/broadcast:"),
+		strings.HasPrefix(cmd.in, "tcp/client:"),
+		strings.HasPrefix(cmd.in, "tcp/server:"),
+		strings.HasPrefix(cmd.in, "tls/client:"),
+		strings.HasPrefix(cmd.in, "tls/server:"):
+	// OK
 
 	default:
-		return fmt.Errorf("Invalid --pipe argument (%v)", cmd.pipe)
+		return fmt.Errorf("Invalid --out argument (%v)", cmd.out)
 	}
 
 	// ... install daemon
@@ -216,10 +222,10 @@ func (cmd *Daemonize) launchd(i *info) error {
 		WorkingDirectory: cmd.workdir,
 		ProgramArguments: []string{
 			path, // ref. https://apple.stackexchange.com/questions/110644/getting-launchd-to-read-program-arguments-correctly
-			"--portal",
-			cmd.portal,
-			"--pipe",
-			cmd.pipe,
+			"--in",
+			cmd.in,
+			"--out",
+			cmd.out,
 		},
 		KeepAlive:         true,
 		RunAtLoad:         true,

@@ -20,8 +20,8 @@ import (
 
 type Run struct {
 	label             string
-	portal            string
-	pipe              string
+	in                string
+	out               string
 	maxRetries        int
 	maxRetryDelay     time.Duration
 	udpTimeout        time.Duration
@@ -45,8 +45,8 @@ const UDP_TIMEOUT = 5 * time.Second
 func (r *Run) flags() *flag.FlagSet {
 	flagset := flag.NewFlagSet("", flag.ExitOnError)
 
-	flagset.StringVar(&r.portal, "portal", "", "UDP connection e.g. udp/listen:0.0.0.0:60000 or udp/broadcast:255.255.255.255:60000")
-	flagset.StringVar(&r.pipe, "pipe", "", "TCP pipe connection e.g. tcp/server:0.0.0.0:54321 or tcp/client:101.102.103.104:54321")
+	flagset.StringVar(&r.in, "in", "", "tunnel connection that accepts external requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
+	flagset.StringVar(&r.out, "out", "", "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
 	flagset.StringVar(&r.lockfile, "lockfile", "", "(optional) name of lockfile used to prevent running multiple copies of the service. A default lockfile name is generated if none is supplied")
 	flagset.IntVar(&r.maxRetries, "max-retries", MAX_RETRIES, "Maximum number of times to retry failed connection. Defaults to -1 (retry forever)")
 	flagset.DurationVar(&r.maxRetryDelay, "max-retry-delay", MAX_RETRY_DELAY, "Maximum delay between retrying failed connections")
@@ -89,70 +89,48 @@ func (cmd *Run) Help() {
 }
 
 func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
-	var portal tunnel.UDP
-	var pipe tunnel.TCP
+	var in tunnel.Conn
+	var out tunnel.Conn
 
-	// ... create UDP packet handler
+	// ... create request handler
 	switch {
-	case cmd.portal == "":
-		err = fmt.Errorf("--portal argument is required")
+	case cmd.in == "":
+		err = fmt.Errorf("--in argument is required")
 		return
 
-	case strings.HasPrefix(cmd.portal, "udp/listen:"):
-		if portal, err = udp.NewUDPListen(cmd.portal[11:]); err != nil {
-			return
-		}
-
-	case strings.HasPrefix(cmd.portal, "udp/broadcast:"):
-		if portal, err = udp.NewUDPBroadcast(cmd.portal[14:], cmd.udpTimeout); err != nil {
+	case
+		strings.HasPrefix(cmd.in, "udp/listen:"),
+		strings.HasPrefix(cmd.in, "tcp/client:"),
+		strings.HasPrefix(cmd.in, "tcp/server:"),
+		strings.HasPrefix(cmd.in, "tls/client:"),
+		strings.HasPrefix(cmd.in, "tls/server:"):
+		if in, err = cmd.makeConn("--in", cmd.in); err != nil {
 			return
 		}
 
 	default:
-		err = fmt.Errorf("Invalid --portal argument (%v)", cmd.portal)
+		err = fmt.Errorf("Invalid --in argument (%v)", cmd.in)
 		return
 	}
 
-	// ... create TCP/IP pipe
+	// ... create request dispatcher
 	switch {
-	case cmd.pipe == "":
-		err = fmt.Errorf("--pipe argument is required")
+	case cmd.out == "":
+		err = fmt.Errorf("--out argument is required")
 		return
 
-	case strings.HasPrefix(cmd.pipe, "tcp/client:"):
-		if pipe, err = tcp.NewTCPClient(cmd.pipe[11:], cmd.maxRetries, cmd.maxRetryDelay); err != nil {
-			return
-		}
-
-	case strings.HasPrefix(cmd.pipe, "tcp/server:"):
-		if pipe, err = tcp.NewTCPServer(cmd.pipe[11:], cmd.maxRetries, cmd.maxRetryDelay); err != nil {
-			return
-		}
-
-	case strings.HasPrefix(cmd.pipe, "tls/client:"):
-		var ca *x509.CertPool
-		var certificate *TLS.Certificate
-		if ca, err = tlsCA(cmd.caCertificate); err != nil {
-			return
-		} else if certificate, err = tlsClientKeyPair(cmd.certificate, cmd.key); err != nil {
-			return
-		} else if pipe, err = tls.NewTLSClient(cmd.pipe[11:], ca, certificate, cmd.maxRetries, cmd.maxRetryDelay); err != nil {
-			return
-		}
-
-	case strings.HasPrefix(cmd.pipe, "tls/server:"):
-		var ca *x509.CertPool
-		var certificate *TLS.Certificate
-		if ca, err = tlsCA(cmd.caCertificate); err != nil {
-			return
-		} else if certificate, err = tlsServerKeyPair(cmd.certificate, cmd.key); err != nil {
-			return
-		} else if pipe, err = tls.NewTLSServer(cmd.pipe[11:], cmd.maxRetries, cmd.maxRetryDelay, ca, *certificate, cmd.requireClientAuth); err != nil {
+	case
+		strings.HasPrefix(cmd.out, "udp/broadcast:"),
+		strings.HasPrefix(cmd.out, "tcp/client:"),
+		strings.HasPrefix(cmd.out, "tcp/server:"),
+		strings.HasPrefix(cmd.out, "tls/client:"),
+		strings.HasPrefix(cmd.out, "tls/server:"):
+		if out, err = cmd.makeConn("--out", cmd.out); err != nil {
 			return
 		}
 
 	default:
-		err = fmt.Errorf("Invalid --pipe argument (%v)", cmd.pipe)
+		err = fmt.Errorf("Invalid --out argument (%v)", cmd.out)
 		return
 	}
 
@@ -166,7 +144,7 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 	lockfile := cmd.lockfile
 
 	if lockfile == "" {
-		hash := sha1.Sum([]byte(cmd.portal + cmd.pipe))
+		hash := sha1.Sum([]byte(cmd.in + cmd.out))
 		lockfile = filepath.Join(cmd.workdir, fmt.Sprintf("%s-%x.pid", SERVICE, hash))
 	}
 
@@ -190,11 +168,48 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		os.Remove(lockfile)
 	}()
 
-	t := tunnel.NewTunnel(portal, pipe)
+	t := tunnel.NewTunnel(in, out)
 
 	f(t)
 
 	return nil
+}
+
+func (cmd Run) makeConn(arg, spec string) (tunnel.Conn, error) {
+	switch {
+	case strings.HasPrefix(spec, "udp/listen:"):
+		return udp.NewUDPListen(spec[11:])
+
+	case strings.HasPrefix(spec, "udp/broadcast:"):
+		return udp.NewUDPBroadcast(spec[14:], cmd.udpTimeout)
+
+	case strings.HasPrefix(spec, "tcp/client:"):
+		return tcp.NewTCPClient(spec[11:], cmd.maxRetries, cmd.maxRetryDelay)
+
+	case strings.HasPrefix(spec, "tcp/server:"):
+		return tcp.NewTCPServer(spec[11:], cmd.maxRetries, cmd.maxRetryDelay)
+
+	case strings.HasPrefix(spec, "tls/client:"):
+		if ca, err := tlsCA(cmd.caCertificate); err != nil {
+			return nil, err
+		} else if certificate, err := tlsClientKeyPair(cmd.certificate, cmd.key); err != nil {
+			return nil, err
+		} else {
+			return tls.NewTLSClient(spec[11:], ca, certificate, cmd.maxRetries, cmd.maxRetryDelay)
+		}
+
+	case strings.HasPrefix(spec, "tls/server:"):
+		if ca, err := tlsCA(cmd.caCertificate); err != nil {
+			return nil, err
+		} else if certificate, err := tlsServerKeyPair(cmd.certificate, cmd.key); err != nil {
+			return nil, err
+		} else {
+			return tls.NewTLSServer(spec[11:], cmd.maxRetries, cmd.maxRetryDelay, ca, *certificate, cmd.requireClientAuth)
+		}
+
+	default:
+		return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
+	}
 }
 
 func (cmd *Run) run(t *tunnel.Tunnel, interrupt chan os.Signal) {
