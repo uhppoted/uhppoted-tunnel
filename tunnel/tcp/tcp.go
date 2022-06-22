@@ -1,21 +1,14 @@
 package tcp
 
 import (
-	"encoding/hex"
 	"fmt"
-	"regexp"
 
 	"github.com/uhppoted/uhppoted-tunnel/log"
+	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 )
 
-func dump(m []byte, prefix string) string {
-	regex := regexp.MustCompile("(?m)^(.*)")
-
-	return fmt.Sprintf("%s", regex.ReplaceAllString(hex.Dump(m), prefix+"$1"))
-}
-
 func dumpf(tag string, message []byte, format string, args ...any) {
-	hex := dump(message, "                                  ")
+	hex := conn.Dump(message, "                                  ")
 	preamble := fmt.Sprintf(format, args...)
 
 	debugf(tag, "%v\n%s", preamble, hex)

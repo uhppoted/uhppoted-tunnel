@@ -111,7 +111,7 @@ func (r *Router) Sweep() {
 	}
 
 	for _, k := range idle {
-		debugf("removing idle handler function (%v)", k)
+		debugf("ROUTER", "removing idle handler function (%v)", k)
 		delete(r.handlers, k)
 	}
 }
@@ -130,8 +130,10 @@ func Close() {
 	}
 }
 
-func debugf(format string, args ...any) {
-	log.Debugf(format, args...)
+func debugf(tag string, format string, args ...any) {
+	f := fmt.Sprintf("%-6v %v", tag, format)
+
+	log.Debugf(f, args...)
 }
 
 func infof(tag, format string, args ...any) {
