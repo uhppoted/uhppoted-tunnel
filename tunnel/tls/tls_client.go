@@ -10,21 +10,21 @@ import (
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
 	"github.com/uhppoted/uhppoted-tunnel/router"
+	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 )
 
 type tlsClient struct {
-	tag           string
-	addr          *net.TCPAddr
-	config        *tls.Config
-	maxRetries    int
-	maxRetryDelay time.Duration
-	timeout       time.Duration
-	ch            chan protocol.Message
-	closing       chan struct{}
-	closed        chan struct{}
+	tag     string
+	addr    *net.TCPAddr
+	config  *tls.Config
+	retry   conn.Backoff
+	timeout time.Duration
+	ch      chan protocol.Message
+	closing chan struct{}
+	closed  chan struct{}
 }
 
-func NewTLSClient(spec string, ca *x509.CertPool, keypair *tls.Certificate, maxRetries int, maxRetryDelay time.Duration) (*tlsClient, error) {
+func NewTLSClient(spec string, ca *x509.CertPool, keypair *tls.Certificate, retry conn.Backoff) (*tlsClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -49,15 +49,14 @@ func NewTLSClient(spec string, ca *x509.CertPool, keypair *tls.Certificate, maxR
 	}
 
 	in := tlsClient{
-		tag:           "TLS",
-		addr:          addr,
-		config:        &config,
-		maxRetries:    maxRetries,
-		maxRetryDelay: maxRetryDelay,
-		timeout:       5 * time.Second,
-		ch:            make(chan protocol.Message, 16),
-		closing:       make(chan struct{}),
-		closed:        make(chan struct{}),
+		tag:     "TLS",
+		addr:    addr,
+		config:  &config,
+		retry:   retry,
+		timeout: 5 * time.Second,
+		ch:      make(chan protocol.Message, 16),
+		closing: make(chan struct{}),
+		closed:  make(chan struct{}),
 	}
 
 	return &in, nil
@@ -92,9 +91,6 @@ func (tcp *tlsClient) Send(id uint32, msg []byte) {
 }
 
 func (tcp *tlsClient) connect(router *router.Switch) {
-	retryDelay := RETRY_MIN_DELAY
-	retries := 0
-
 	for {
 		infof(tcp.tag, "connecting to %v", tcp.addr)
 
@@ -103,8 +99,7 @@ func (tcp *tlsClient) connect(router *router.Switch) {
 		} else if socket == nil {
 			warnf(tcp.tag, "connect %v failed (%v)", tcp.addr, socket)
 		} else {
-			retries = 0
-			retryDelay = RETRY_MIN_DELAY
+			tcp.retry.Reset()
 			eof := make(chan struct{})
 
 			go func() {
@@ -135,23 +130,7 @@ func (tcp *tlsClient) connect(router *router.Switch) {
 			close(eof)
 		}
 
-		// ... retry
-		retries++
-		if tcp.maxRetries >= 0 && retries > tcp.maxRetries {
-			warnf(tcp.tag, "Connect to %v failed (retry count exceeded %v)", tcp.addr, tcp.maxRetries)
-			return
-		}
-
-		infof(tcp.tag, "connection failed ... retrying in %v", retryDelay)
-
-		select {
-		case <-time.After(retryDelay):
-			retryDelay *= 2
-			if retryDelay > tcp.maxRetryDelay {
-				retryDelay = tcp.maxRetryDelay
-			}
-
-		case <-tcp.closing:
+		if !tcp.retry.Wait(tcp.tag, tcp.closing) {
 			return
 		}
 	}

@@ -1,9 +1,8 @@
 # TODO
 
 - [x] Reorganize as --in and --out
-
-- [ ] TCP/TLS:server
-      - [ ] generalise backoff/retry
+- [x] Generalise backoff/retry
+- [ ] Moved packet ID stuff to Conn
 
 - [ ] shutdown cleanly with timeout
       - [ ] Ignore warnings if closing

@@ -13,25 +13,25 @@ import (
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
 	"github.com/uhppoted/uhppoted-tunnel/router"
+	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 )
 
 type tlsServer struct {
-	tag           string
-	addr          *net.TCPAddr
-	config        *tls.Config
-	key           string
-	maxRetries    int
-	maxRetryDelay time.Duration
-	connections   map[net.Conn]struct{}
-	pending       map[uint32]context.CancelFunc
-	closing       chan struct{}
-	closed        chan struct{}
+	tag         string
+	addr        *net.TCPAddr
+	config      *tls.Config
+	key         string
+	retry       conn.Backoff
+	connections map[net.Conn]struct{}
+	pending     map[uint32]context.CancelFunc
+	closing     chan struct{}
+	closed      chan struct{}
 	sync.RWMutex
 }
 
 var ID uint32 = 0
 
-func NewTLSServer(spec string, maxRetries int, maxRetryDelay time.Duration, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool) (*tlsServer, error) {
+func NewTLSServer(spec string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff) (*tlsServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -60,15 +60,14 @@ func NewTLSServer(spec string, maxRetries int, maxRetryDelay time.Duration, ca *
 	}
 
 	tcp := tlsServer{
-		tag:           "TLS",
-		addr:          addr,
-		config:        &config,
-		maxRetries:    maxRetries,
-		maxRetryDelay: maxRetryDelay,
-		connections:   map[net.Conn]struct{}{},
-		pending:       map[uint32]context.CancelFunc{},
-		closing:       make(chan struct{}),
-		closed:        make(chan struct{}),
+		tag:         "TLS",
+		addr:        addr,
+		config:      &config,
+		retry:       retry,
+		connections: map[net.Conn]struct{}{},
+		pending:     map[uint32]context.CancelFunc{},
+		closing:     make(chan struct{}),
+		closed:      make(chan struct{}),
 	}
 
 	return &tcp, nil
@@ -94,8 +93,6 @@ func (tcp *tlsServer) Close() {
 
 func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 	var socket net.Listener
-	var retryDelay = 0 * time.Second
-	var retries = 0
 
 	go func() {
 	loop:
@@ -106,31 +103,15 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 			} else if socket == nil {
 				warnf(tcp.tag, "%v", fmt.Errorf("Failed to create TCP listen socket (%v)", socket))
 			} else {
-				retries = 0
-				retryDelay = RETRY_MIN_DELAY
+				tcp.retry.Reset()
 				tcp.listen(socket, router)
 			}
 
-			// ... retry
-			retries++
-			if tcp.maxRetries >= 0 && retries > tcp.maxRetries {
-				warnf(tcp.tag, "Listen failed on %v failed (retry count exceeded %v)", tcp.addr, tcp.maxRetries)
-				return
-			}
-
-			infof(tcp.tag, "listen failed ... retrying in %v", retryDelay)
-
-			select {
-			case <-time.After(retryDelay):
-				retryDelay *= 2
-				if retryDelay > tcp.maxRetryDelay {
-					retryDelay = tcp.maxRetryDelay
-				}
-
-			case <-tcp.closing:
+			if !tcp.retry.Wait(tcp.tag, tcp.closing) {
 				break loop
 			}
 		}
+
 		for k, _ := range tcp.connections {
 			k.Close()
 		}

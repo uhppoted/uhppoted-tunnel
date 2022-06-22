@@ -9,20 +9,20 @@ import (
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
 	"github.com/uhppoted/uhppoted-tunnel/router"
+	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 )
 
 type tcpServer struct {
-	tag           string
-	addr          *net.TCPAddr
-	maxRetries    int
-	maxRetryDelay time.Duration
-	connections   map[net.Conn]struct{}
-	closing       chan struct{}
-	closed        chan struct{}
+	tag         string
+	addr        *net.TCPAddr
+	retry       conn.Backoff
+	connections map[net.Conn]struct{}
+	closing     chan struct{}
+	closed      chan struct{}
 	sync.RWMutex
 }
 
-func NewTCPServer(spec string, maxRetries int, maxRetryDelay time.Duration) (*tcpServer, error) {
+func NewTCPServer(spec string, retry conn.Backoff) (*tcpServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -34,13 +34,12 @@ func NewTCPServer(spec string, maxRetries int, maxRetryDelay time.Duration) (*tc
 	}
 
 	out := tcpServer{
-		tag:           "TCP",
-		addr:          addr,
-		maxRetries:    maxRetries,
-		maxRetryDelay: maxRetryDelay,
-		connections:   map[net.Conn]struct{}{},
-		closing:       make(chan struct{}),
-		closed:        make(chan struct{}),
+		tag:         "TCP",
+		addr:        addr,
+		retry:       retry,
+		connections: map[net.Conn]struct{}{},
+		closing:     make(chan struct{}),
+		closed:      make(chan struct{}),
 	}
 
 	return &out, nil
@@ -62,8 +61,6 @@ func (tcp *tcpServer) Close() {
 
 func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 	var socket net.Listener
-	var retryDelay = 0 * time.Second
-	var retries = 0
 
 	go func() {
 	loop:
@@ -74,29 +71,11 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 			} else if socket == nil {
 				warnf(tcp.tag, "%v", fmt.Errorf("Failed to create TCP listen socket (%v)", socket))
 			} else {
-				retries = 0
-				retryDelay = RETRY_MIN_DELAY
-
+				tcp.retry.Reset()
 				tcp.listen(socket, router)
 			}
 
-			// ... retry
-			retries++
-			if tcp.maxRetries >= 0 && retries > tcp.maxRetries {
-				warnf(tcp.tag, "Listen failed on %v failed (retry count exceeded %v)", tcp.addr, tcp.maxRetries)
-				return
-			}
-
-			infof(tcp.tag, "listen failed ... retrying in %v", retryDelay)
-
-			select {
-			case <-time.After(retryDelay):
-				retryDelay *= 2
-				if retryDelay > tcp.maxRetryDelay {
-					retryDelay = tcp.maxRetryDelay
-				}
-
-			case <-tcp.closing:
+			if !tcp.retry.Wait(tcp.tag, tcp.closing) {
 				break loop
 			}
 		}

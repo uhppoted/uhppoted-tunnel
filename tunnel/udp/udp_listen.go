@@ -6,16 +6,18 @@ import (
 	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/router"
+	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 )
 
 type udpListen struct {
-	addr       *net.UDPAddr
-	retryDelay time.Duration
-	closing    chan struct{}
-	closed     chan struct{}
+	tag     string
+	addr    *net.UDPAddr
+	retry   conn.Backoff
+	closing chan struct{}
+	closed  chan struct{}
 }
 
-func NewUDPListen(spec string) (*udpListen, error) {
+func NewUDPListen(spec string, retry conn.Backoff) (*udpListen, error) {
 	addr, err := net.ResolveUDPAddr("udp", spec)
 	if err != nil {
 		return nil, err
@@ -30,49 +32,50 @@ func NewUDPListen(spec string) (*udpListen, error) {
 	}
 
 	udp := udpListen{
-		addr:       addr,
-		retryDelay: 15 * time.Second,
-		closing:    make(chan struct{}),
-		closed:     make(chan struct{}),
+		tag:     "UDP",
+		addr:    addr,
+		retry:   retry,
+		closing: make(chan struct{}),
+		closed:  make(chan struct{}),
 	}
 
 	return &udp, nil
 }
 
 func (udp *udpListen) Close() {
-	infof("UDP", "closing")
+	infof(udp.tag, "closing")
 	close(udp.closing)
 
 	timeout := time.NewTimer(5 * time.Second)
 	select {
 	case <-udp.closed:
-		infof("UDP", "closed")
+		infof(udp.tag, "closed")
 
 	case <-timeout.C:
-		infof("UDP", "close timeout")
+		infof(udp.tag, "close timeout")
 	}
 }
 
 func (udp *udpListen) Run(router *router.Switch) (err error) {
 	var socket *net.UDPConn
 	var closing = false
-	var delay = 0 * time.Second
 
 	go func() {
+	loop:
 		for !closing {
-			time.Sleep(delay)
-
 			socket, err = net.ListenUDP("udp", udp.addr)
 			if err != nil {
-				return
+				warnf(udp.tag, "%v", err)
 			} else if socket == nil {
-				err = fmt.Errorf("Failed to create UDP listen socket (%v)", socket)
-				return
+				warnf(udp.tag, "Failed to create UDP listen socket (%v)", socket)
+			} else {
+				udp.retry.Reset()
+				udp.listen(socket, router)
 			}
 
-			delay = udp.retryDelay
-
-			udp.listen(socket, router)
+			if !udp.retry.Wait(udp.tag, udp.closing) {
+				break loop
+			}
 		}
 
 		udp.closed <- struct{}{}
@@ -90,7 +93,7 @@ func (udp *udpListen) Send(id uint32, message []byte) {
 }
 
 func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) {
-	infof("UDP", "listening on %v", udp.addr)
+	infof(udp.tag, "listening on %v", udp.addr)
 
 	defer socket.Close()
 
@@ -99,20 +102,20 @@ func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) {
 
 		N, remote, err := socket.ReadFromUDP(buffer)
 		if err != nil {
-			warnf("UDP", "%v", err)
+			warnf(udp.tag, "%v", err)
 			return
 		}
 
 		id := nextID()
-		dumpf("UDP", buffer[:N], "request %v  %v bytes from %v", id, N, remote)
+		dumpf(udp.tag, buffer[:N], "request %v  %v bytes from %v", id, N, remote)
 
 		h := func(reply []byte) {
-			dumpf("UDP", reply, "reply %v  %v bytes for %v", id, len(reply), remote)
+			dumpf(udp.tag, reply, "reply %v  %v bytes for %v", id, len(reply), remote)
 
 			if N, err := socket.WriteToUDP(reply, remote); err != nil {
-				warnf("UDP", "%v", err)
+				warnf(udp.tag, "%v", err)
 			} else {
-				debugf("UDP", "sent %v bytes to %v\n", N, remote)
+				debugf(udp.tag, "sent %v bytes to %v\n", N, remote)
 			}
 		}
 

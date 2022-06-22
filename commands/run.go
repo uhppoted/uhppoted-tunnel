@@ -13,6 +13,7 @@ import (
 
 	"github.com/uhppoted/uhppoted-tunnel/log"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
+	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/tcp"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/tls"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/udp"
@@ -178,16 +179,16 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 func (cmd Run) makeConn(arg, spec string) (tunnel.Conn, error) {
 	switch {
 	case strings.HasPrefix(spec, "udp/listen:"):
-		return udp.NewUDPListen(spec[11:])
+		return udp.NewUDPListen(spec[11:], conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
 
 	case strings.HasPrefix(spec, "udp/broadcast:"):
 		return udp.NewUDPBroadcast(spec[14:], cmd.udpTimeout)
 
 	case strings.HasPrefix(spec, "tcp/client:"):
-		return tcp.NewTCPClient(spec[11:], cmd.maxRetries, cmd.maxRetryDelay)
+		return tcp.NewTCPClient(spec[11:], conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
 
 	case strings.HasPrefix(spec, "tcp/server:"):
-		return tcp.NewTCPServer(spec[11:], cmd.maxRetries, cmd.maxRetryDelay)
+		return tcp.NewTCPServer(spec[11:], conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
 
 	case strings.HasPrefix(spec, "tls/client:"):
 		if ca, err := tlsCA(cmd.caCertificate); err != nil {
@@ -195,7 +196,7 @@ func (cmd Run) makeConn(arg, spec string) (tunnel.Conn, error) {
 		} else if certificate, err := tlsClientKeyPair(cmd.certificate, cmd.key); err != nil {
 			return nil, err
 		} else {
-			return tls.NewTLSClient(spec[11:], ca, certificate, cmd.maxRetries, cmd.maxRetryDelay)
+			return tls.NewTLSClient(spec[11:], ca, certificate, conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
 		}
 
 	case strings.HasPrefix(spec, "tls/server:"):
@@ -204,7 +205,7 @@ func (cmd Run) makeConn(arg, spec string) (tunnel.Conn, error) {
 		} else if certificate, err := tlsServerKeyPair(cmd.certificate, cmd.key); err != nil {
 			return nil, err
 		} else {
-			return tls.NewTLSServer(spec[11:], cmd.maxRetries, cmd.maxRetryDelay, ca, *certificate, cmd.requireClientAuth)
+			return tls.NewTLSServer(spec[11:], ca, *certificate, cmd.requireClientAuth, conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
 		}
 
 	default:

@@ -8,20 +8,20 @@ import (
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
 	"github.com/uhppoted/uhppoted-tunnel/router"
+	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 )
 
 type tcpClient struct {
-	tag           string
-	addr          *net.TCPAddr
-	maxRetries    int
-	maxRetryDelay time.Duration
-	timeout       time.Duration
-	ch            chan protocol.Message
-	closing       chan struct{}
-	closed        chan struct{}
+	tag     string
+	addr    *net.TCPAddr
+	retry   conn.Backoff
+	timeout time.Duration
+	ch      chan protocol.Message
+	closing chan struct{}
+	closed  chan struct{}
 }
 
-func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tcpClient, error) {
+func NewTCPClient(spec string, retry conn.Backoff) (*tcpClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -32,14 +32,13 @@ func NewTCPClient(spec string, maxRetries int, maxRetryDelay time.Duration) (*tc
 	}
 
 	in := tcpClient{
-		tag:           "TCP",
-		addr:          addr,
-		maxRetries:    maxRetries,
-		maxRetryDelay: maxRetryDelay,
-		timeout:       5 * time.Second,
-		ch:            make(chan protocol.Message, 16),
-		closing:       make(chan struct{}),
-		closed:        make(chan struct{}),
+		tag:     "TCP",
+		addr:    addr,
+		retry:   retry,
+		timeout: 5 * time.Second,
+		ch:      make(chan protocol.Message, 16),
+		closing: make(chan struct{}),
+		closed:  make(chan struct{}),
 	}
 
 	return &in, nil
@@ -74,9 +73,6 @@ func (tcp *tcpClient) Send(id uint32, msg []byte) {
 }
 
 func (tcp *tcpClient) connect(router *router.Switch) {
-	retryDelay := RETRY_MIN_DELAY
-	retries := 0
-
 	for {
 		infof(tcp.tag, "connecting to %v", tcp.addr)
 
@@ -85,8 +81,7 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 		} else if socket == nil {
 			warnf(tcp.tag, "connect %v failed (%v)", tcp.addr, socket)
 		} else {
-			retries = 0
-			retryDelay = RETRY_MIN_DELAY
+			tcp.retry.Reset()
 			eof := make(chan struct{})
 
 			go func() {
@@ -117,23 +112,7 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 			close(eof)
 		}
 
-		// ... retry
-		retries++
-		if tcp.maxRetries >= 0 && retries > tcp.maxRetries {
-			warnf(tcp.tag, "Connect to %v failed (retry count exceeded %v)", tcp.addr, tcp.maxRetries)
-			return
-		}
-
-		infof(tcp.tag, "connection failed ... retrying in %v", retryDelay)
-
-		select {
-		case <-time.After(retryDelay):
-			retryDelay *= 2
-			if retryDelay > tcp.maxRetryDelay {
-				retryDelay = tcp.maxRetryDelay
-			}
-
-		case <-tcp.closing:
+		if !tcp.retry.Wait(tcp.tag, tcp.closing) {
 			return
 		}
 	}
