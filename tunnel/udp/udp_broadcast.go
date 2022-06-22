@@ -7,10 +7,11 @@ import (
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
 	"github.com/uhppoted/uhppoted-tunnel/router"
+	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 )
 
 type udpBroadcast struct {
-	tag     string
+	conn.Conn
 	addr    *net.UDPAddr
 	timeout time.Duration
 	ch      chan protocol.Message
@@ -33,7 +34,9 @@ func NewUDPBroadcast(spec string, timeout time.Duration) (*udpBroadcast, error) 
 	}
 
 	out := udpBroadcast{
-		tag:     "UDP",
+		Conn: conn.Conn{
+			Tag: "UDP",
+		},
 		addr:    addr,
 		timeout: timeout,
 		ch:      make(chan protocol.Message),
@@ -45,16 +48,16 @@ func NewUDPBroadcast(spec string, timeout time.Duration) (*udpBroadcast, error) 
 }
 
 func (udp *udpBroadcast) Close() {
-	infof(udp.tag, "closing")
+	udp.Infof("closing")
 	close(udp.closing)
 
 	timeout := time.NewTimer(5 * time.Second)
 	select {
 	case <-udp.closed:
-		infof(udp.tag, "closed")
+		udp.Infof("closed")
 
 	case <-timeout.C:
-		infof(udp.tag, "close timeout")
+		udp.Infof("close timeout")
 	}
 }
 
@@ -87,36 +90,36 @@ func (udp *udpBroadcast) Send(id uint32, msg []byte) {
 }
 
 func (udp *udpBroadcast) send(id uint32, message []byte) []byte {
-	dumpf(udp.tag, message, "broadcast (%v bytes)", len(message))
+	udp.Dumpf(message, "broadcast (%v bytes)", len(message))
 
 	if bind, err := net.ResolveUDPAddr("udp", "0.0.0.0:0"); err != nil {
-		warnf(udp.tag, "%v", err)
+		udp.Warnf("%v", err)
 	} else if socket, err := net.ListenUDP("udp", bind); err != nil {
-		warnf(udp.tag, "%v", err)
+		udp.Warnf("%v", err)
 	} else if socket == nil {
-		warnf(udp.tag, "invalid UDP socket (%v)", socket)
+		udp.Warnf("invalid UDP socket (%v)", socket)
 	} else {
 		defer socket.Close()
 
 		if err := socket.SetWriteDeadline(time.Now().Add(1000 * time.Millisecond)); err != nil {
-			warnf(udp.tag, "%v", err)
+			udp.Warnf("%v", err)
 		}
 
 		if err := socket.SetReadDeadline(time.Now().Add(udp.timeout)); err != nil {
-			warnf(udp.tag, "%v", err)
+			udp.Warnf("%v", err)
 		}
 
 		if N, err := socket.WriteToUDP(message, udp.addr); err != nil {
-			warnf(udp.tag, "%v", err)
+			udp.Warnf("%v", err)
 		} else {
-			debugf(udp.tag, "sent %v bytes to %v\n", N, udp.addr)
+			udp.Debugf("sent %v bytes to %v\n", N, udp.addr)
 
 			reply := make([]byte, 2048)
 
 			if N, remote, err := socket.ReadFromUDP(reply); err != nil {
-				warnf(udp.tag, "%v", err)
+				udp.Warnf("%v", err)
 			} else {
-				dumpf(udp.tag, reply[0:N], "received %v bytes from %v", N, remote)
+				udp.Dumpf(reply[0:N], "received %v bytes from %v", N, remote)
 
 				return reply[:N]
 			}

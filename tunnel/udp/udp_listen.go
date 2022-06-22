@@ -11,7 +11,7 @@ import (
 )
 
 type udpListen struct {
-	tag     string
+	conn.Conn
 	addr    *net.UDPAddr
 	retry   conn.Backoff
 	closing chan struct{}
@@ -33,7 +33,9 @@ func NewUDPListen(spec string, retry conn.Backoff) (*udpListen, error) {
 	}
 
 	udp := udpListen{
-		tag:     "UDP",
+		Conn: conn.Conn{
+			Tag: "UDP",
+		},
 		addr:    addr,
 		retry:   retry,
 		closing: make(chan struct{}),
@@ -44,16 +46,16 @@ func NewUDPListen(spec string, retry conn.Backoff) (*udpListen, error) {
 }
 
 func (udp *udpListen) Close() {
-	infof(udp.tag, "closing")
+	udp.Infof("closing")
 	close(udp.closing)
 
 	timeout := time.NewTimer(5 * time.Second)
 	select {
 	case <-udp.closed:
-		infof(udp.tag, "closed")
+		udp.Infof("closed")
 
 	case <-timeout.C:
-		infof(udp.tag, "close timeout")
+		udp.Infof("close timeout")
 	}
 }
 
@@ -66,15 +68,15 @@ func (udp *udpListen) Run(router *router.Switch) (err error) {
 		for !closing {
 			socket, err = net.ListenUDP("udp", udp.addr)
 			if err != nil {
-				warnf(udp.tag, "%v", err)
+				udp.Warnf("%v", err)
 			} else if socket == nil {
-				warnf(udp.tag, "Failed to create UDP listen socket (%v)", socket)
+				udp.Warnf("Failed to create UDP listen socket (%v)", socket)
 			} else {
 				udp.retry.Reset()
 				udp.listen(socket, router)
 			}
 
-			if !udp.retry.Wait(udp.tag, udp.closing) {
+			if !udp.retry.Wait(udp.Tag, udp.closing) {
 				break loop
 			}
 		}
@@ -94,7 +96,7 @@ func (udp *udpListen) Send(id uint32, message []byte) {
 }
 
 func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) {
-	infof(udp.tag, "listening on %v", udp.addr)
+	udp.Infof("listening on %v", udp.addr)
 
 	defer socket.Close()
 
@@ -103,20 +105,20 @@ func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) {
 
 		N, remote, err := socket.ReadFromUDP(buffer)
 		if err != nil {
-			warnf(udp.tag, "%v", err)
+			udp.Warnf("%v", err)
 			return
 		}
 
 		id := protocol.NextID()
-		dumpf(udp.tag, buffer[:N], "request %v  %v bytes from %v", id, N, remote)
+		udp.Dumpf(buffer[:N], "request %v  %v bytes from %v", id, N, remote)
 
 		h := func(reply []byte) {
-			dumpf(udp.tag, reply, "reply %v  %v bytes for %v", id, len(reply), remote)
+			udp.Dumpf(reply, "reply %v  %v bytes for %v", id, len(reply), remote)
 
 			if N, err := socket.WriteToUDP(reply, remote); err != nil {
-				warnf(udp.tag, "%v", err)
+				udp.Warnf("%v", err)
 			} else {
-				debugf(udp.tag, "sent %v bytes to %v\n", N, remote)
+				udp.Debugf("sent %v bytes to %v\n", N, remote)
 			}
 		}
 

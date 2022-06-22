@@ -3,7 +3,7 @@
 - [x] Reorganize as --in and --out
 - [x] Generalise backoff/retry
 - [x] Move packet ID stuff to `protocol`
-- [ ] Commonalise dumpf, infof, etc
+- [x] Commonalise dumpf, infof, etc
       - [x] Remove ASCII translation from dump
 
 - [ ] shutdown cleanly with timeout

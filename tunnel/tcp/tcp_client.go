@@ -12,7 +12,7 @@ import (
 )
 
 type tcpClient struct {
-	tag     string
+	conn.Conn
 	addr    *net.TCPAddr
 	retry   conn.Backoff
 	timeout time.Duration
@@ -32,7 +32,9 @@ func NewTCPClient(spec string, retry conn.Backoff) (*tcpClient, error) {
 	}
 
 	in := tcpClient{
-		tag:     "TCP",
+		Conn: conn.Conn{
+			Tag: "TCP",
+		},
 		addr:    addr,
 		retry:   retry,
 		timeout: 5 * time.Second,
@@ -45,16 +47,16 @@ func NewTCPClient(spec string, retry conn.Backoff) (*tcpClient, error) {
 }
 
 func (tcp *tcpClient) Close() {
-	infof(tcp.tag, "closing")
+	tcp.Infof("closing")
 	close(tcp.closing)
 
 	timeout := time.NewTimer(5 * time.Second)
 	select {
 	case <-tcp.closed:
-		infof(tcp.tag, "closed")
+		tcp.Infof("closed")
 
 	case <-timeout.C:
-		infof(tcp.tag, "close timeout")
+		tcp.Infof("close timeout")
 	}
 }
 
@@ -74,12 +76,12 @@ func (tcp *tcpClient) Send(id uint32, msg []byte) {
 
 func (tcp *tcpClient) connect(router *router.Switch) {
 	for {
-		infof(tcp.tag, "connecting to %v", tcp.addr)
+		tcp.Infof("connecting to %v", tcp.addr)
 
 		if socket, err := net.Dial("tcp", fmt.Sprintf("%v", tcp.addr)); err != nil {
-			warnf(tcp.tag, "%v", err)
+			tcp.Warnf("%v", err)
 		} else if socket == nil {
-			warnf(tcp.tag, "connect %v failed (%v)", tcp.addr, socket)
+			tcp.Warnf("connect %v failed (%v)", tcp.addr, socket)
 		} else {
 			tcp.retry.Reset()
 			eof := make(chan struct{})
@@ -88,7 +90,7 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 				for {
 					select {
 					case msg := <-tcp.ch:
-						infof(tcp.tag, "msg %v  relaying to %v", msg.ID, socket.RemoteAddr())
+						tcp.Infof("msg %v  relaying to %v", msg.ID, socket.RemoteAddr())
 						tcp.send(socket, msg.ID, msg.Message)
 
 					case <-eof:
@@ -103,23 +105,23 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 
 			if err := tcp.listen(socket, router); err != nil {
 				if err == io.EOF {
-					warnf(tcp.tag, "connection to %v closed ", socket.RemoteAddr())
+					tcp.Warnf("connection to %v closed ", socket.RemoteAddr())
 				} else {
-					warnf(tcp.tag, "connection to %v error (%v)", tcp.addr, err)
+					tcp.Warnf("connection to %v error (%v)", tcp.addr, err)
 				}
 			}
 
 			close(eof)
 		}
 
-		if !tcp.retry.Wait(tcp.tag, tcp.closing) {
+		if !tcp.retry.Wait(tcp.Tag, tcp.closing) {
 			return
 		}
 	}
 }
 
 func (tcp *tcpClient) listen(socket net.Conn, router *router.Switch) error {
-	infof(tcp.tag, "connected  to %v", socket.RemoteAddr())
+	tcp.Infof("connected  to %v", socket.RemoteAddr())
 
 	defer socket.Close()
 
@@ -137,7 +139,7 @@ func (tcp *tcpClient) listen(socket net.Conn, router *router.Switch) error {
 }
 
 func (tcp *tcpClient) received(buffer []byte, router *router.Switch, socket net.Conn) {
-	dumpf(tcp.tag, buffer, "received %v bytes from %v", len(buffer), socket.RemoteAddr())
+	tcp.Dumpf(buffer, "received %v bytes from %v", len(buffer), socket.RemoteAddr())
 
 	for len(buffer) > 0 {
 		id, msg, remaining := protocol.Depacketize(buffer)
@@ -153,11 +155,11 @@ func (tcp *tcpClient) send(conn net.Conn, id uint32, msg []byte) []byte {
 	packet := protocol.Packetize(id, msg)
 
 	if N, err := conn.Write(packet); err != nil {
-		warnf(tcp.tag, "msg %v  error sending message to %v (%v)", id, conn.RemoteAddr(), err)
+		tcp.Warnf("msg %v  error sending message to %v (%v)", id, conn.RemoteAddr(), err)
 	} else if N != len(packet) {
-		warnf(tcp.tag, "msg %v  sent %v of %v bytes to %v", id, N, len(msg), conn.RemoteAddr())
+		tcp.Warnf("msg %v  sent %v of %v bytes to %v", id, N, len(msg), conn.RemoteAddr())
 	} else {
-		infof(tcp.tag, "msg %v  sent %v bytes to %v", id, len(msg), conn.RemoteAddr())
+		tcp.Infof("msg %v  sent %v bytes to %v", id, len(msg), conn.RemoteAddr())
 	}
 
 	return nil

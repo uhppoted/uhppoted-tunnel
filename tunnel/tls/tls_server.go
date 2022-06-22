@@ -17,7 +17,7 @@ import (
 )
 
 type tlsServer struct {
-	tag         string
+	conn.Conn
 	addr        *net.TCPAddr
 	config      *tls.Config
 	key         string
@@ -60,7 +60,9 @@ func NewTLSServer(spec string, ca *x509.CertPool, keypair tls.Certificate, requi
 	}
 
 	tcp := tlsServer{
-		tag:         "TLS",
+		Conn: conn.Conn{
+			Tag: "TLS",
+		},
 		addr:        addr,
 		config:      &config,
 		retry:       retry,
@@ -74,7 +76,7 @@ func NewTLSServer(spec string, ca *x509.CertPool, keypair tls.Certificate, requi
 }
 
 func (tcp *tlsServer) Close() {
-	infof(tcp.tag, "closing")
+	tcp.Infof("closing")
 	close(tcp.closing)
 
 	for _, f := range tcp.pending {
@@ -84,10 +86,10 @@ func (tcp *tlsServer) Close() {
 	timeout := time.NewTimer(5 * time.Second)
 	select {
 	case <-tcp.closed:
-		infof(tcp.tag, "closed")
+		tcp.Infof("closed")
 
 	case <-timeout.C:
-		infof(tcp.tag, "close timeout")
+		tcp.Infof("close timeout")
 	}
 }
 
@@ -99,15 +101,15 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 		for {
 			socket, err = tls.Listen("tcp", fmt.Sprintf("%v", tcp.addr), tcp.config)
 			if err != nil {
-				warnf(tcp.tag, "%v", err)
+				tcp.Warnf("%v", err)
 			} else if socket == nil {
-				warnf(tcp.tag, "%v", fmt.Errorf("Failed to create TCP listen socket (%v)", socket))
+				tcp.Warnf("%v", fmt.Errorf("Failed to create TCP listen socket (%v)", socket))
 			} else {
 				tcp.retry.Reset()
 				tcp.listen(socket, router)
 			}
 
-			if !tcp.retry.Wait(tcp.tag, tcp.closing) {
+			if !tcp.retry.Wait(tcp.Tag, tcp.closing) {
 				break loop
 			}
 		}
@@ -135,24 +137,24 @@ func (tcp *tlsServer) Send(id uint32, message []byte) {
 }
 
 func (tcp *tlsServer) listen(socket net.Listener, router *router.Switch) {
-	infof(tcp.tag, "listening on %v", socket.Addr())
+	tcp.Infof("listening on %v", socket.Addr())
 
 	defer socket.Close()
 
 	for {
 		client, err := socket.Accept()
 		if err != nil {
-			errorf(tcp.tag, "%v", err)
+			tcp.Errorf("%v", err)
 			return
 		}
 
-		infof(tcp.tag, "incoming connection (%v)", client.RemoteAddr())
+		tcp.Infof("incoming connection (%v)", client.RemoteAddr())
 
 		if socket, ok := client.(*tls.Conn); !ok {
-			warnf(tcp.tag, "invalid TLS socket (%v)", socket)
+			tcp.Warnf("invalid TLS socket (%v)", socket)
 			client.Close()
 		} else if err := tcp.handshake(socket); err != nil {
-			warnf(tcp.tag, "%v", err)
+			tcp.Warnf("%v", err)
 			client.Close()
 		} else {
 			tcp.Lock()
@@ -164,9 +166,9 @@ func (tcp *tlsServer) listen(socket net.Listener, router *router.Switch) {
 					buffer := make([]byte, 2048) // buffer is handed off to router
 					if N, err := socket.Read(buffer); err != nil {
 						if err == io.EOF {
-							infof(tcp.tag, "client connection %v closed ", socket.RemoteAddr())
+							tcp.Infof("client connection %v closed ", socket.RemoteAddr())
 						} else {
-							warnf(tcp.tag, "%v", err)
+							tcp.Warnf("%v", err)
 						}
 						break
 					} else {
@@ -209,7 +211,7 @@ func (tcp *tlsServer) handshake(socket *tls.Conn) error {
 }
 
 func (tcp *tlsServer) received(buffer []byte, router *router.Switch, socket net.Conn) {
-	dumpf(tcp.tag, buffer, "received %v bytes from %v", len(buffer), socket.RemoteAddr())
+	tcp.Dumpf(buffer, "received %v bytes from %v", len(buffer), socket.RemoteAddr())
 
 	for len(buffer) > 0 {
 		id, msg, remaining := protocol.Depacketize(buffer)
@@ -225,10 +227,10 @@ func (tcp *tlsServer) send(conn net.Conn, id uint32, message []byte) {
 	packet := protocol.Packetize(id, message)
 
 	if N, err := conn.Write(packet); err != nil {
-		warnf(tcp.tag, "msg %v  error sending message to %v (%v)", id, conn.RemoteAddr(), err)
+		tcp.Warnf("msg %v  error sending message to %v (%v)", id, conn.RemoteAddr(), err)
 	} else if N != len(packet) {
-		warnf(tcp.tag, "msg %v  sent %v of %v bytes to %v", id, N, len(message), conn.RemoteAddr())
+		tcp.Warnf("msg %v  sent %v of %v bytes to %v", id, N, len(message), conn.RemoteAddr())
 	} else {
-		infof(tcp.tag, "msg %v sent %v bytes to %v", id, len(message), conn.RemoteAddr())
+		tcp.Infof("msg %v sent %v bytes to %v", id, len(message), conn.RemoteAddr())
 	}
 }
