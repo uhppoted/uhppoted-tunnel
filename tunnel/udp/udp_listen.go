@@ -1,6 +1,7 @@
 package udp
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"time"
@@ -104,8 +105,11 @@ func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) {
 		buffer := make([]byte, 2048) // NTS buffer is handed off to router
 
 		N, remote, err := socket.ReadFromUDP(buffer)
-		if err != nil {
+		if err != nil && !errors.Is(err, net.ErrClosed) {
 			udp.Warnf("%v", err)
+		}
+
+		if err != nil {
 			return
 		}
 

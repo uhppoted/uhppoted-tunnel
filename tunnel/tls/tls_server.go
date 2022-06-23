@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -143,8 +144,11 @@ func (tcp *tlsServer) listen(socket net.Listener, router *router.Switch) {
 
 	for {
 		client, err := socket.Accept()
+		if err != nil && !errors.Is(err, net.ErrClosed) {
+			tcp.Errorf("%v %v", err, errors.Is(err, net.ErrClosed))
+		}
+
 		if err != nil {
-			tcp.Errorf("%v", err)
 			return
 		}
 

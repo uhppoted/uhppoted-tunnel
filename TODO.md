@@ -1,24 +1,20 @@
 # TODO
 
-- [x] Reorganize as --in and --out
-- [x] Generalise backoff/retry
-- [x] Move packet ID stuff to `protocol`
-- [x] Commonalise dumpf, infof, etc
-      - [x] Remove ASCII translation from dump
-
 - [ ] shutdown cleanly with timeout
-      - [ ] Ignore warnings if closing
-      - [ ] Fix delay in TCP/TLS server retry
+      - [x] Ignore warnings if closing
+      - [x] Fix delay in TCP/TLS server retry
       - [ ] Fix closing/error/retry loop logic in UDP/TCP listen
             - [ ] backoff
             - [ ] error handling
             - (?) Condition handler a la LISP
 
+- [ ] HTTP POST
+
 ## Miscellaneous
 
-- [ ] HTTP POST portal
-- [ ] gRPC portal
 - [ ] Check interop with events
+- (?) eBPF
+- (?) gRPC portal
 - (?) Encode packet with protocol buffers
 - (?) Wrap [libevent](https://libevent.org) or use syscalls
 - (?) Routing matrix

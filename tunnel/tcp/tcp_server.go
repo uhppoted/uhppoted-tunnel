@@ -1,6 +1,7 @@
 package tcp
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -71,7 +72,7 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 			if err != nil {
 				tcp.Warnf("%v", err)
 			} else if socket == nil {
-				tcp.Warnf("%v", fmt.Errorf("Failed to create TCP listen socket (%v)", socket))
+				tcp.Warnf("%v", fmt.Errorf("failed to create TCP listen socket (%v)", socket))
 			} else {
 				tcp.retry.Reset()
 				tcp.listen(socket, router)
@@ -111,8 +112,11 @@ func (tcp *tcpServer) listen(socket net.Listener, router *router.Switch) {
 
 	for {
 		client, err := socket.Accept()
+		if err != nil && !errors.Is(err, net.ErrClosed) {
+			tcp.Errorf("%v %v", err, errors.Is(err, net.ErrClosed))
+		}
+
 		if err != nil {
-			tcp.Errorf("%v", err)
 			return
 		}
 

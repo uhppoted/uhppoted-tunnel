@@ -3,8 +3,8 @@ package tls
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
-	"io"
 	"net"
 	"time"
 
@@ -121,12 +121,8 @@ func (tcp *tlsClient) connect(router *router.Switch) {
 				}
 			}()
 
-			if err := tcp.listen(socket, router); err != nil {
-				if err == io.EOF {
-					tcp.Warnf("connection to %v closed ", socket.RemoteAddr())
-				} else {
-					tcp.Warnf("connection to %v error (%v)", tcp.addr, err)
-				}
+			if err := tcp.listen(socket, router); err != nil && !errors.Is(err, net.ErrClosed) {
+				tcp.Warnf("%v", err)
 			}
 
 			close(eof)

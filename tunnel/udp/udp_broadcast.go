@@ -1,6 +1,7 @@
 package udp
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"time"
@@ -116,9 +117,9 @@ func (udp *udpBroadcast) send(id uint32, message []byte) []byte {
 
 			reply := make([]byte, 2048)
 
-			if N, remote, err := socket.ReadFromUDP(reply); err != nil {
+			if N, remote, err := socket.ReadFromUDP(reply); err != nil && !errors.Is(err, net.ErrClosed) {
 				udp.Warnf("%v", err)
-			} else {
+			} else if err == nil {
 				udp.Dumpf(reply[0:N], "received %v bytes from %v", N, remote)
 
 				return reply[:N]
