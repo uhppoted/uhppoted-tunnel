@@ -1,0 +1,7 @@
+{
+    "name": "tunnel",
+    "short_name": "tunnel",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "display": "fullscreen"
+}

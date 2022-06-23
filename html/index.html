@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <title>uhppoted-httpd</title>
+    <link rel="manifest"   href="/manifest.json">
+    <link rel="icon"       href="/images/favicon.svg">
+    <link rel="stylesheet" href="/css/tunnel.css" type="text/css">
+    <meta charset="UTF-8">
+  </head>
+  <body> 
+    <div id="content">
+      <header>
+        <h1>UDP Tunnel</h1>
+      </header>
+    
+      <main>
+        <div id="command" class="panel">
+          <button onclick="onCommand('get-devices')">get-devices</button>
+        </div>
+
+        <div id="request" class="panel">
+          <textarea></textarea>
+        </div>
+
+        <div id="response" class="panel">
+        </div>
+
+        <div id="result" class="panel">
+        </div>
+      </main>
+    
+      <footer>
+        <p id="message"></p>
+      </footer>
+    </div>
+  </body>
+
+  <script type="module">
+    import { 
+      initialise,
+      exec, 
+    } from './javascript/tunnel.js'
+
+    window.exec = exec
+
+    initialise()
+
+  </script>
+
+  <script>
+    function onCommand(cmd) {
+        exec(cmd)
+    }
+  </script>
+
+</html>

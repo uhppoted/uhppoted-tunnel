@@ -14,6 +14,7 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/log"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
+	"github.com/uhppoted/uhppoted-tunnel/tunnel/http"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/tcp"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/tls"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/udp"
@@ -104,7 +105,8 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		strings.HasPrefix(cmd.in, "tcp/client:"),
 		strings.HasPrefix(cmd.in, "tcp/server:"),
 		strings.HasPrefix(cmd.in, "tls/client:"),
-		strings.HasPrefix(cmd.in, "tls/server:"):
+		strings.HasPrefix(cmd.in, "tls/server:"),
+		strings.HasPrefix(cmd.in, "http/"):
 		if in, err = cmd.makeConn("--in", cmd.in); err != nil {
 			return
 		}
@@ -207,6 +209,9 @@ func (cmd Run) makeConn(arg, spec string) (tunnel.Conn, error) {
 		} else {
 			return tls.NewTLSServer(spec[11:], ca, *certificate, cmd.requireClientAuth, conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
 		}
+
+	case strings.HasPrefix(spec, "http/"):
+		return httpd.NewHTTPD(spec[5:], conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
 
 	default:
 		return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)

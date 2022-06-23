@@ -9,10 +9,11 @@
             - (?) Condition handler a la LISP
 
 - [ ] HTTP POST
+- [ ] Check interop with events
+- [ ] Check tunnel -> tunnel -> tunnel interop
 
 ## Miscellaneous
 
-- [ ] Check interop with events
 - (?) eBPF
 - (?) gRPC portal
 - (?) Encode packet with protocol buffers
