@@ -1,4 +1,4 @@
-export function get_devices() {
+export function GetDevices() {
   const request = new Uint8Array(64)
 
   request[0] = 0x17

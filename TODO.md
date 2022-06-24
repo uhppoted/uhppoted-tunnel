@@ -8,7 +8,7 @@
 - [ ] HTTP POST
       - [x] close
       - [x] ctx.Done/Cancel
-      - [ ] decode result
+      - [x] decode result
       - [ ] use global context from httpd struct
       - [ ] array of replies
       - [ ] listen: retry with backoff

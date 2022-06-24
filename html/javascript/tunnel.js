@@ -1,4 +1,5 @@
 import * as encode from './encode.js'
+import * as decode from './decode.js'
 
 export function initialise() {
 }
@@ -6,13 +7,15 @@ export function initialise() {
 var REQUESTID = 0
 
 export function exec(cmd) {
-  warn()
   document.querySelector('#request textarea').value = ''
+  document.querySelector('#reply textarea').value = ''
   document.querySelector('#response textarea').value = ''
 
+  warn()
+  
   switch (cmd) {
     case 'get-devices':
-       post(encode.get_devices())
+       post(encode.GetDevices())
        break
 
     default:
@@ -67,9 +70,13 @@ function post(bytes) {
 
 function result(bytes) {
   const hex = bin2hex(bytes)
-  const debug = document.querySelector('#response textarea')
+  const debug = document.querySelector('#reply textarea')
+  const object = document.querySelector('#response textarea')
+
+  const o = decode.GetDevice(bytes)
 
   debug.value = hex
+  object.value = JSON.stringify(o, null, '  ')
 }
 
 function nextID() {
