@@ -7,11 +7,13 @@
 
 - [ ] HTTP POST
       - [x] close
-      - [ ] ctx.cancel
+      - [x] ctx.Done/Cancel
+      - [ ] decode result
+      - [ ] use global context from httpd struct
+      - [ ] array of replies
+      - [ ] listen: retry with backoff
       - [ ] request timeout
       - [ ] UDP timeout
-      - [ ] decode result
-      - [ ] array of replies
       - [ ] side-by-side debug
 
 - [ ] Check tunnel -> tunnel -> tunnel interop

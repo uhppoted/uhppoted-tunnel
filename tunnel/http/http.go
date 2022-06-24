@@ -2,6 +2,7 @@ package httpd
 
 import (
 	"compress/gzip"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -133,12 +134,15 @@ func (h *httpd) dispatch(w http.ResponseWriter, r *http.Request, router *router.
 }
 
 func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Switch) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	acceptsGzip := false
 	contentType := ""
 	body := struct {
 		ID      int    `json:"ID"`
 		Request []byte `json:"request"`
 	}{}
+
+	defer cancel()
 
 	for k, h := range r.Header {
 		if strings.TrimSpace(strings.ToLower(k)) == "content-type" {
@@ -177,9 +181,20 @@ func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Swit
 		return
 	}
 
-	done := make(chan struct{})
 	id := protocol.NextID()
-	f := func(reply []byte) {
+	received := make(chan []byte)
+
+	h.Dumpf(body.Request, "request %v  %v bytes from %v", id, len(body.Request), r.RemoteAddr)
+
+	router.Received(id, body.Request, func(reply []byte) { received <- reply })
+
+	select {
+	case <-ctx.Done():
+		h.Warnf("%v", ctx.Err())
+		http.Error(w, "No response from controller", http.StatusInternalServerError)
+		return
+
+	case reply := <-received:
 		h.Dumpf(reply, "reply %v  %v bytes for %v", id, len(reply), r.RemoteAddr)
 
 		response := struct {
@@ -206,24 +221,5 @@ func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Swit
 				w.Write(b)
 			}
 		}
-
-		close(done)
 	}
-
-	h.Dumpf(body.Request, "request %v  %v bytes from %v", id, len(body.Request), r.RemoteAddr)
-
-	router.Received(id, body.Request, f)
-
-	select {
-	case <-done:
-	}
-
-	// select {
-	// case <-ctx.Done():
-	// 	warn("", ctx.Err())
-	// 	http.Error(w, "Timeout waiting for response from system", http.StatusInternalServerError)
-	// 	return
-
-	// case <-ch:
-	// }
 }
