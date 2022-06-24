@@ -6,7 +6,7 @@
             - [x] error handling
 
 - [ ] HTTP POST
-      - [ ] close
+      - [x] close
       - [ ] ctx.cancel
       - [ ] request timeout
       - [ ] UDP timeout

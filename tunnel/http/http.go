@@ -109,9 +109,17 @@ func (h *httpd) listen(router *router.Switch) {
 		Handler: mux,
 	}
 
-	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-		h.Fatalf("%v", err)
-	}
+	go func() {
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			h.Fatalf("%v", err)
+		}
+
+		h.closed <- struct{}{}
+	}()
+
+	<-h.closing
+
+	srv.Close()
 }
 
 func (h *httpd) dispatch(w http.ResponseWriter, r *http.Request, router *router.Switch) {
@@ -169,7 +177,7 @@ func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Swit
 		return
 	}
 
-	ch := make(chan struct{})
+	done := make(chan struct{})
 	id := protocol.NextID()
 	f := func(reply []byte) {
 		h.Dumpf(reply, "reply %v  %v bytes for %v", id, len(reply), r.RemoteAddr)
@@ -199,7 +207,7 @@ func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Swit
 			}
 		}
 
-		close(ch)
+		close(done)
 	}
 
 	h.Dumpf(body.Request, "request %v  %v bytes from %v", id, len(body.Request), r.RemoteAddr)
@@ -207,7 +215,7 @@ func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Swit
 	router.Received(id, body.Request, f)
 
 	select {
-	case <-ch:
+	case <-done:
 	}
 
 	// select {
