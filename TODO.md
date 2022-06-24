@@ -1,21 +1,28 @@
 # TODO
 
-- [ ] shutdown cleanly with timeout
-      - [x] Ignore warnings if closing
-      - [x] Fix delay in TCP/TLS server retry
-      - [ ] Fix closing/error/retry loop logic in UDP/TCP listen
-            - [ ] backoff
-            - [ ] error handling
-            - (?) Condition handler a la LISP
+- [x] shutdown cleanly with timeout
+      - [x] Fix closing/error/retry loop logic in UDP/TCP listen
+            - [x] backoff
+            - [x] error handling
 
 - [ ] HTTP POST
-- [ ] Check interop with events
+      - [ ] close
+      - [ ] ctx.cancel
+      - [ ] request timeout
+      - [ ] UDP timeout
+      - [ ] decode result
+      - [ ] array of replies
+      - [ ] side-by-side debug
+
 - [ ] Check tunnel -> tunnel -> tunnel interop
 
 ## Miscellaneous
 
+- [ ] 'events' connectors
+- [ ] gRPC portal
+- [ ] WebUI
+
 - (?) eBPF
-- (?) gRPC portal
 - (?) Encode packet with protocol buffers
 - (?) Wrap [libevent](https://libevent.org) or use syscalls
 - (?) Routing matrix

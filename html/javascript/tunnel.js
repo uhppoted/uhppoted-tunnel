@@ -3,8 +3,13 @@ import * as encode from './encode.js'
 export function initialise() {
 }
 
+var REQUESTID = 0
+
 export function exec(cmd) {
   warn()
+  document.querySelector('#request textarea').value = ''
+  document.querySelector('#response textarea').value = ''
+
   switch (cmd) {
     case 'get-devices':
        post(encode.get_devices())
@@ -15,11 +20,62 @@ export function exec(cmd) {
   }
 }
 
-function post(rq) {
-  const hex = bin2hex(rq)
-  const text = document.querySelector('#request textarea')
+function post(bytes) {
+  const hex = bin2hex(bytes)
+  const debug = document.querySelector('#request textarea')
 
-  text.value = hex
+  debug.value = hex
+
+  const rq = {
+    ID: nextID(),
+    request: [...bytes],
+  }
+
+  const request = {
+    method: 'POST',
+    mode: 'cors',
+    cache: 'no-cache',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    redirect: 'follow',
+    referrerPolicy: 'no-referrer',
+    body: JSON.stringify(rq)
+  }
+
+  fetch('/udp', request)
+    .then(response => {
+        switch (response.status) {
+          case 200:
+            return response.json()
+            break
+
+          default:
+            response.text().then(w => { 
+              warn(new Error(w)) 
+            })
+        }
+    })
+    .then(reply => {
+      result(reply.reply)
+    })
+    .catch(function (err) {
+      warn(`${err.message.toLowerCase()}`)
+    })
+    .finally(() => {
+    })
+}
+
+function result(bytes) {
+  const hex = bin2hex(bytes)
+  const debug = document.querySelector('#response textarea')
+
+  debug.value = hex
+}
+
+function nextID() {
+  REQUESTID++
+
+  return REQUESTID
 }
 
 function warn(err) {
@@ -40,11 +96,10 @@ function bin2hex(bytes) {
                  .map(l => l.match(/.{1,2}/g).join(' '))
 
   const lines = []
-
-  for (let i=0; i < chunks.length; i += 2) {
-    lines.push([chunks[i], chunks[i+1]].join('  '))
+  while (chunks.length > 0) {
+    lines.push(chunks.splice(0,2).join('  '))
   }
-  
+
   return lines.join(`\n`)
 
   // const f = function* chunks(array,N) {
