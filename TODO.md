@@ -11,7 +11,7 @@
       - [x] Use global context from httpd struct
       - [x] Rework layout
             - [x] Clear button
-            - [ ] Label request/response boxes
+            - [x] Label request/reply boxes
             - [ ] Logo
       - [x] eslint
 
