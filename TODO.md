@@ -2,15 +2,16 @@
 
 - [ ] HTTP POST
       - [x] FS from command line
-      - [ ] array of replies
-      - [ ] UDP timeout
-      - [ ] request timeout
+      - [x] array of replies
+      - [x] UDP timeout
+      - [x] request timeout
       - [ ] use global context from httpd struct
       - [ ] listen: retry with backoff
       - [ ] side-by-side debug
-      - [ ] eslint
+      - [x] eslint
 
 - [ ] Check tunnel -> tunnel -> tunnel interop
+- [ ] Use global context for UDP broadcast timeout
 
 ## Miscellaneous
 

@@ -31,6 +31,7 @@ function post (bytes) {
 
   const rq = {
     ID: nextID(),
+    timeout: '1s',
     request: [...bytes]
   }
 
@@ -68,19 +69,18 @@ function post (bytes) {
 }
 
 function result (replies) {
-  const debug = []
-  const objects = []
+  const debug = document.querySelector('#reply textarea')
+  const objects = document.querySelector('#response textarea')
+  const hex = []
+  const responses = []
 
   for (const reply of replies) {
-    const hex = bin2hex(reply)
-    const object = decode.GetDevice(reply)
-
-    debug.push(hex)
-    objects.push(JSON.stringify(object, null, '  '))
+    hex.push(bin2hex(reply))
+    responses.push(decode.GetDevice(reply))
   }
 
-  document.querySelector('#reply textarea').value = debug.join('\n')
-  document.querySelector('#response textarea').value = objects.join('\n')
+  debug.value = hex.join('\n\n')
+  objects.value = JSON.stringify(responses, null, '  ')
 }
 
 function nextID () {

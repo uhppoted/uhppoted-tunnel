@@ -81,16 +81,11 @@ loop:
 
 func (udp *udpBroadcast) Send(id uint32, msg []byte) {
 	go func() {
-		if reply := udp.send(id, msg); reply != nil {
-			udp.ch <- protocol.Message{
-				ID:      id,
-				Message: reply,
-			}
-		}
+		udp.send(id, msg)
 	}()
 }
 
-func (udp *udpBroadcast) send(id uint32, message []byte) []byte {
+func (udp *udpBroadcast) send(id uint32, message []byte) {
 	udp.Dumpf(message, "broadcast (%v bytes)", len(message))
 
 	if bind, err := net.ResolveUDPAddr("udp", "0.0.0.0:0"); err != nil {
@@ -106,7 +101,7 @@ func (udp *udpBroadcast) send(id uint32, message []byte) []byte {
 			udp.Warnf("%v", err)
 		}
 
-		if err := socket.SetReadDeadline(time.Now().Add(udp.timeout)); err != nil {
+		if err := socket.SetReadDeadline(time.Now().Add(2 * udp.timeout)); err != nil {
 			udp.Warnf("%v", err)
 		}
 
@@ -115,17 +110,27 @@ func (udp *udpBroadcast) send(id uint32, message []byte) []byte {
 		} else {
 			udp.Debugf("sent %v bytes to %v\n", N, udp.addr)
 
-			reply := make([]byte, 2048)
+			go func() {
+				for {
+					reply := make([]byte, 2048)
 
-			if N, remote, err := socket.ReadFromUDP(reply); err != nil && !errors.Is(err, net.ErrClosed) {
-				udp.Warnf("%v", err)
-			} else if err == nil {
-				udp.Dumpf(reply[0:N], "received %v bytes from %v", N, remote)
+					if N, remote, err := socket.ReadFromUDP(reply); err != nil && !errors.Is(err, net.ErrClosed) {
+						udp.Warnf("%v", err)
+						return
+					} else if err != nil {
+						return
+					} else {
+						udp.Dumpf(reply[0:N], "received %v bytes from %v", N, remote)
 
-				return reply[:N]
-			}
+						udp.ch <- protocol.Message{
+							ID:      id,
+							Message: reply[:N],
+						}
+					}
+				}
+			}()
+
+			<-time.After(udp.timeout)
 		}
 	}
-
-	return nil
 }
