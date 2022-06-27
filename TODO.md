@@ -8,7 +8,7 @@
       - [x] UDP timeout
       - [x] request timeout
       - [x] listen: retry with backoff
-      - [ ] Use global context from httpd struct
+      - [x] Use global context from httpd struct
       - [ ] side-by-side debug
       - [x] eslint
 
@@ -28,6 +28,8 @@
 
 ## Miscellaneous
 
+- [ ] Commonalize connector behaviours
+- [ ] Use cancelable contexts throughout
 - [ ] 'events' connectors
       (?) let ID 0 imply no reply expected
 - [ ] gRPC portal

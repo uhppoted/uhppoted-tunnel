@@ -22,10 +22,12 @@ type httpd struct {
 	addr    *net.TCPAddr
 	retry   conn.Backoff
 	timeout time.Duration
+	fs      filesystem
+	ctx     context.Context
+	cancel  context.CancelFunc
 	ch      chan protocol.Message
 	closing chan struct{}
 	closed  chan struct{}
-	fs      filesystem
 }
 
 type slice []byte
@@ -65,13 +67,15 @@ func NewHTTPD(spec string, html string, retry conn.Backoff) (*httpd, error) {
 		return nil, err
 	}
 
+	if addr == nil {
+		return nil, fmt.Errorf("unable to resolve HTTP base address '%v'", spec)
+	}
+
 	fs := filesystem{
 		FileSystem: http.FS(os.DirFS(html)),
 	}
 
-	if addr == nil {
-		return nil, fmt.Errorf("unable to resolve HTTP base address '%v'", spec)
-	}
+	ctx, cancel := context.WithCancel(context.Background())
 
 	h := httpd{
 		Conn: conn.Conn{
@@ -80,10 +84,12 @@ func NewHTTPD(spec string, html string, retry conn.Backoff) (*httpd, error) {
 		addr:    addr,
 		retry:   retry,
 		timeout: 5 * time.Second,
+		fs:      fs,
+		ctx:     ctx,
+		cancel:  cancel,
 		ch:      make(chan protocol.Message, 16),
 		closing: make(chan struct{}),
 		closed:  make(chan struct{}),
-		fs:      fs,
 	}
 
 	return &h, nil
@@ -91,6 +97,7 @@ func NewHTTPD(spec string, html string, retry conn.Backoff) (*httpd, error) {
 
 func (h *httpd) Close() {
 	h.Infof("closing")
+	h.cancel()
 
 	close(h.closing)
 
@@ -158,7 +165,7 @@ func (h *httpd) dispatch(w http.ResponseWriter, r *http.Request, router *router.
 }
 
 func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Switch) {
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(h.ctx, 15*time.Second)
 	acceptsGzip := false
 	contentType := ""
 	body := struct {
@@ -226,7 +233,7 @@ func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Swit
 
 		case <-ctx.Done():
 			h.Warnf("%v", ctx.Err())
-			http.Error(w, "No response from controller", http.StatusInternalServerError)
+			http.Error(w, "Request cancelled", http.StatusInternalServerError)
 			return
 
 		case <-timeout:
