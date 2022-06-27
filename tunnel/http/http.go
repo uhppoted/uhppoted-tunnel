@@ -105,18 +105,6 @@ func (h *httpd) Close() {
 }
 
 func (h *httpd) Run(router *router.Switch) error {
-	h.listen(router)
-	h.closed <- struct{}{}
-
-	return nil
-}
-
-func (h *httpd) Send(id uint32, msg []byte) {
-}
-
-func (h *httpd) listen(router *router.Switch) {
-	h.Infof("listening on %v", h.addr)
-
 	mux := http.NewServeMux()
 
 	mux.Handle("/", http.FileServer(h.fs))
@@ -124,15 +112,26 @@ func (h *httpd) listen(router *router.Switch) {
 		h.dispatch(w, r, router)
 	})
 
-	// ... listen and serve
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%v", h.addr),
 		Handler: mux,
 	}
 
 	go func() {
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			h.Fatalf("%v", err)
+	loop:
+		for {
+			start := time.Now()
+			if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+				h.Warnf("%v", err)
+			}
+
+			if dt := time.Now().Sub(start); dt > 30*time.Second {
+				h.retry.Reset()
+			}
+
+			if !h.retry.Wait(h.Tag, h.closing) {
+				break loop
+			}
 		}
 
 		h.closed <- struct{}{}
@@ -141,6 +140,11 @@ func (h *httpd) listen(router *router.Switch) {
 	<-h.closing
 
 	srv.Close()
+
+	return nil
+}
+
+func (h *httpd) Send(id uint32, msg []byte) {
 }
 
 func (h *httpd) dispatch(w http.ResponseWriter, r *http.Request, router *router.Switch) {
