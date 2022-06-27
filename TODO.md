@@ -9,7 +9,9 @@
       - [x] request timeout
       - [x] listen: retry with backoff
       - [x] Use global context from httpd struct
-      - [ ] side-by-side debug
+      - [x] Rework layout
+            - [ ] Clear button
+            - [ ] Label request/response boxes
       - [x] eslint
 
 - [ ] HTTPS

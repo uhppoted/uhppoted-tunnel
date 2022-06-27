@@ -55,8 +55,10 @@ header h1 {
 
 main {
   grid-area: content;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 2fr 1fr;
+  grid-template-areas: "command response" "request reply";
   gap: 10px;
 
   padding-top: 12px;
@@ -83,6 +85,22 @@ main .panel button {
   padding-right: 8px;
   font-family: sans-serif;
   font-variant: small-caps;
+}
+
+main #command {
+  grid-area: command;
+}
+
+main #response {
+  grid-area: response;
+}
+
+main #request {
+  grid-area: request;
+}
+
+main #reply {
+  grid-area: reply;
 }
 
 main #request textarea {
