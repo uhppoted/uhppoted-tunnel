@@ -25,6 +25,7 @@ type httpd struct {
 	ch      chan protocol.Message
 	closing chan struct{}
 	closed  chan struct{}
+	fs      filesystem
 }
 
 type slice []byte
@@ -40,10 +41,14 @@ func (s slice) MarshalJSON() ([]byte, error) {
 
 const GZIP_MINIMUM = 16384
 
-func NewHTTPD(spec string, retry conn.Backoff) (*httpd, error) {
+func NewHTTPD(spec string, html string, retry conn.Backoff) (*httpd, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
+	}
+
+	fs := filesystem{
+		FileSystem: http.FS(os.DirFS(html)),
 	}
 
 	if addr == nil {
@@ -60,6 +65,7 @@ func NewHTTPD(spec string, retry conn.Backoff) (*httpd, error) {
 		ch:      make(chan protocol.Message, 16),
 		closing: make(chan struct{}),
 		closed:  make(chan struct{}),
+		fs:      fs,
 	}
 
 	return &h, nil
@@ -93,13 +99,9 @@ func (h *httpd) Send(id uint32, msg []byte) {
 func (h *httpd) listen(router *router.Switch) {
 	h.Infof("listening on %v", h.addr)
 
-	fs := filesystem{
-		FileSystem: http.FS(os.DirFS("html")),
-	}
-
 	mux := http.NewServeMux()
 
-	mux.Handle("/", http.FileServer(fs))
+	mux.Handle("/", http.FileServer(h.fs))
 	mux.HandleFunc("/udp", func(w http.ResponseWriter, r *http.Request) {
 		h.dispatch(w, r, router)
 	})

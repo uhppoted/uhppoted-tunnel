@@ -31,6 +31,7 @@ type Run struct {
 	certificate       string
 	key               string
 	requireClientAuth bool
+	html              string
 	lockfile          string
 	logFile           string
 	logFileSize       int
@@ -59,6 +60,7 @@ func (r *Run) flags() *flag.FlagSet {
 	flagset.StringVar(&r.key, "key", "", "File path for client/server TLS key PEM file (defaults to client.key or server.key)")
 	flagset.BoolVar(&r.requireClientAuth, "client-auth", false, "Requires client authentication for TLS")
 
+	flagset.StringVar(&r.html, "html", "./html", "HTML folder for HTTP/HTTPS connectors")
 	flagset.StringVar(&r.logLevel, "log-level", "info", "Sets the log level (debug, info, warn or error)")
 	flagset.BoolVar(&r.console, "console", false, "Runs as a console application rather than a service")
 	flagset.BoolVar(&r.debug, "debug", false, "Enables detailed debugging logs")
@@ -211,7 +213,7 @@ func (cmd Run) makeConn(arg, spec string) (tunnel.Conn, error) {
 		}
 
 	case strings.HasPrefix(spec, "http/"):
-		return httpd.NewHTTPD(spec[5:], conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
+		return httpd.NewHTTPD(spec[5:], cmd.html, conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
 
 	default:
 		return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)

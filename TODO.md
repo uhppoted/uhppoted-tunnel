@@ -1,20 +1,14 @@
 # TODO
 
-- [x] shutdown cleanly with timeout
-      - [x] Fix closing/error/retry loop logic in UDP/TCP listen
-            - [x] backoff
-            - [x] error handling
-
 - [ ] HTTP POST
-      - [x] close
-      - [x] ctx.Done/Cancel
-      - [x] decode result
-      - [ ] use global context from httpd struct
-      - [ ] array of replies
-      - [ ] listen: retry with backoff
-      - [ ] request timeout
+      - [ ] FS from command line
       - [ ] UDP timeout
+      - [ ] request timeout
+      - [ ] array of replies
+      - [ ] use global context from httpd struct
+      - [ ] listen: retry with backoff
       - [ ] side-by-side debug
+      - [ ] eslint
 
 - [ ] Check tunnel -> tunnel -> tunnel interop
 
