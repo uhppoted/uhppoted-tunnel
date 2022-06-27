@@ -10,8 +10,9 @@
       - [x] listen: retry with backoff
       - [x] Use global context from httpd struct
       - [x] Rework layout
-            - [ ] Clear button
+            - [x] Clear button
             - [ ] Label request/response boxes
+            - [ ] Logo
       - [x] eslint
 
 - [ ] HTTPS

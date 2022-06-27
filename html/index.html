@@ -12,6 +12,7 @@
     <div id="content">
       <header>
         <h1>UDP Tunnel</h1>
+        <button onclick="onClear(event)">clear</button>
       </header>
     
       <main>
@@ -42,9 +43,11 @@
     import { 
       initialise,
       exec, 
+      clear,
     } from './javascript/tunnel.js'
 
     window.exec = exec
+    window.clear = clear
 
     initialise()
 
@@ -52,7 +55,11 @@
 
   <script>
     function onCommand(cmd) {
-        exec(cmd)
+      exec(cmd)
+    }
+
+    function onClear(event) {
+      clear()
     }
   </script>
 

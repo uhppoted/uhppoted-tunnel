@@ -39,18 +39,30 @@ textarea {
 header {
   grid-area: header;
   display: flex;
+  justify-content: space-between;
   height: auto;
   overflow: hidden;
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 8px;
-  padding-right: 8px;
+  padding-right: 120px;
 }
 
 header h1 {
   font-family: sans-serif;
   font-weight: normal;
   font-size: 1em;
+}
+
+header button {
+  border: 1px solid #dc322f;
+  border-radius: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 8px;
+  padding-right: 8px;
+  font-family: sans-serif;
+  font-variant: small-caps;
 }
 
 main {

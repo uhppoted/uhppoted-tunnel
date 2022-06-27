@@ -6,6 +6,14 @@ export function initialise () {
 
 let REQUESTID = 0
 
+export function clear () {
+  document.querySelector('#request textarea').value = ''
+  document.querySelector('#reply textarea').value = ''
+  document.querySelector('#response textarea').value = ''
+
+  warn()
+}
+
 export function exec (cmd) {
   document.querySelector('#request textarea').value = ''
   document.querySelector('#reply textarea').value = ''
