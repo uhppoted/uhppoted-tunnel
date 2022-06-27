@@ -136,13 +136,17 @@ func (h *httpd) dispatch(w http.ResponseWriter, r *http.Request, router *router.
 }
 
 func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Switch) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	acceptsGzip := false
 	contentType := ""
 	body := struct {
-		ID      int    `json:"ID"`
-		Request []byte `json:"request"`
-	}{}
+		ID      int           `json:"ID"`
+		Timeout time.Duration `json:"timeout"`
+		Request []byte        `json:"request"`
+	}{
+		ID:      0,
+		Timeout: 5 * time.Second,
+	}
 
 	defer cancel()
 
@@ -185,6 +189,7 @@ func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Swit
 
 	id := protocol.NextID()
 	received := make(chan []byte)
+	replies := []slice{}
 
 	h.Dumpf(body.Request, "request %v  %v bytes from %v", id, len(body.Request), r.RemoteAddr)
 
@@ -199,12 +204,14 @@ func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Swit
 	case reply := <-received:
 		h.Dumpf(reply, "reply %v  %v bytes for %v", id, len(reply), r.RemoteAddr)
 
+		replies = append(replies, reply)
+
 		response := struct {
-			ID    int   `json:"ID"`
-			Reply slice `json:"reply"`
+			ID      int     `json:"ID"`
+			Replies []slice `json:"replies"`
 		}{
-			ID:    body.ID,
-			Reply: reply,
+			ID:      body.ID,
+			Replies: replies,
 		}
 
 		if b, err := json.Marshal(response); err != nil {

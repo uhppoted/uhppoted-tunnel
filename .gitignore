@@ -1,5 +1,6 @@
 .DS_Store
 bin
+node_modules
 dist
 go.work
 go.work.sum

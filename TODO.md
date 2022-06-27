@@ -1,10 +1,10 @@
 # TODO
 
 - [ ] HTTP POST
-      - [ ] FS from command line
+      - [x] FS from command line
+      - [ ] array of replies
       - [ ] UDP timeout
       - [ ] request timeout
-      - [ ] array of replies
       - [ ] use global context from httpd struct
       - [ ] listen: retry with backoff
       - [ ] side-by-side debug
@@ -15,6 +15,7 @@
 ## Miscellaneous
 
 - [ ] 'events' connectors
+      (?) let ID 0 imply no reply expected
 - [ ] gRPC portal
 - [ ] WebUI
 

@@ -97,6 +97,7 @@ tls-client: build
 	$(CMD) --debug --console --in tls/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
 
 httpd: build
+	npx eslint --fix ./html/javascript/*.js
 	$(CMD) --debug --console --in http/0.0.0.0:8082 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
 
 daemonize: build

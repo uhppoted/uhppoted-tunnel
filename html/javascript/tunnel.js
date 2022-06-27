@@ -1,29 +1,29 @@
 import * as encode from './encode.js'
 import * as decode from './decode.js'
 
-export function initialise() {
+export function initialise () {
 }
 
-var REQUESTID = 0
+let REQUESTID = 0
 
-export function exec(cmd) {
+export function exec (cmd) {
   document.querySelector('#request textarea').value = ''
   document.querySelector('#reply textarea').value = ''
   document.querySelector('#response textarea').value = ''
 
   warn()
-  
+
   switch (cmd) {
     case 'get-devices':
-       post(encode.GetDevices())
-       break
+      post(encode.GetDevices())
+      break
 
     default:
       warn(`${cmd}: invalid command`)
   }
 }
 
-function post(bytes) {
+function post (bytes) {
   const hex = bin2hex(bytes)
   const debug = document.querySelector('#request textarea')
 
@@ -31,7 +31,7 @@ function post(bytes) {
 
   const rq = {
     ID: nextID(),
-    request: [...bytes],
+    request: [...bytes]
   }
 
   const request = {
@@ -47,19 +47,18 @@ function post(bytes) {
 
   fetch('/udp', request)
     .then(response => {
-        switch (response.status) {
-          case 200:
-            return response.json()
-            break
+      switch (response.status) {
+        case 200:
+          return response.json()
 
-          default:
-            response.text().then(w => { 
-              warn(new Error(w)) 
-            })
-        }
+        default:
+          response.text().then(w => {
+            warn(new Error(w))
+          })
+      }
     })
     .then(reply => {
-      result(reply.reply)
+      result(reply.replies)
     })
     .catch(function (err) {
       warn(`${err.message.toLowerCase()}`)
@@ -68,46 +67,51 @@ function post(bytes) {
     })
 }
 
-function result(bytes) {
-  const hex = bin2hex(bytes)
-  const debug = document.querySelector('#reply textarea')
-  const object = document.querySelector('#response textarea')
+function result (replies) {
+  const debug = []
+  const objects = []
 
-  const o = decode.GetDevice(bytes)
+  for (const reply of replies) {
+    const hex = bin2hex(reply)
+    const object = decode.GetDevice(reply)
 
-  debug.value = hex
-  object.value = JSON.stringify(o, null, '  ')
+    debug.push(hex)
+    objects.push(JSON.stringify(object, null, '  '))
+  }
+
+  document.querySelector('#reply textarea').value = debug.join('\n')
+  document.querySelector('#response textarea').value = objects.join('\n')
 }
 
-function nextID() {
+function nextID () {
   REQUESTID++
 
   return REQUESTID
 }
 
-function warn(err) {
-   const message = document.getElementById('message')
+function warn (err) {
+  const message = document.getElementById('message')
 
-   if (err) {
-      message.innerHTML = err
-   } else {
-      message.innerHTML = ''
-   }
+  if (err) {
+    message.innerHTML = err
+  } else {
+    message.innerHTML = ''
+  }
 }
 
-function bin2hex(bytes) { 
+function bin2hex (bytes) {
   const chunks = [...bytes]
-                 .map(x => x.toString(16).padStart(2, '0'))
-                 .join('')
-                 .match(/.{1,16}/g)
-                 .map(l => l.match(/.{1,2}/g).join(' '))
+    .map(x => x.toString(16).padStart(2, '0'))
+    .join('')
+    .match(/.{1,16}/g)
+    .map(l => l.match(/.{1,2}/g).join(' '))
 
   const lines = []
   while (chunks.length > 0) {
-    lines.push(chunks.splice(0,2).join('  '))
+    lines.push(chunks.splice(0, 2).join('  '))
   }
 
-  return lines.join(`\n`)
+  return lines.join('\n')
 
   // const f = function* chunks(array,N) {
   //    for (let i=0; i < array.length; i += N) {
