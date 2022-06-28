@@ -5,10 +5,9 @@
 - [x] HTTPS
       - [x] Update daemonize
 
-- [ ] HTTP POST
-      - [ ] Use srv.Shutdown rather than Close (and remove related logic)
-      - [ ] Zero timeout for single requests
-            - (but with internal timeout)
+- [x] HTTP POST
+      - [x] Use srv.Shutdown rather than Close (and remove related logic)
+      - [x] Zero timeout for single requests
 
 - [ ] Check tunnel -> tunnel -> tunnel interop
 - [ ] Use global context for UDP broadcast timeout

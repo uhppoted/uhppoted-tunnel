@@ -23,7 +23,11 @@ export function exec (cmd) {
 
   switch (cmd) {
     case 'get-devices':
-      post(encode.GetDevices())
+      post(encode.GetDevices(), '500ms')
+      break
+
+    case 'get-device':
+      post(encode.GetDevice(document.querySelector('#command #device-id').value), '0s')
       break
 
     default:
@@ -31,7 +35,7 @@ export function exec (cmd) {
   }
 }
 
-function post (bytes) {
+function post (bytes, timeout) {
   const hex = bin2hex(bytes)
   const debug = document.querySelector('#request textarea')
 
@@ -39,7 +43,7 @@ function post (bytes) {
 
   const rq = {
     ID: nextID(),
-    timeout: '1s',
+    wait: timeout,
     request: [...bytes]
   }
 

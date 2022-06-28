@@ -20,7 +20,13 @@
     
       <main>
         <div id="command" class="panel">
-          <button onclick="onCommand('get-devices')">get-devices</button>
+          <div>
+            <button onclick="onCommand('get-devices')">get-devices</button>
+          </div>
+          <div>
+            <button onclick="onCommand('get-device')">get-device</button>
+            <input id="device-id" type="number" min="1" max="499999999" value="405419896" />
+          </div>
         </div>
 
         <div id="response" class="panel">

@@ -192,19 +192,17 @@ func (h *httpd) dispatch(w http.ResponseWriter, r *http.Request, router *router.
 }
 
 func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Switch) {
-	ctx, cancel := context.WithTimeout(h.ctx, 15*time.Second)
 	acceptsGzip := false
 	contentType := ""
+
 	body := struct {
 		ID      int      `json:"ID"`
-		Timeout duration `json:"timeout,omitempty"`
+		Wait    duration `json:"wait,omitempty"`
 		Request []byte   `json:"request"`
 	}{
-		ID:      0,
-		Timeout: duration(5 * time.Second),
+		ID:   0,
+		Wait: duration(5 * time.Second),
 	}
-
-	defer cancel()
 
 	for k, h := range r.Header {
 		if strings.TrimSpace(strings.ToLower(k)) == "content-type" {
@@ -244,9 +242,13 @@ func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Swit
 	}
 
 	id := protocol.NextID()
-	received := make(chan []byte)
-	timeout := time.After(time.Duration(body.Timeout))
 	replies := []slice{}
+	received := make(chan []byte)
+	wait := time.Duration(body.Wait)
+	waited := time.After(wait)
+	ctx, cancel := context.WithTimeout(h.ctx, wait+5*time.Second)
+
+	defer cancel()
 
 	h.Dumpf(body.Request, "request %v  %v bytes from %v", id, len(body.Request), r.RemoteAddr)
 
@@ -257,38 +259,48 @@ func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Swit
 		case reply := <-received:
 			h.Dumpf(reply, "reply %v  %v bytes for %v", id, len(reply), r.RemoteAddr)
 			replies = append(replies, reply)
+			if wait == 0 {
+				h.reply(body.ID, replies, w, acceptsGzip)
+				return
+			}
 
 		case <-ctx.Done():
 			h.Warnf("%v", ctx.Err())
 			http.Error(w, "Request cancelled", http.StatusInternalServerError)
 			return
 
-		case <-timeout:
-			response := struct {
-				ID      int     `json:"ID"`
-				Replies []slice `json:"replies"`
-			}{
-				ID:      body.ID,
-				Replies: replies,
+		case <-waited:
+			if wait > 0 {
+				h.reply(body.ID, replies, w, acceptsGzip)
+				return
 			}
+		}
+	}
+}
 
-			if b, err := json.Marshal(response); err != nil {
-				h.Warnf("%v", err)
-				http.Error(w, "Internal error generating response", http.StatusInternalServerError)
-			} else {
-				w.Header().Set("Content-Type", "application/json")
+func (h *httpd) reply(ID int, replies []slice, w http.ResponseWriter, acceptsGzip bool) {
+	response := struct {
+		ID      int     `json:"ID"`
+		Replies []slice `json:"replies"`
+	}{
+		ID:      ID,
+		Replies: replies,
+	}
 
-				if acceptsGzip && len(b) > GZIP_MINIMUM {
-					w.Header().Set("Content-Encoding", "gzip")
+	if b, err := json.Marshal(response); err != nil {
+		h.Warnf("%v", err)
+		http.Error(w, "Internal error generating response", http.StatusInternalServerError)
+	} else {
+		w.Header().Set("Content-Type", "application/json")
 
-					gz := gzip.NewWriter(w)
-					gz.Write(b)
-					gz.Close()
-				} else {
-					w.Write(b)
-				}
-			}
-			return
+		if acceptsGzip && len(b) > GZIP_MINIMUM {
+			w.Header().Set("Content-Encoding", "gzip")
+
+			gz := gzip.NewWriter(w)
+			gz.Write(b)
+			gz.Close()
+		} else {
+			w.Write(b)
 		}
 	}
 }
