@@ -60,6 +60,12 @@ header {
   padding-right: 120px;
 }
 
+header img#logo {
+  width: 64px;
+  border-top-left-radius: 16px;
+  border-bottom-right-radius: 24px;
+}
+
 header h1 {
   font-family: sans-serif;
   font-weight: normal;

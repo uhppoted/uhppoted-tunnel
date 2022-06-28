@@ -2,7 +2,9 @@
 
 - [ ] README
 
-- [ ] HTTP POST
+- [ ] HTTPS
+
+- [x] HTTP POST
       - [x] FS from command line
       - [x] array of replies
       - [x] UDP timeout
@@ -12,10 +14,8 @@
       - [x] Rework layout
             - [x] Clear button
             - [x] Label request/reply boxes
-            - [ ] Logo
+            - [x] Logo
       - [x] eslint
-
-- [ ] HTTPS
 
 - [ ] Check tunnel -> tunnel -> tunnel interop
 - [ ] Use global context for UDP broadcast timeout
