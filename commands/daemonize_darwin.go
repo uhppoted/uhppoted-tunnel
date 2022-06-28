@@ -118,8 +118,8 @@ func (cmd *Daemonize) Execute(args ...interface{}) error {
 		strings.HasPrefix(cmd.in, "tcp/client:"),
 		strings.HasPrefix(cmd.in, "tcp/server:"),
 		strings.HasPrefix(cmd.in, "tls/client:"),
-		strings.HasPrefix(cmd.in, "tls/server:"):
-		strings.HasPrefix(cmd.in, "http/"):
+		strings.HasPrefix(cmd.in, "tls/server:"),
+		strings.HasPrefix(cmd.in, "http/"),
 		strings.HasPrefix(cmd.in, "https/"):
 	// OK
 
