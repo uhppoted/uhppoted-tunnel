@@ -1,8 +1,10 @@
-package httpd
+package https
 
 import (
 	"compress/gzip"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -20,6 +22,7 @@ import (
 type httpd struct {
 	conn.Conn
 	addr    *net.TCPAddr
+	TLS     *tls.Config
 	retry   conn.Backoff
 	timeout time.Duration
 	fs      filesystem
@@ -61,14 +64,14 @@ func (d *duration) UnmarshalJSON(b []byte) (err error) {
 
 const GZIP_MINIMUM = 16384
 
-func NewHTTP(spec string, html string, retry conn.Backoff) (*httpd, error) {
+func NewHTTPS(spec string, html string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff) (*httpd, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
 	}
 
 	if addr == nil {
-		return nil, fmt.Errorf("unable to resolve HTTP base address '%v'", spec)
+		return nil, fmt.Errorf("unable to resolve HTTPS base address '%v'", spec)
 	}
 
 	fs := filesystem{
@@ -77,11 +80,29 @@ func NewHTTP(spec string, html string, retry conn.Backoff) (*httpd, error) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
+	config := tls.Config{
+		ClientCAs:    ca,
+		Certificates: []tls.Certificate{keypair},
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+		},
+		ClientAuth: tls.VerifyClientCertIfGiven,
+		MinVersion: tls.VersionTLS12,
+	}
+
+	if requireClientCertificate {
+		config.ClientAuth = tls.RequireAndVerifyClientCert
+	}
+
 	h := httpd{
 		Conn: conn.Conn{
-			Tag: "HTTP",
+			Tag: "HTTPS",
 		},
 		addr:    addr,
+		TLS:     &config,
 		retry:   retry,
 		timeout: 5 * time.Second,
 		fs:      fs,
@@ -120,15 +141,16 @@ func (h *httpd) Run(router *router.Switch) error {
 	})
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf("%v", h.addr),
-		Handler: mux,
+		Addr:      fmt.Sprintf("%v", h.addr),
+		TLSConfig: h.TLS,
+		Handler:   mux,
 	}
 
 	go func() {
 	loop:
 		for {
 			start := time.Now()
-			if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			if err := srv.ListenAndServeTLS("", ""); err != http.ErrServerClosed {
 				h.Warnf("%v", err)
 			}
 

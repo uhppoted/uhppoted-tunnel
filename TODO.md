@@ -3,19 +3,12 @@
 - [ ] README
 
 - [ ] HTTPS
+      - [ ] Update daemonize
 
-- [x] HTTP POST
-      - [x] FS from command line
-      - [x] array of replies
-      - [x] UDP timeout
-      - [x] request timeout
-      - [x] listen: retry with backoff
-      - [x] Use global context from httpd struct
-      - [x] Rework layout
-            - [x] Clear button
-            - [x] Label request/reply boxes
-            - [x] Logo
-      - [x] eslint
+- [ ] HTTP POST
+      - [ ] Zero timeout for single requests
+            - (but with internal timeout)
+      - [ ] Use srv.Shutdown rather than Close (and remove related logic)
 
 - [ ] Check tunnel -> tunnel -> tunnel interop
 - [ ] Use global context for UDP broadcast timeout
