@@ -2,8 +2,8 @@
 
 - [ ] README
 
-- [ ] HTTPS
-      - [ ] Update daemonize
+- [x] HTTPS
+      - [x] Update daemonize
 
 - [ ] HTTP POST
       - [ ] Zero timeout for single requests
