@@ -1,6 +1,7 @@
 package udp
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -15,6 +16,8 @@ type udpBroadcast struct {
 	conn.Conn
 	addr    *net.UDPAddr
 	timeout time.Duration
+	ctx     context.Context
+	cancel  context.CancelFunc
 	ch      chan protocol.Message
 	closing chan struct{}
 	closed  chan struct{}
@@ -34,12 +37,16 @@ func NewUDPBroadcast(spec string, timeout time.Duration) (*udpBroadcast, error) 
 		return nil, fmt.Errorf("UDP requires a non-zero port")
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	out := udpBroadcast{
 		Conn: conn.Conn{
 			Tag: "UDP",
 		},
 		addr:    addr,
 		timeout: timeout,
+		ctx:     ctx,
+		cancel:  cancel,
 		ch:      make(chan protocol.Message),
 		closing: make(chan struct{}),
 		closed:  make(chan struct{}),
@@ -50,6 +57,7 @@ func NewUDPBroadcast(spec string, timeout time.Duration) (*udpBroadcast, error) 
 
 func (udp *udpBroadcast) Close() {
 	udp.Infof("closing")
+	udp.cancel()
 	close(udp.closing)
 
 	timeout := time.NewTimer(5 * time.Second)
@@ -101,7 +109,7 @@ func (udp *udpBroadcast) send(id uint32, message []byte) {
 			udp.Warnf("%v", err)
 		}
 
-		if err := socket.SetReadDeadline(time.Now().Add(2 * udp.timeout)); err != nil {
+		if err := socket.SetReadDeadline(time.Now().Add(5*time.Second + udp.timeout)); err != nil {
 			udp.Warnf("%v", err)
 		}
 
@@ -109,6 +117,10 @@ func (udp *udpBroadcast) send(id uint32, message []byte) {
 			udp.Warnf("%v", err)
 		} else {
 			udp.Debugf("sent %v bytes to %v\n", N, udp.addr)
+
+			ctx, cancel := context.WithTimeout(udp.ctx, udp.timeout+5*time.Second)
+
+			defer cancel()
 
 			go func() {
 				for {
@@ -130,7 +142,13 @@ func (udp *udpBroadcast) send(id uint32, message []byte) {
 				}
 			}()
 
-			<-time.After(udp.timeout)
+			select {
+			case <-time.After(udp.timeout):
+				// Ok
+
+			case <-ctx.Done():
+				udp.Warnf("%v", ctx.Err())
+			}
 		}
 	}
 }

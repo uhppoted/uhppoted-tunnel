@@ -63,8 +63,8 @@ release: update-release build-all
 	cd dist;  zip --recurse-paths $(DIST).zip $(DIST)
 
 debug: build
-	go test -run Test ./...
-	# $(CMD) --debug --console --in http/0.0.0.0:8082 --out udp/broadcast:192.168.1.255:60004 --udp-timeout 30s
+	# go test -run Test ./...
+	$(CMD) --console --in http/0.0.0.0:8082 --out udp/broadcast:192.168.1.255:60004 --udp-timeout 30s --html ./examples/html
 
 delve: build
 #   dlv exec ./bin/uhppoted-tunnel -- --debug --console
