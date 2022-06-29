@@ -6,15 +6,8 @@
 
 - [ ] Check tunnel -> tunnel -> tunnel interop
 - [ ] Use global context for UDP broadcast timeout
-- [ ] Make default max retries to be something other than 0
+- [x] Make default max retries to be something other than 0
 - [x] More shutdown cleanup
-```
-2022/06/27 10:14:40 INFO   UDP    closing
-2022/06/27 10:14:40 INFO   TCP    retrying in 5s
-2022/06/27 10:14:40 INFO   TCP    closed
-2022/06/27 10:14:40 INFO   UDP    retrying in 5s
-2022/06/27 10:14:40 INFO   UDP    closed
-```
 
 ## Miscellaneous
 

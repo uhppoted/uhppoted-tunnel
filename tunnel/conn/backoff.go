@@ -33,7 +33,7 @@ func (b *Backoff) Reset() {
 func (b *Backoff) Wait(tag string, closing chan struct{}) bool {
 	b.retries++
 	if b.maxRetries >= 0 && b.retries > b.maxRetries {
-		warnf(tag, "retry count exceeded %v", b.maxRetries)
+		fatalf(tag, "retry count exceeded %v", b.maxRetries)
 		return false
 	}
 
@@ -77,6 +77,8 @@ func errorf(tag string, format string, args ...any) {
 	log.Errorf(f, args...)
 }
 
-func fatalf(format string, args ...any) {
-	log.Fatalf(format, args...)
+func fatalf(tag string, format string, args ...any) {
+	f := fmt.Sprintf("%-6v %v", tag, format)
+
+	log.Fatalf(f, args...)
 }
