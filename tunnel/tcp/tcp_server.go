@@ -64,6 +64,7 @@ func (tcp *tcpServer) Close() {
 
 func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 	var socket net.Listener
+	var closing = false
 
 	go func() {
 	loop:
@@ -78,7 +79,7 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 				tcp.listen(socket, router)
 			}
 
-			if !tcp.retry.Wait(tcp.Tag, tcp.closing) {
+			if closing || !tcp.retry.Wait(tcp.Tag, tcp.closing) {
 				break loop
 			}
 		}
@@ -92,6 +93,7 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 
 	<-tcp.closing
 
+	closing = true
 	socket.Close()
 
 	return nil

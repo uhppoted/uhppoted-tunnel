@@ -1,18 +1,13 @@
 # TODO
 
 - [ ] README
-
-- [x] HTTPS
-      - [x] Update daemonize
-
-- [x] HTTP POST
-      - [x] Use srv.Shutdown rather than Close (and remove related logic)
-      - [x] Zero timeout for single requests
+      - [ ] Move `html` folder to `examples` or somesuch
+            - (?) WUI
 
 - [ ] Check tunnel -> tunnel -> tunnel interop
 - [ ] Use global context for UDP broadcast timeout
 - [ ] Make default max retries to be something other than 0
-- [ ] More shutdown cleanup
+- [x] More shutdown cleanup
 ```
 2022/06/27 10:14:40 INFO   UDP    closing
 2022/06/27 10:14:40 INFO   TCP    retrying in 5s

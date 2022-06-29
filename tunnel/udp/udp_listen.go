@@ -66,7 +66,7 @@ func (udp *udpListen) Run(router *router.Switch) (err error) {
 
 	go func() {
 	loop:
-		for !closing {
+		for {
 			socket, err = net.ListenUDP("udp", udp.addr)
 			if err != nil {
 				udp.Warnf("%v", err)
@@ -77,7 +77,7 @@ func (udp *udpListen) Run(router *router.Switch) (err error) {
 				udp.listen(socket, router)
 			}
 
-			if !udp.retry.Wait(udp.Tag, udp.closing) {
+			if closing || !udp.retry.Wait(udp.Tag, udp.closing) {
 				break loop
 			}
 		}
