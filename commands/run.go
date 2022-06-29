@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"crypto/sha1"
 	TLS "crypto/tls"
 	"crypto/x509"
@@ -9,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/log"
@@ -93,9 +95,12 @@ func (cmd *Run) Help() {
 	fmt.Println()
 }
 
-func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
+func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc)) (err error) {
 	var in tunnel.Conn
 	var out tunnel.Conn
+	var ctx, cancel = context.WithCancel(context.Background())
+
+	defer cancel()
 
 	// ... create request handler
 	switch {
@@ -111,7 +116,7 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		strings.HasPrefix(cmd.in, "tls/server:"),
 		strings.HasPrefix(cmd.in, "http/"),
 		strings.HasPrefix(cmd.in, "https/"):
-		if in, err = cmd.makeConn("--in", cmd.in); err != nil {
+		if in, err = cmd.makeConn("--in", cmd.in, ctx); err != nil {
 			return
 		}
 
@@ -132,7 +137,7 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		strings.HasPrefix(cmd.out, "tcp/server:"),
 		strings.HasPrefix(cmd.out, "tls/client:"),
 		strings.HasPrefix(cmd.out, "tls/server:"):
-		if out, err = cmd.makeConn("--out", cmd.out); err != nil {
+		if out, err = cmd.makeConn("--out", cmd.out, ctx); err != nil {
 			return
 		}
 
@@ -175,26 +180,27 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel)) (err error) {
 		os.Remove(lockfile)
 	}()
 
-	t := tunnel.NewTunnel(in, out)
+	t := tunnel.NewTunnel(in, out, ctx)
 
-	f(t)
+	f(t, ctx, cancel)
 
 	return nil
 }
 
-func (cmd Run) makeConn(arg, spec string) (tunnel.Conn, error) {
+func (cmd Run) makeConn(arg, spec string, ctx context.Context) (tunnel.Conn, error) {
+	retry := conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay, ctx)
 	switch {
 	case strings.HasPrefix(spec, "udp/listen:"):
-		return udp.NewUDPListen(spec[11:], conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
+		return udp.NewUDPListen(spec[11:], retry, ctx)
 
 	case strings.HasPrefix(spec, "udp/broadcast:"):
-		return udp.NewUDPBroadcast(spec[14:], cmd.udpTimeout)
+		return udp.NewUDPBroadcast(spec[14:], cmd.udpTimeout, ctx)
 
 	case strings.HasPrefix(spec, "tcp/client:"):
-		return tcp.NewTCPClient(spec[11:], conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
+		return tcp.NewTCPClient(spec[11:], retry, ctx)
 
 	case strings.HasPrefix(spec, "tcp/server:"):
-		return tcp.NewTCPServer(spec[11:], conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
+		return tcp.NewTCPServer(spec[11:], retry, ctx)
 
 	case strings.HasPrefix(spec, "tls/client:"):
 		if ca, err := tlsCA(cmd.caCertificate); err != nil {
@@ -202,7 +208,7 @@ func (cmd Run) makeConn(arg, spec string) (tunnel.Conn, error) {
 		} else if certificate, err := tlsClientKeyPair(cmd.certificate, cmd.key); err != nil {
 			return nil, err
 		} else {
-			return tls.NewTLSClient(spec[11:], ca, certificate, conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
+			return tls.NewTLSClient(spec[11:], ca, certificate, retry, ctx)
 		}
 
 	case strings.HasPrefix(spec, "tls/server:"):
@@ -211,11 +217,11 @@ func (cmd Run) makeConn(arg, spec string) (tunnel.Conn, error) {
 		} else if certificate, err := tlsServerKeyPair(cmd.certificate, cmd.key); err != nil {
 			return nil, err
 		} else {
-			return tls.NewTLSServer(spec[11:], ca, *certificate, cmd.requireClientAuth, conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
+			return tls.NewTLSServer(spec[11:], ca, *certificate, cmd.requireClientAuth, retry, ctx)
 		}
 
 	case strings.HasPrefix(spec, "http/"):
-		return httpd.NewHTTP(spec[5:], cmd.html, conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
+		return httpd.NewHTTP(spec[5:], cmd.html, retry, ctx)
 
 	case strings.HasPrefix(spec, "https/"):
 		if ca, err := tlsCA(cmd.caCertificate); err != nil {
@@ -224,7 +230,7 @@ func (cmd Run) makeConn(arg, spec string) (tunnel.Conn, error) {
 			return nil, err
 		} else {
 			fmt.Printf("%v\n%v\n%v\n%v\n", cmd.caCertificate, cmd.certificate, cmd.key, cmd.requireClientAuth)
-			return https.NewHTTPS(spec[6:], cmd.html, ca, *certificate, cmd.requireClientAuth, conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay))
+			return https.NewHTTPS(spec[6:], cmd.html, ca, *certificate, cmd.requireClientAuth, retry, ctx)
 		}
 
 	default:
@@ -232,13 +238,24 @@ func (cmd Run) makeConn(arg, spec string) (tunnel.Conn, error) {
 	}
 }
 
-func (cmd *Run) run(t *tunnel.Tunnel, interrupt chan os.Signal) {
+func (cmd *Run) run(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc, interrupt chan os.Signal) {
 	log.SetDebug(cmd.debug)
 	log.SetLevel(cmd.logLevel)
 
-	if err := t.Run(interrupt); err != nil {
-		log.Errorf("%-5s %v\n", "FATAL", err)
-	}
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := t.Run(interrupt); err != nil {
+			log.Errorf("%-5s %v\n", "FATAL", err)
+		}
+	}()
+
+	<-interrupt
+
+	cancel()
+	wg.Wait()
 }
 
 func tlsCA(cacert string) (*x509.CertPool, error) {

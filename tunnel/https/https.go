@@ -27,9 +27,7 @@ type httpd struct {
 	timeout time.Duration
 	fs      filesystem
 	ctx     context.Context
-	cancel  context.CancelFunc
 	ch      chan protocol.Message
-	closing chan struct{}
 	closed  chan struct{}
 }
 
@@ -64,7 +62,7 @@ func (d *duration) UnmarshalJSON(b []byte) (err error) {
 
 const GZIP_MINIMUM = 16384
 
-func NewHTTPS(spec string, html string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff) (*httpd, error) {
+func NewHTTPS(spec string, html string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff, ctx context.Context) (*httpd, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -77,8 +75,6 @@ func NewHTTPS(spec string, html string, ca *x509.CertPool, keypair tls.Certifica
 	fs := filesystem{
 		FileSystem: http.FS(os.DirFS(html)),
 	}
-
-	ctx, cancel := context.WithCancel(context.Background())
 
 	config := tls.Config{
 		ClientCAs:    ca,
@@ -107,9 +103,7 @@ func NewHTTPS(spec string, html string, ca *x509.CertPool, keypair tls.Certifica
 		timeout: 5 * time.Second,
 		fs:      fs,
 		ctx:     ctx,
-		cancel:  cancel,
 		ch:      make(chan protocol.Message, 16),
-		closing: make(chan struct{}),
 		closed:  make(chan struct{}),
 	}
 
@@ -118,9 +112,6 @@ func NewHTTPS(spec string, html string, ca *x509.CertPool, keypair tls.Certifica
 
 func (h *httpd) Close() {
 	h.Infof("closing")
-	h.cancel()
-
-	close(h.closing)
 
 	timeout := time.NewTimer(5 * time.Second)
 	select {
@@ -160,24 +151,24 @@ func (h *httpd) Run(router *router.Switch) error {
 				h.retry.Reset()
 			}
 
-			if closing || !h.retry.Wait(h.Tag, h.closing) {
+			if closing || !h.retry.Wait(h.Tag) {
 				break loop
 			}
 		}
-
-		h.closed <- struct{}{}
 	}()
 
-	<-h.closing
+	<-h.ctx.Done()
 
 	closing = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	if err := srv.Shutdown(ctx); err != nil {
 		h.Warnf("%v", err)
 	}
 
-	cancel()
+	h.closed <- struct{}{}
 
 	return nil
 }

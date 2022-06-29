@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -28,14 +29,14 @@ func (cmd *Run) FlagSet() *flag.FlagSet {
 func (cmd *Run) Execute(args ...interface{}) error {
 	log.Printf("%s service %s - %s (PID %d)\n", SERVICE, uhppote.VERSION, "MacOS", os.Getpid())
 
-	f := func(t *tunnel.Tunnel) {
-		cmd.exec(t)
+	f := func(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc) {
+		cmd.exec(t, ctx, cancel)
 	}
 
 	return cmd.execute(f)
 }
 
-func (cmd *Run) exec(t *tunnel.Tunnel) {
+func (cmd *Run) exec(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc) {
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.LstdFlags)
 
@@ -62,5 +63,5 @@ func (cmd *Run) exec(t *tunnel.Tunnel) {
 		}()
 	}
 
-	cmd.run(t, interrupt)
+	cmd.run(t, ctx, cancel, interrupt)
 }

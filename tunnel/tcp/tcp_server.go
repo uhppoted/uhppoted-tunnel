@@ -1,6 +1,7 @@
 package tcp
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -18,12 +19,12 @@ type tcpServer struct {
 	addr        *net.TCPAddr
 	retry       conn.Backoff
 	connections map[net.Conn]struct{}
-	closing     chan struct{}
+	ctx         context.Context
 	closed      chan struct{}
 	sync.RWMutex
 }
 
-func NewTCPServer(spec string, retry conn.Backoff) (*tcpServer, error) {
+func NewTCPServer(spec string, retry conn.Backoff, ctx context.Context) (*tcpServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -41,7 +42,7 @@ func NewTCPServer(spec string, retry conn.Backoff) (*tcpServer, error) {
 		addr:        addr,
 		retry:       retry,
 		connections: map[net.Conn]struct{}{},
-		closing:     make(chan struct{}),
+		ctx:         ctx,
 		closed:      make(chan struct{}),
 	}
 
@@ -50,7 +51,6 @@ func NewTCPServer(spec string, retry conn.Backoff) (*tcpServer, error) {
 
 func (tcp *tcpServer) Close() {
 	tcp.Infof("closing")
-	close(tcp.closing)
 
 	timeout := time.NewTimer(5 * time.Second)
 	select {
@@ -79,7 +79,7 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 				tcp.listen(socket, router)
 			}
 
-			if closing || !tcp.retry.Wait(tcp.Tag, tcp.closing) {
+			if closing || !tcp.retry.Wait(tcp.Tag) {
 				break loop
 			}
 		}
@@ -91,7 +91,7 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 		tcp.closed <- struct{}{}
 	}()
 
-	<-tcp.closing
+	<-tcp.ctx.Done()
 
 	closing = true
 	socket.Close()

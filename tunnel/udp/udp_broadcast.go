@@ -17,13 +17,11 @@ type udpBroadcast struct {
 	addr    *net.UDPAddr
 	timeout time.Duration
 	ctx     context.Context
-	cancel  context.CancelFunc
 	ch      chan protocol.Message
-	closing chan struct{}
 	closed  chan struct{}
 }
 
-func NewUDPBroadcast(spec string, timeout time.Duration) (*udpBroadcast, error) {
+func NewUDPBroadcast(spec string, timeout time.Duration, ctx context.Context) (*udpBroadcast, error) {
 	addr, err := net.ResolveUDPAddr("udp", spec)
 	if err != nil {
 		return nil, err
@@ -37,8 +35,6 @@ func NewUDPBroadcast(spec string, timeout time.Duration) (*udpBroadcast, error) 
 		return nil, fmt.Errorf("UDP requires a non-zero port")
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-
 	out := udpBroadcast{
 		Conn: conn.Conn{
 			Tag: "UDP",
@@ -46,9 +42,7 @@ func NewUDPBroadcast(spec string, timeout time.Duration) (*udpBroadcast, error) 
 		addr:    addr,
 		timeout: timeout,
 		ctx:     ctx,
-		cancel:  cancel,
 		ch:      make(chan protocol.Message),
-		closing: make(chan struct{}),
 		closed:  make(chan struct{}),
 	}
 
@@ -57,8 +51,6 @@ func NewUDPBroadcast(spec string, timeout time.Duration) (*udpBroadcast, error) 
 
 func (udp *udpBroadcast) Close() {
 	udp.Infof("closing")
-	udp.cancel()
-	close(udp.closing)
 
 	timeout := time.NewTimer(5 * time.Second)
 	select {
@@ -77,7 +69,7 @@ loop:
 		case msg := <-udp.ch:
 			router.Received(msg.ID, msg.Message, nil)
 
-		case <-udp.closing:
+		case <-udp.ctx.Done():
 			break loop
 		}
 	}

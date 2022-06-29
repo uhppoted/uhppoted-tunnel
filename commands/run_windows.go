@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -32,6 +33,8 @@ type service struct {
 	conf   config.Config
 	cmd    *Run
 	tunnel *tunnel.Tunnel
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 func (cmd *Run) FlagSet() *flag.FlagSet {
@@ -50,14 +53,14 @@ func (cmd *Run) Execute(args ...interface{}) error {
 
 	log.Printf("%s service %s - %s (PID %d)\n", name, uhppote.VERSION, "Microsoft Windows", os.Getpid())
 
-	f := func(t *tunnel.Tunnel) {
-		cmd.start(t)
+	f := func(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc) {
+		cmd.start(t, ctx, cancel)
 	}
 
 	return cmd.execute(f)
 }
 
-func (cmd *Run) start(t *tunnel.Tunnel) {
+func (cmd *Run) start(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc) {
 	if cmd.console {
 		log.SetOutput(os.Stdout)
 		log.SetFlags(log.LstdFlags)
@@ -65,7 +68,7 @@ func (cmd *Run) start(t *tunnel.Tunnel) {
 		interrupt := make(chan os.Signal, 1)
 
 		signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
-		cmd.run(t, interrupt)
+		cmd.run(t, ctx, cancel, interrupt)
 		return
 	}
 
@@ -91,6 +94,8 @@ func (cmd *Run) start(t *tunnel.Tunnel) {
 		name:   name,
 		cmd:    cmd,
 		tunnel: t,
+		ctx:    ctx,
+		cancel: cancel,
 	}
 
 	log.Printf("%s service - starting\n", name)
@@ -126,12 +131,13 @@ func (s *service) Execute(args []string, r <-chan svc.ChangeRequest, status chan
 	status <- svc.Status{State: svc.StartPending}
 
 	interrupt := make(chan os.Signal, 1)
+
 	var wg sync.WaitGroup
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		s.cmd.run(s.tunnel, interrupt)
+		s.cmd.run(s.tunnel, s.ctx, s.cancel, interrupt)
 
 		log.Printf("exit\n")
 	}()

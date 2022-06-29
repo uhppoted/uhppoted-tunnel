@@ -1,6 +1,7 @@
 package conn
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -14,14 +15,16 @@ type Backoff struct {
 	retryDelay    time.Duration
 	maxRetries    int
 	maxRetryDelay time.Duration
+	ctx           context.Context
 }
 
-func NewBackoff(maxRetries int, maxRetryDelay time.Duration) Backoff {
+func NewBackoff(maxRetries int, maxRetryDelay time.Duration, ctx context.Context) Backoff {
 	return Backoff{
 		retries:       0,
 		retryDelay:    RETRY_MIN_DELAY,
 		maxRetries:    maxRetries,
 		maxRetryDelay: maxRetryDelay,
+		ctx:           ctx,
 	}
 }
 
@@ -30,7 +33,7 @@ func (b *Backoff) Reset() {
 	b.retryDelay = RETRY_MIN_DELAY
 }
 
-func (b *Backoff) Wait(tag string, closing chan struct{}) bool {
+func (b *Backoff) Wait(tag string) bool {
 	b.retries++
 	if b.maxRetries >= 0 && b.retries > b.maxRetries {
 		fatalf(tag, "retry count exceeded %v", b.maxRetries)
@@ -46,7 +49,7 @@ func (b *Backoff) Wait(tag string, closing chan struct{}) bool {
 			b.retryDelay = b.maxRetryDelay
 		}
 
-	case <-closing:
+	case <-b.ctx.Done():
 		return false
 	}
 

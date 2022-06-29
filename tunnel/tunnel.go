@@ -1,6 +1,7 @@
 package tunnel
 
 import (
+	"context"
 	"encoding/hex"
 	"fmt"
 	"os"
@@ -25,12 +26,14 @@ type Message struct {
 type Tunnel struct {
 	in  Conn
 	out Conn
+	ctx context.Context
 }
 
-func NewTunnel(in Conn, out Conn) *Tunnel {
+func NewTunnel(in Conn, out Conn, ctx context.Context) *Tunnel {
 	return &Tunnel{
 		in:  in,
 		out: out,
+		ctx: ctx,
 	}
 }
 
@@ -61,7 +64,8 @@ func (t *Tunnel) Run(interrupt chan os.Signal) error {
 	}()
 
 	select {
-	case <-interrupt:
+	case <-t.ctx.Done():
+		// closing
 
 	case err := <-u:
 		return err

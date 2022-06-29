@@ -25,14 +25,14 @@ type tlsServer struct {
 	retry       conn.Backoff
 	connections map[net.Conn]struct{}
 	pending     map[uint32]context.CancelFunc
-	closing     chan struct{}
+	ctx         context.Context
 	closed      chan struct{}
 	sync.RWMutex
 }
 
 var ID uint32 = 0
 
-func NewTLSServer(spec string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff) (*tlsServer, error) {
+func NewTLSServer(spec string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff, ctx context.Context) (*tlsServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -69,7 +69,7 @@ func NewTLSServer(spec string, ca *x509.CertPool, keypair tls.Certificate, requi
 		retry:       retry,
 		connections: map[net.Conn]struct{}{},
 		pending:     map[uint32]context.CancelFunc{},
-		closing:     make(chan struct{}),
+		ctx:         ctx,
 		closed:      make(chan struct{}),
 	}
 
@@ -78,7 +78,6 @@ func NewTLSServer(spec string, ca *x509.CertPool, keypair tls.Certificate, requi
 
 func (tcp *tlsServer) Close() {
 	tcp.Infof("closing")
-	close(tcp.closing)
 
 	for _, f := range tcp.pending {
 		f()
@@ -110,7 +109,7 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 				tcp.listen(socket, router)
 			}
 
-			if !tcp.retry.Wait(tcp.Tag, tcp.closing) {
+			if !tcp.retry.Wait(tcp.Tag) {
 				break loop
 			}
 		}
@@ -122,7 +121,7 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 		tcp.closed <- struct{}{}
 	}()
 
-	<-tcp.closing
+	<-tcp.ctx.Done()
 
 	socket.Close()
 

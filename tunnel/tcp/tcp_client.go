@@ -1,6 +1,7 @@
 package tcp
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -17,11 +18,11 @@ type tcpClient struct {
 	retry   conn.Backoff
 	timeout time.Duration
 	ch      chan protocol.Message
-	closing chan struct{}
+	ctx     context.Context
 	closed  chan struct{}
 }
 
-func NewTCPClient(spec string, retry conn.Backoff) (*tcpClient, error) {
+func NewTCPClient(spec string, retry conn.Backoff, ctx context.Context) (*tcpClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -39,7 +40,7 @@ func NewTCPClient(spec string, retry conn.Backoff) (*tcpClient, error) {
 		retry:   retry,
 		timeout: 5 * time.Second,
 		ch:      make(chan protocol.Message, 16),
-		closing: make(chan struct{}),
+		ctx:     ctx,
 		closed:  make(chan struct{}),
 	}
 
@@ -48,7 +49,6 @@ func NewTCPClient(spec string, retry conn.Backoff) (*tcpClient, error) {
 
 func (tcp *tcpClient) Close() {
 	tcp.Infof("closing")
-	close(tcp.closing)
 
 	timeout := time.NewTimer(5 * time.Second)
 	select {
@@ -96,7 +96,7 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 					case <-eof:
 						return
 
-					case <-tcp.closing:
+					case <-tcp.ctx.Done():
 						socket.Close()
 						return
 					}
@@ -110,7 +110,7 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 			close(eof)
 		}
 
-		if !tcp.retry.Wait(tcp.Tag, tcp.closing) {
+		if !tcp.retry.Wait(tcp.Tag) {
 			return
 		}
 	}

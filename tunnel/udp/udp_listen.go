@@ -1,6 +1,7 @@
 package udp
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -13,13 +14,13 @@ import (
 
 type udpListen struct {
 	conn.Conn
-	addr    *net.UDPAddr
-	retry   conn.Backoff
-	closing chan struct{}
-	closed  chan struct{}
+	addr   *net.UDPAddr
+	retry  conn.Backoff
+	ctx    context.Context
+	closed chan struct{}
 }
 
-func NewUDPListen(spec string, retry conn.Backoff) (*udpListen, error) {
+func NewUDPListen(spec string, retry conn.Backoff, ctx context.Context) (*udpListen, error) {
 	addr, err := net.ResolveUDPAddr("udp", spec)
 	if err != nil {
 		return nil, err
@@ -37,10 +38,10 @@ func NewUDPListen(spec string, retry conn.Backoff) (*udpListen, error) {
 		Conn: conn.Conn{
 			Tag: "UDP",
 		},
-		addr:    addr,
-		retry:   retry,
-		closing: make(chan struct{}),
-		closed:  make(chan struct{}),
+		addr:   addr,
+		retry:  retry,
+		ctx:    ctx,
+		closed: make(chan struct{}),
 	}
 
 	return &udp, nil
@@ -48,7 +49,6 @@ func NewUDPListen(spec string, retry conn.Backoff) (*udpListen, error) {
 
 func (udp *udpListen) Close() {
 	udp.Infof("closing")
-	close(udp.closing)
 
 	timeout := time.NewTimer(5 * time.Second)
 	select {
@@ -77,7 +77,7 @@ func (udp *udpListen) Run(router *router.Switch) (err error) {
 				udp.listen(socket, router)
 			}
 
-			if closing || !udp.retry.Wait(udp.Tag, udp.closing) {
+			if closing || !udp.retry.Wait(udp.Tag) {
 				break loop
 			}
 		}
@@ -85,7 +85,7 @@ func (udp *udpListen) Run(router *router.Switch) (err error) {
 		udp.closed <- struct{}{}
 	}()
 
-	<-udp.closing
+	<-udp.ctx.Done()
 
 	closing = true
 	socket.Close()

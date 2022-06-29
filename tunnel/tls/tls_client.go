@@ -1,6 +1,7 @@
 package tls
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -20,11 +21,11 @@ type tlsClient struct {
 	retry   conn.Backoff
 	timeout time.Duration
 	ch      chan protocol.Message
-	closing chan struct{}
+	ctx     context.Context
 	closed  chan struct{}
 }
 
-func NewTLSClient(spec string, ca *x509.CertPool, keypair *tls.Certificate, retry conn.Backoff) (*tlsClient, error) {
+func NewTLSClient(spec string, ca *x509.CertPool, keypair *tls.Certificate, retry conn.Backoff, ctx context.Context) (*tlsClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -57,7 +58,7 @@ func NewTLSClient(spec string, ca *x509.CertPool, keypair *tls.Certificate, retr
 		retry:   retry,
 		timeout: 5 * time.Second,
 		ch:      make(chan protocol.Message, 16),
-		closing: make(chan struct{}),
+		ctx:     ctx,
 		closed:  make(chan struct{}),
 	}
 
@@ -66,7 +67,6 @@ func NewTLSClient(spec string, ca *x509.CertPool, keypair *tls.Certificate, retr
 
 func (tcp *tlsClient) Close() {
 	tcp.Infof("closing")
-	close(tcp.closing)
 
 	timeout := time.NewTimer(5 * time.Second)
 	select {
@@ -114,7 +114,7 @@ func (tcp *tlsClient) connect(router *router.Switch) {
 					case <-eof:
 						return
 
-					case <-tcp.closing:
+					case <-tcp.ctx.Done():
 						socket.Close()
 						return
 					}
@@ -128,7 +128,7 @@ func (tcp *tlsClient) connect(router *router.Switch) {
 			close(eof)
 		}
 
-		if !tcp.retry.Wait(tcp.Tag, tcp.closing) {
+		if !tcp.retry.Wait(tcp.Tag) {
 			return
 		}
 	}
