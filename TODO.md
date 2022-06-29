@@ -1,13 +1,14 @@
 # TODO
 
 - [ ] README
-      - [ ] Move `html` folder to `examples` or somesuch
-            - (?) WUI
+- [x] Move `html` folder to `examples` or somesuch
 
 - [ ] Check tunnel -> tunnel -> tunnel interop
 - [ ] Use global context for UDP broadcast timeout
 - [x] Make default max retries to be something other than 0
 - [x] More shutdown cleanup
+- [ ] Remove lockfile on fatalf (e.g. retries)
+      - (?) shutdown hook maybe
 
 ## Miscellaneous
 

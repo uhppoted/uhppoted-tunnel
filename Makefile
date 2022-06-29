@@ -98,12 +98,12 @@ tls-client: build
 	$(CMD) --debug --console --in tls/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
 
 http: build
-	npx eslint --fix ./html/javascript/*.js
-	$(CMD) --debug --console --in http/0.0.0.0:8082 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
+	npx eslint --fix ./examples/html/javascript/*.js
+	$(CMD) --debug --console --in http/0.0.0.0:8082 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s --html ./examples/html
 
 https: build
-	npx eslint --fix ./html/javascript/*.js
-	$(CMD) --debug --console --in https/0.0.0.0:8443 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
+	npx eslint --fix ./examples/html/javascript/*.js
+	$(CMD) --debug --console --in https/0.0.0.0:8443 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s --html ./examples/html
 
 daemonize: build
 	sudo $(CMD) daemonize --in  udp/listen:0.0.0.0:60000  --out tcp/server:0.0.0.0:12345          --label qwerty
