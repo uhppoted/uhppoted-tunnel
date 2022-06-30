@@ -17,6 +17,7 @@ const (
 
 var debugging = false
 var level = info
+var hook func()
 
 func SetDebug(enabled bool) {
 	debugging = enabled
@@ -35,6 +36,10 @@ func SetLevel(l string) {
 	case "error":
 		level = errors
 	}
+}
+
+func SetFatalHook(f func()) {
+	hook = f
 }
 
 func Debugf(format string, args ...any) {
@@ -60,5 +65,9 @@ func Errorf(format string, args ...any) {
 }
 
 func Fatalf(format string, args ...any) {
+	if hook != nil {
+		hook()
+	}
+
 	syslog.Fatalf("%-5v  %v", "FATAL", fmt.Sprintf(format, args...))
 }

@@ -180,6 +180,10 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 		os.Remove(lockfile)
 	}()
 
+	log.SetFatalHook(func() {
+		os.Remove(lockfile)
+	})
+
 	t := tunnel.NewTunnel(in, out, ctx)
 
 	f(t, ctx, cancel)
