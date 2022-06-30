@@ -1,7 +1,7 @@
 # TODO
 
-- [ ] README
-- [ ] Check tunnel -> tunnel -> tunnel interop
+- [x] README
+- [x] Check tunnel -> tunnel -> tunnel interop
 - [x] Remove lockfile on fatalf (e.g. after max retries)
 
 ## Miscellaneous
