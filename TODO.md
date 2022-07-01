@@ -1,8 +1,8 @@
 # TODO
 
-- [x] README
-- [x] Check tunnel -> tunnel -> tunnel interop
-- [x] Remove lockfile on fatalf (e.g. after max retries)
+## In progress
+
+- [x] Release
 
 ## Miscellaneous
 
