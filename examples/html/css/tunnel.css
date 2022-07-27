@@ -130,6 +130,7 @@ main #command div {
 
 main #command button {
   width: 96px;
+  height: fit-content;
 }
 
 main #command input {
@@ -145,6 +146,21 @@ main #command input {
   font-variant-caps: all-small-caps;
   font-size: 1em;
   box-shadow: none;
+}
+
+main #command input::placeholder {
+  font-size: 0.8em;
+}
+
+main #command div.command {
+  display: flex;
+  flex-direction: row;
+}
+
+main #command div.command div.args {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 main #response {

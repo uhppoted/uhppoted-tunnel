@@ -23,11 +23,15 @@ export function exec (cmd) {
 
   switch (cmd) {
     case 'get-devices':
-      post(encode.GetDevices(), '500ms')
+      post(encode.GetDevices, '500ms')
       break
 
     case 'get-device':
-      post(encode.GetDevice(document.querySelector('#command #device-id').value), '0s')
+      post(encode.GetDevice, '0s', 'device-id')
+      break
+
+    case 'set-address':
+      post(encode.SetIP, '0s', 'device-id', 'ip-address', 'subnet', 'gateway')
       break
 
     default:
@@ -35,7 +39,8 @@ export function exec (cmd) {
   }
 }
 
-function post (bytes, timeout) {
+function post (f, timeout,...args) {
+  const bytes = f(...args.map(a => document.querySelector(`input#${a}`).value))
   const hex = bin2hex(bytes)
   const debug = document.querySelector('#request textarea')
 

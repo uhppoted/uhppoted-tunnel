@@ -1,15 +1,16 @@
 # TODO
 
-## In progress
+## In Progress
 
-- [x] Release
+- [ ] 'events' connectors
+      (?) let ID 0 imply no reply expected
+- [ ] http/s: handle no reply for set-address
+- [ ] https://tls-anvil.com/docs/Quick-Start/index
 
 ## Miscellaneous
 
 - [ ] Commonalize connector behaviours
 - [ ] Use cancelable contexts throughout
-- [ ] 'events' connectors
-      (?) let ID 0 imply no reply expected
 - [ ] gRPC portal
 - [ ] WebUI
 

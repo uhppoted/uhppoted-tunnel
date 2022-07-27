@@ -23,9 +23,19 @@
           <div>
             <button onclick="onCommand('get-devices')">get-devices</button>
           </div>
-          <div>
+          <div class="command">
             <button onclick="onCommand('get-device')">get-device</button>
-            <input id="device-id" type="number" min="1" max="499999999" value="405419896" />
+            <div class="args">
+              <input id="device-id" type="number" min="1" max="499999999" value="405419896" placeholder="device ID" />
+            </div>
+          </div>
+          <div class="command">
+            <button onclick="onCommand('set-address')">set-address</button>
+            <div class="args">
+              <input id="ip-address" type="text" placeholder="IPv4 address" value="192.168.1.100" />
+              <input id="subnet" type="text" placeholder="IPv4 subnet mask" value="255.255.255.0" />
+              <input id="gateway" type="text" placeholder="IPv4 gateway address" value="192.168.1.1" />
+            </div>
           </div>
         </div>
 
