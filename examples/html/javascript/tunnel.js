@@ -31,7 +31,7 @@ export function exec (cmd) {
       break
 
     case 'set-address':
-      post(encode.SetIP, '0s', 'device-id', 'ip-address', 'subnet', 'gateway')
+      post(encode.SetIP, '0.1ms', 'device-id', 'ip-address', 'subnet', 'gateway')
       break
 
     default:
@@ -39,7 +39,7 @@ export function exec (cmd) {
   }
 }
 
-function post (f, timeout,...args) {
+function post (f, timeout, ...args) {
   const bytes = f(...args.map(a => document.querySelector(`input#${a}`).value))
   const hex = bin2hex(bytes)
   const debug = document.querySelector('#request textarea')

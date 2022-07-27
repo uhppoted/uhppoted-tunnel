@@ -4,7 +4,7 @@
 
 - [ ] 'events' connectors
       (?) let ID 0 imply no reply expected
-- [ ] http/s: handle no reply for set-address
+- [ ] http/s: store/restore fields
 - [ ] https://tls-anvil.com/docs/Quick-Start/index
 
 ## Miscellaneous

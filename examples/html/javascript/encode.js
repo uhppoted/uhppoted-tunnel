@@ -19,7 +19,7 @@ export function GetDevice (deviceID) {
   return request
 }
 
-export function SetIP (deviceID,address,netmask,gateway) {
+export function SetIP (deviceID, address, netmask, gateway) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
@@ -35,7 +35,7 @@ export function SetIP (deviceID,address,netmask,gateway) {
   return request
 }
 
-function IPv4(s) {
+function IPv4 (s) {
   const re = /([0-9]{0,3})\.([0-9]{0,3})\.([0-9]{0,3})\.([0-9]{0,3})/
   const match = s.match(re)
   const ip = []
@@ -44,13 +44,13 @@ function IPv4(s) {
     throw new Error(`invalid IP address ${s}`)
   }
 
-  for (let i=0; i<4; i++) {
-      const b = Number(match[i+1])
-      if (Number.isNaN(b) || b > 255) {
-        throw new Error(`invalid IP address ${s}`)        
-      } else {
-        ip.push(b)        
-      }
+  for (let i = 0; i < 4; i++) {
+    const b = Number(match[i + 1])
+    if (Number.isNaN(b) || b > 255) {
+      throw new Error(`invalid IP address ${s}`)
+    } else {
+      ip.push(b)
+    }
   }
 
   return ip
