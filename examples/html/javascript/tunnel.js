@@ -1,10 +1,19 @@
-import * as encode from './encode.js'
-import * as decode from './decode.js'
+import * as encoder from './encode.js'
+import * as decoder from './decode.js'
 
 export function initialise () {
 }
 
 let REQUESTID = 0
+
+/* eslint-disable */
+const vtable = new Map([
+  ['get-devices', { encode: encoder.GetDevices, args: [],                                               timeout: '500ms' }],
+  ['get-device',  { encode: encoder.GetDevice,  args: ['device-id'],                                    timeout: '0s'    }],
+  ['set-address', { encode: encoder.SetIP,      args: ['device-id', 'ip-address', 'subnet', 'gateway'], timeout: '0.1ms' }],
+  ['get-time',    { encode: encoder.GetTime,    args: ['device-id'],                                    timeout: '0s'    }],
+])
+/* eslint-enable */
 
 export function clear () {
   document.querySelector('#request textarea').value = ''
@@ -21,26 +30,17 @@ export function exec (cmd) {
 
   warn()
 
-  switch (cmd) {
-    case 'get-devices':
-      post(encode.GetDevices, '500ms')
-      break
+  if (vtable.has(cmd)) {
+    const f = vtable.get(cmd)
+    const bytes = f.encode(...f.args.map(a => document.querySelector(`input#${a}`).value))
 
-    case 'get-device':
-      post(encode.GetDevice, '0s', 'device-id')
-      break
-
-    case 'set-address':
-      post(encode.SetIP, '0.1ms', 'device-id', 'ip-address', 'subnet', 'gateway')
-      break
-
-    default:
-      warn(`${cmd}: invalid command`)
+    post(bytes, f.timeout)
+  } else {
+    warn(`${cmd}: invalid command`)
   }
 }
 
-function post (f, timeout, ...args) {
-  const bytes = f(...args.map(a => document.querySelector(`input#${a}`).value))
+function post (bytes, timeout) {
   const hex = bin2hex(bytes)
   const debug = document.querySelector('#request textarea')
 
@@ -93,7 +93,7 @@ function result (replies) {
 
   for (const reply of replies) {
     hex.push(bin2hex(reply))
-    responses.push(decode.GetDevice(reply))
+    responses.push(decoder.decode(reply))
   }
 
   debug.value = hex.join('\n\n')

@@ -35,6 +35,18 @@ export function SetIP (deviceID, address, netmask, gateway) {
   return request
 }
 
+export function GetTime (deviceID) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+
+  request[0] = 0x17
+  request[1] = 0x32
+
+  view.setUint32(4, deviceID, true)
+
+  return request
+}
+
 function IPv4 (s) {
   const re = /([0-9]{0,3})\.([0-9]{0,3})\.([0-9]{0,3})\.([0-9]{0,3})/
   const match = s.match(re)
