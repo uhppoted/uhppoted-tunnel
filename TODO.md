@@ -2,9 +2,9 @@
 
 ## In Progress
 
+- [x] http/s: store/restore fields
 - [ ] 'events' connectors
       (?) let ID 0 imply no reply expected
-- [ ] http/s: store/restore fields
 - [ ] https://tls-anvil.com/docs/Quick-Start/index
 
 ## Miscellaneous

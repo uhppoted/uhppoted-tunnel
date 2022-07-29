@@ -2,6 +2,11 @@ import * as encoder from './encode.js'
 import * as decoder from './decode.js'
 
 export function initialise () {
+  const fields = document.querySelectorAll('input[data-tag]:not([data-tag=""])')
+
+  fields.forEach(f => {
+    f.value = get(f.dataset.tag)
+  })
 }
 
 let REQUESTID = 0
@@ -12,6 +17,7 @@ const vtable = new Map([
   ['get-device',  { encode: encoder.GetDevice,  args: ['device-id'],                                    timeout: '0s'    }],
   ['set-address', { encode: encoder.SetIP,      args: ['device-id', 'ip-address', 'subnet', 'gateway'], timeout: '0.1ms' }],
   ['get-time',    { encode: encoder.GetTime,    args: ['device-id'],                                    timeout: '0s'    }],
+  ['set-time',    { encode: encoder.SetTime,    args: ['device-id', 'time'],                            timeout: '0s'    }],
 ])
 /* eslint-enable */
 
@@ -30,13 +36,18 @@ export function exec (cmd) {
 
   warn()
 
-  if (vtable.has(cmd)) {
-    const f = vtable.get(cmd)
-    const bytes = f.encode(...f.args.map(a => document.querySelector(`input#${a}`).value))
+  try {
+    if (vtable.has(cmd)) {
+      const f = vtable.get(cmd)
+      const bytes = f.encode(...f.args.map(a => document.querySelector(`input#${a}`).value))
 
-    post(bytes, f.timeout)
-  } else {
-    warn(`${cmd}: invalid command`)
+      stash(f.args)
+      post(bytes, f.timeout)
+    } else {
+      warn(`${cmd}: invalid command`)
+    }
+  } catch (err) {
+    warn(err)
   }
 }
 
@@ -104,6 +115,30 @@ function nextID () {
   REQUESTID++
 
   return REQUESTID
+}
+
+function stash (list) {
+  const f = function (e) {
+    return {
+      tag: e.dataset.tag,
+      value: e.value
+    }
+  }
+
+  list.map(id => document.querySelector(`input#${id}`))
+    .map(e => f(e))
+    .filter(o => o.tag)
+    .forEach(o => put(o.tag, o.value))
+}
+
+function put (tag, value) {
+  localStorage.setItem(tag, JSON.stringify(value))
+}
+
+function get (tag) {
+  const value = localStorage.getItem(tag)
+
+  return value ? JSON.parse(value) : ''
 }
 
 function warn (err) {

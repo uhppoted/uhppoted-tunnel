@@ -47,6 +47,25 @@ export function GetTime (deviceID) {
   return request
 }
 
+export function SetTime (deviceID, datetime) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+  const now = new Date()
+
+  request[0] = 0x17
+  request[1] = 0x30
+
+  view.setUint32(4, deviceID, true)
+
+  if (datetime === '') {
+    request.set(datetime2bin(now), 8)
+  } else {
+    request.set(datetime2bin(new Date(datetime)), 8)
+  }
+
+  return request
+}
+
 function IPv4 (s) {
   const re = /([0-9]{0,3})\.([0-9]{0,3})\.([0-9]{0,3})\.([0-9]{0,3})/
   const match = s.match(re)
@@ -66,4 +85,32 @@ function IPv4 (s) {
   }
 
   return ip
+}
+
+function datetime2bin (datetime) {
+  const year = String(datetime.getFullYear()).padStart(4, '0')
+  const month = String(datetime.getMonth()).padStart(2, '0')
+  const day = String(datetime.getDate()).padStart(2, '0')
+  const hour = String(datetime.getHours()).padStart(2, '0')
+  const minute = String(datetime.getMinutes()).padStart(2, '0')
+  const second = String(datetime.getSeconds()).padStart(2, '0')
+
+  const date = `${year}${month}${day}`
+  const time = `${hour}${minute}${second}`
+
+  return bcd2bin(`${date}${time}`)
+}
+
+function bcd2bin (bcd) {
+  const bytes = []
+  const matches = [...bcd.matchAll(/([0-9]{2})/g)]
+
+  for (const m of matches) {
+    const b = parseInt(m[0], 10)
+    const byte = ((b / 10) << 4) | (b % 10)
+
+    bytes.push(byte)
+  }
+
+  return bytes
 }

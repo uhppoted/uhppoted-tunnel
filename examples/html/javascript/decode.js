@@ -13,6 +13,9 @@ export function decode (bytes) {
     case 0x94:
       return GetDevice(bytes)
 
+    case 0x30:
+      return SetTime(bytes)
+
     case 0x32:
       return GetTime(bytes)
 
@@ -39,6 +42,18 @@ export function GetDevice (bytes) {
 }
 
 export function GetTime (bytes) {
+  const buffer = new Uint8Array(bytes)
+  const view = new DataView(buffer.buffer)
+
+  return {
+    time: {
+      id: view.getUint32(4, true),
+      datetime: yyyymmddHHmmss(buffer.slice(8, 15))
+    }
+  }
+}
+
+export function SetTime (bytes) {
   const buffer = new Uint8Array(bytes)
   const view = new DataView(buffer.buffer)
 

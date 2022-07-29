@@ -27,20 +27,26 @@
           <div class="command">
             <button onclick="onCommand('get-device')">get-device</button>
             <div class="args">
-              <input id="device-id" type="number" min="1" max="499999999" value="405419896" placeholder="device ID" />
+              <input id="device-id" type="number" min="1" max="499999999" data-tag="device.id" placeholder="device ID" />
             </div>
           </div>
           <div class="command">
             <button onclick="onCommand('set-address')">set-address</button>
             <div class="args">
-              <input id="ip-address" type="text" placeholder="IPv4 address" value="" />
-              <input id="subnet" type="text" placeholder="IPv4 subnet mask" value="" />
-              <input id="gateway" type="text" placeholder="IPv4 gateway address" value="" />
+              <input id="ip-address" type="text" placeholder="IPv4 address" data-tag="IP.address" value="" />
+              <input id="subnet" type="text" placeholder="IPv4 subnet mask" data-tag="IP.netmask" value="" />
+              <input id="gateway" type="text" placeholder="IPv4 gateway address" data-tag="IP.gateway" value="" />
             </div>
           </div>
           <div class="command">
             <button onclick="onCommand('get-time')">get-time</button>
             <div class="args"></div>
+          </div>
+          <div class="command">
+            <button onclick="onCommand('set-time')">set-time</button>
+            <div class="args">
+              <input id="time" type="datetime-local" placeholder="" value="" />
+            </div>
           </div>
         </div>
 
