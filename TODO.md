@@ -1,13 +1,12 @@
 # TODO
 
-## In Progress
+## IN PROGRESS
 
-- [x] http/s: store/restore fields
 - [ ] 'events' connectors
       (?) let ID 0 imply no reply expected
 - [ ] https://tls-anvil.com/docs/Quick-Start/index
 
-## Miscellaneous
+## TODO
 
 - [ ] Commonalize connector behaviours
 - [ ] Use cancelable contexts throughout

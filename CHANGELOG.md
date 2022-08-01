@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [Unreleased]
+## [0.8.1](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.1) - 2022-08-01
 
 ### Changed
 1. Added `set-address` implementation to HTTP/S example console
