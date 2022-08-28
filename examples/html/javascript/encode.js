@@ -1,13 +1,4 @@
-export function GetDevices () {
-  const request = new Uint8Array(64)
-
-  request[0] = 0x17
-  request[1] = 0x94
-
-  return request
-}
-
-export function GetDevice (deviceID) {
+export function GetController (deviceID) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
@@ -89,7 +80,7 @@ function IPv4 (s) {
 
 function datetime2bin (datetime) {
   const year = String(datetime.getFullYear()).padStart(4, '0')
-  const month = String(datetime.getMonth()).padStart(2, '0')
+  const month = String(datetime.getMonth() + 1).padStart(2, '0')
   const day = String(datetime.getDate()).padStart(2, '0')
   const hour = String(datetime.getHours()).padStart(2, '0')
   const minute = String(datetime.getMinutes()).padStart(2, '0')

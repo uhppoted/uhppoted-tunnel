@@ -118,6 +118,7 @@ main .panel button {
   padding-right: 8px;
   font-family: sans-serif;
   font-variant: small-caps;
+  font-variant-caps: all-small-caps;
 }
 
 main #command {
@@ -129,7 +130,7 @@ main #command div {
 }
 
 main #command button {
-  width: 96px;
+  width: 144px;
   height: fit-content;
 }
 

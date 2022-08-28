@@ -21,17 +21,17 @@
       <main>
         <div id="command" class="panel">
           <div>
-            <button onclick="onCommand('get-devices')">get-devices</button>
+            <button onclick="onCommand('get-all-controllers')">get-all-controllers</button>
             <div class="args"></div>
           </div>
           <div class="command">
-            <button onclick="onCommand('get-device')">get-device</button>
+            <button onclick="onCommand('get-controller')">get-controller</button>
             <div class="args">
               <input id="device-id" type="number" min="1" max="499999999" data-tag="device.id" placeholder="device ID" />
             </div>
           </div>
           <div class="command">
-            <button onclick="onCommand('set-address')">set-address</button>
+            <button onclick="onCommand('set-IP')">set-IP</button>
             <div class="args">
               <input id="ip-address" type="text" placeholder="IPv4 address" data-tag="IP.address" value="" />
               <input id="subnet" type="text" placeholder="IPv4 subnet mask" data-tag="IP.netmask" value="" />

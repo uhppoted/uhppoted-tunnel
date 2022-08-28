@@ -10,9 +10,6 @@ export function decode (bytes) {
   }
 
   switch (buffer[1]) {
-    case 0x94:
-      return GetDevice(bytes)
-
     case 0x30:
       return SetTime(bytes)
 
@@ -24,12 +21,12 @@ export function decode (bytes) {
   }
 }
 
-export function GetDevice (bytes) {
+export function GetController (bytes) {
   const buffer = new Uint8Array(bytes)
   const view = new DataView(buffer.buffer)
 
   return {
-    device: {
+    controller: {
       id: view.getUint32(4, true),
       address: address(view.getUint32(8)),
       netmask: address(view.getUint32(12)),

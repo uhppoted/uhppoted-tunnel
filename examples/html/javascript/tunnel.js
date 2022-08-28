@@ -1,5 +1,4 @@
-import * as encoder from './encode.js'
-import * as decoder from './decode.js'
+import * as uhppote from './uhppote.js'
 
 export function initialise () {
   const fields = document.querySelectorAll('input[data-tag]:not([data-tag=""])')
@@ -9,17 +8,13 @@ export function initialise () {
   })
 }
 
-let REQUESTID = 0
-
-/* eslint-disable */
 const vtable = new Map([
-  ['get-devices', { encode: encoder.GetDevices, args: [],                                               timeout: '500ms' }],
-  ['get-device',  { encode: encoder.GetDevice,  args: ['device-id'],                                    timeout: '0s'    }],
-  ['set-address', { encode: encoder.SetIP,      args: ['device-id', 'ip-address', 'subnet', 'gateway'], timeout: '0.1ms' }],
-  ['get-time',    { encode: encoder.GetTime,    args: ['device-id'],                                    timeout: '0s'    }],
-  ['set-time',    { encode: encoder.SetTime,    args: ['device-id', 'time'],                            timeout: '0s'    }],
+  ['get-all-controllers', { fn: getAllControllers }],
+  ['get-controller', { fn: getController }],
+  ['set-IP', { fn: setIP }],
+  ['get-time', { fn: getTime }],
+  ['set-time', { fn: setTime }]
 ])
-/* eslint-enable */
 
 export function clear () {
   document.querySelector('#request textarea').value = ''
@@ -37,12 +32,14 @@ export function exec (cmd) {
   warn()
 
   try {
+    const objects = document.querySelector('#response textarea')
+
     if (vtable.has(cmd)) {
       const f = vtable.get(cmd)
-      const bytes = f.encode(...f.args.map(a => document.querySelector(`input#${a}`).value))
 
-      stash(f.args)
-      post(bytes, f.timeout)
+      f.fn().then(response => {
+        objects.value = JSON.stringify(response, null, '  ')
+      })
     } else {
       warn(`${cmd}: invalid command`)
     }
@@ -51,70 +48,46 @@ export function exec (cmd) {
   }
 }
 
-function post (bytes, timeout) {
-  const hex = bin2hex(bytes)
-  const debug = document.querySelector('#request textarea')
+function getAllControllers () {
+  stash([])
 
-  debug.value = hex
-
-  const rq = {
-    ID: nextID(),
-    wait: timeout,
-    request: [...bytes]
-  }
-
-  const request = {
-    method: 'POST',
-    mode: 'cors',
-    cache: 'no-cache',
-    credentials: 'same-origin',
-    headers: { 'Content-Type': 'application/json' },
-    redirect: 'follow',
-    referrerPolicy: 'no-referrer',
-    body: JSON.stringify(rq)
-  }
-
-  fetch('/udp', request)
-    .then(response => {
-      switch (response.status) {
-        case 200:
-          return response.json()
-
-        default:
-          response.text().then(w => {
-            warn(new Error(w))
-          })
-      }
-    })
-    .then(reply => {
-      result(reply.replies)
-    })
-    .catch(function (err) {
-      warn(`${err.message.toLowerCase()}`)
-    })
-    .finally(() => {
-    })
+  return uhppote.GetAllControllers()
 }
 
-function result (replies) {
-  const debug = document.querySelector('#reply textarea')
-  const objects = document.querySelector('#response textarea')
-  const hex = []
-  const responses = []
+function getController () {
+  const deviceID = document.querySelector('input#device-id').value
 
-  for (const reply of replies) {
-    hex.push(bin2hex(reply))
-    responses.push(decoder.decode(reply))
-  }
+  stash(['device-id'])
 
-  debug.value = hex.join('\n\n')
-  objects.value = JSON.stringify(responses, null, '  ')
+  return uhppote.GetController(deviceID)
 }
 
-function nextID () {
-  REQUESTID++
+function setIP () {
+  const deviceID = document.querySelector('input#device-id').value
+  const address = document.querySelector('input#ip-address').value
+  const netmask = document.querySelector('input#subnet').value
+  const gateway = document.querySelector('input#gateway').value
 
-  return REQUESTID
+  stash(['device-id', 'ip-address', 'subnet', 'gateway'])
+
+  return uhppote.SetIP(deviceID, address, netmask, gateway)
+}
+
+function getTime () {
+  const deviceID = document.querySelector('input#device-id').value
+
+  stash(['device-id'])
+
+  return uhppote.GetTime(deviceID)
+}
+
+function setTime () {
+  const deviceID = document.querySelector('input#device-id').value
+  const time = document.querySelector('input#time').value
+
+  stash(['device-id'])
+
+  return uhppote.SetTime(deviceID, time)
 }
 
 function stash (list) {
@@ -149,25 +122,4 @@ function warn (err) {
   } else {
     message.innerHTML = ''
   }
-}
-
-function bin2hex (bytes) {
-  const chunks = [...bytes]
-    .map(x => x.toString(16).padStart(2, '0'))
-    .join('')
-    .match(/.{1,16}/g)
-    .map(l => l.match(/.{1,2}/g).join(' '))
-
-  const lines = []
-  while (chunks.length > 0) {
-    lines.push(chunks.splice(0, 2).join('  '))
-  }
-
-  return lines.join('\n')
-
-  // const f = function* chunks(array,N) {
-  //    for (let i=0; i < array.length; i += N) {
-  //        yield array.slice(i, i + N);
-  //    }
-  // }
 }
