@@ -83,11 +83,15 @@ function getTime () {
 
 function setTime () {
   const deviceID = document.querySelector('input#device-id').value
-  const time = document.querySelector('input#time').value
+  const datetime = document.querySelector('input#datetime').value
 
   stash(['device-id'])
 
-  return uhppote.SetTime(deviceID, time)
+  if (datetime === '') {
+    return uhppote.SetTime(deviceID, new Date())
+  } else {
+    return uhppote.SetTime(deviceID, new Date(datetime))
+  }
 }
 
 function stash (list) {
