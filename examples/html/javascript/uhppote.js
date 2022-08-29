@@ -10,7 +10,7 @@ export function GetAllControllers () {
       const list = []
 
       for (const reply of replies) {
-        list.push(decode.GetController(reply))
+        list.push(decode.GetControllerResponse(reply))
       }
 
       return list
@@ -23,7 +23,7 @@ export function GetController (deviceID) {
   return udp.post(bytes, '0s')
     .then(replies => {
       if (replies.length > 0) {
-        return decode.GetController(replies[0])
+        return decode.GetControllerResponse(replies[0])
       }
 
       return null
@@ -45,7 +45,7 @@ export function GetTime (deviceID) {
   return udp.post(bytes, '0s')
     .then(replies => {
       if (replies.length > 0) {
-        return decode.GetTime(replies[0])
+        return decode.GetTimeResponse(replies[0])
       }
 
       return null
@@ -58,7 +58,7 @@ export function SetTime (deviceID, time) {
   return udp.post(bytes, '0s')
     .then(replies => {
       if (replies.length > 0) {
-        return decode.GetTime(replies[0])
+        return decode.SetTimeResponse(replies[0])
       }
 
       return null
