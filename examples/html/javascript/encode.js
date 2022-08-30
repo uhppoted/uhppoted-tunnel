@@ -321,6 +321,57 @@ export function DeleteAllTimeProfilesRequest (deviceId) {
   return request
 }
 
+export function AddTaskRequest (deviceId, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, startTime, door, taskType, moreCards) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+
+  request[0] = 0x17
+  request[1] = 0xa8
+
+  packUint32(deviceId, view, 4)
+  packDate(startDate, view, 8)
+  packDate(endDate, view, 12)
+  packBool(monday, view, 16)
+  packBool(tuesday, view, 17)
+  packBool(wednesday, view, 18)
+  packBool(thursday, view, 19)
+  packBool(friday, view, 20)
+  packBool(saturday, view, 21)
+  packBool(sunday, view, 22)
+  packHHmm(startTime, view, 23)
+  packUint8(door, view, 25)
+  packUint8(taskType, view, 26)
+  packUint8(moreCards, view, 27)
+
+  return request
+}
+
+export function RefreshTasklistRequest (deviceId) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+
+  request[0] = 0x17
+  request[1] = 0xac
+
+  packUint32(deviceId, view, 4)
+  packUint32(0x55aaaa55, view, 8)
+
+  return request
+}
+
+export function ClearTasklistRequest (deviceId) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+
+  request[0] = 0x17
+  request[1] = 0xa6
+
+  packUint32(deviceId, view, 4)
+  packUint32(0x55aaaa55, view, 8)
+
+  return request
+}
+
 function packUint8 (v, packet, offset) {
   packet.setUint8(offset, v)
 }

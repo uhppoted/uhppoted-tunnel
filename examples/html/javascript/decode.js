@@ -462,6 +462,60 @@ export function DeleteAllTimeProfilesResponse (packet) {
   }
 }
 
+export function AddTaskResponse (packet) {
+  const buffer = new Uint8Array(packet)
+  const view = new DataView(buffer.buffer)
+
+  if (buffer.length !== 64) {
+    throw new Error(`invalid reply packet length (${buffer.length})`)
+  }
+
+  if (buffer[1] !== 0xa8) {
+    throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
+  }
+
+  return {
+    deviceId: unpackUint32(view, 4),
+    added: unpackBool(view, 8)
+  }
+}
+
+export function RefreshTasklistResponse (packet) {
+  const buffer = new Uint8Array(packet)
+  const view = new DataView(buffer.buffer)
+
+  if (buffer.length !== 64) {
+    throw new Error(`invalid reply packet length (${buffer.length})`)
+  }
+
+  if (buffer[1] !== 0xac) {
+    throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
+  }
+
+  return {
+    deviceId: unpackUint32(view, 4),
+    refreshed: unpackBool(view, 8)
+  }
+}
+
+export function ClearTasklistResponse (packet) {
+  const buffer = new Uint8Array(packet)
+  const view = new DataView(buffer.buffer)
+
+  if (buffer.length !== 64) {
+    throw new Error(`invalid reply packet length (${buffer.length})`)
+  }
+
+  if (buffer[1] !== 0xa6) {
+    throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
+  }
+
+  return {
+    deviceId: unpackUint32(view, 4),
+    cleared: unpackBool(view, 8)
+  }
+}
+
 function unpackUint8 (packet, offset) {
   return packet.getUint8(offset)
 }
