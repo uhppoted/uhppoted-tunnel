@@ -1,47 +1,39 @@
 import * as uhppote from './uhppote.js'
 
-export const commands = new Map([
-  ['get-all-controllers', { fn: getAllControllers, args: [] }],
-  ['get-controller', { fn: getController, args: ['device-id'] }],
-  ['set-IP', { fn: setIP, args: ['device-id', 'ip-address', 'subnet', 'gateway'] }],
-  ['get-time', { fn: getTime, args: ['device-id'] }],
-  ['set-time', { fn: setTime, args: ['device-id', 'datetime'] }]
-])
-
-export function exec (cmd) {
-  return cmd.fn()
+export function exec (fn, ...args) {
+  return fn(...args)
 }
 
-function getAllControllers () {
+export function getAllControllers () {
   return uhppote.GetAllControllers()
 }
 
-function getController () {
-  const deviceID = document.querySelector('input#device-id').value
-
-  return uhppote.GetController(deviceID)
+export function getController (controller) {
+  return uhppote.GetController(
+    document.querySelector(`input#${controller}`).value
+  )
 }
 
-function setIP () {
-  const deviceID = document.querySelector('input#device-id').value
-  const address = document.querySelector('input#ip-address').value
-  const netmask = document.querySelector('input#subnet').value
-  const gateway = document.querySelector('input#gateway').value
-
-  return uhppote.SetIP(deviceID, address, netmask, gateway)
+export function setIP (controller, address, netmask, gateway) {
+  return uhppote.SetIP(
+    document.querySelector(`input#${controller}`).value,
+    document.querySelector(`input#${address}`).value,
+    document.querySelector(`input#${netmask}`).value,
+    document.querySelector(`input#${gateway}`).value
+  )
 }
 
-function getTime () {
-  const deviceID = document.querySelector('input#device-id').value
-
-  return uhppote.GetTime(deviceID)
+export function getTime (controller) {
+  return uhppote.GetTime(
+    document.querySelector(`input#${controller}`).value
+  )
 }
 
-function setTime () {
-  const deviceID = document.querySelector('input#device-id').value
-  const datetime = document.querySelector('input#datetime').value
+export function setTime (controller, datetime) {
+  const deviceID = document.querySelector(`input#${controller}`).value
+  const dt = document.querySelector(`input#${datetime}`).value
 
-  if (datetime === '') {
+  if (dt === '') {
     return uhppote.SetTime(deviceID, new Date())
   } else {
     return uhppote.SetTime(deviceID, new Date(datetime))

@@ -1,5 +1,13 @@
 import * as commands from './commands.js'
 
+const COMMANDS = new Map([
+  ['get-all-controllers', { fn: commands.getAllControllers, args: [] }],
+  ['get-controller', { fn: commands.getController, args: ['device-id'] }],
+  ['set-IP', { fn: commands.setIP, args: ['device-id', 'ip-address', 'subnet', 'gateway'] }],
+  ['get-time', { fn: commands.getTime, args: ['device-id'] }],
+  ['set-time', { fn: commands.setTime, args: ['device-id', 'datetime'] }]
+])
+
 export function initialise () {
   const fields = document.querySelectorAll('input[data-tag]:not([data-tag=""])')
 
@@ -26,12 +34,12 @@ export function exec (cmd) {
   try {
     const objects = document.querySelector('#response textarea')
 
-    if (commands.commands.has(cmd)) {
-      const c = commands.commands.get(cmd)
+    if (COMMANDS.has(cmd)) {
+      const c = COMMANDS.get(cmd)
 
       stash(c.args)
 
-      commands.exec(c).then(response => {
+      commands.exec(c.fn, ...c.args).then(response => {
         objects.value = JSON.stringify(response, null, '  ')
       })
     } else {
