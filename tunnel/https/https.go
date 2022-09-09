@@ -127,9 +127,8 @@ func (h *httpd) Run(router *router.Switch) error {
 	mux := http.NewServeMux()
 
 	mux.Handle("/", http.FileServer(h.fs))
-	mux.HandleFunc("/udp", func(w http.ResponseWriter, r *http.Request) {
-		h.dispatch(w, r, router)
-	})
+	mux.HandleFunc("/udp/broadcast", func(w http.ResponseWriter, r *http.Request) { h.dispatch(w, r, router) })
+	mux.HandleFunc("/udp/send", func(w http.ResponseWriter, r *http.Request) { h.dispatch(w, r, router) })
 
 	srv := &http.Server{
 		Addr:      fmt.Sprintf("%v", h.addr),
@@ -177,16 +176,106 @@ func (h *httpd) Send(id uint32, msg []byte) {
 }
 
 func (h *httpd) dispatch(w http.ResponseWriter, r *http.Request, router *router.Switch) {
-	switch strings.ToUpper(r.Method) {
-	case http.MethodPost:
-		h.post(w, r, router)
+	switch {
+	case strings.ToUpper(r.Method) == http.MethodPost && r.URL.Path == "/udp/broadcast":
+		h.broadcast(w, r, router)
+
+	case strings.ToUpper(r.Method) == http.MethodPost && r.URL.Path == "/udp/send":
+		h.send(w, r, router)
 
 	default:
 		http.Error(w, "Invalid request", http.StatusMethodNotAllowed)
 	}
 }
 
-func (h *httpd) post(w http.ResponseWriter, r *http.Request, router *router.Switch) {
+func (h *httpd) broadcast(w http.ResponseWriter, r *http.Request, router *router.Switch) {
+	acceptsGzip := false
+	contentType := ""
+
+	body := struct {
+		ID      int      `json:"ID"`
+		Wait    duration `json:"wait,omitempty"`
+		Request []byte   `json:"request"`
+	}{
+		ID:   0,
+		Wait: duration(5 * time.Second),
+	}
+
+	for k, h := range r.Header {
+		if strings.TrimSpace(strings.ToLower(k)) == "content-type" {
+			for _, v := range h {
+				contentType = strings.TrimSpace(strings.ToLower(v))
+			}
+		}
+
+		if strings.TrimSpace(strings.ToLower(k)) == "accept-encoding" {
+			for _, v := range h {
+				if strings.Contains(strings.TrimSpace(strings.ToLower(v)), "gzip") {
+					acceptsGzip = true
+				}
+			}
+		}
+	}
+
+	switch contentType {
+	case "application/json":
+		blob, err := io.ReadAll(r.Body)
+		if err != nil {
+			h.Warnf("%v", err)
+			http.Error(w, "Error reading request", http.StatusInternalServerError)
+			return
+		}
+
+		if err := json.Unmarshal(blob, &body); err != nil {
+			h.Warnf("%v", err)
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+
+	default:
+		h.Warnf("%v", fmt.Errorf("Invalid request content-type (%v)", contentType))
+		http.Error(w, fmt.Sprintf("Invalid request content-type (%v)", contentType), http.StatusBadRequest)
+		return
+	}
+
+	id := protocol.NextID()
+	replies := []slice{}
+	received := make(chan []byte)
+	wait := time.Duration(body.Wait)
+	waited := time.After(wait)
+	ctx, cancel := context.WithTimeout(h.ctx, wait+5*time.Second)
+
+	defer cancel()
+
+	h.Dumpf(body.Request, "request %v  %v bytes from %v", id, len(body.Request), r.RemoteAddr)
+
+	router.Received(id, body.Request, func(reply []byte) { received <- reply })
+
+	for {
+		select {
+		case reply := <-received:
+			h.Dumpf(reply, "reply %v  %v bytes for %v", id, len(reply), r.RemoteAddr)
+			replies = append(replies, reply)
+			if wait == 0 {
+				h.reply(body.ID, replies, w, acceptsGzip)
+				return
+			}
+
+		case <-ctx.Done():
+			h.Warnf("%v", ctx.Err())
+			http.Error(w, "Request cancelled", http.StatusInternalServerError)
+			return
+
+		case <-waited:
+			if wait > 0 {
+				h.reply(body.ID, replies, w, acceptsGzip)
+				return
+			}
+		}
+	}
+}
+
+func (h *httpd) send(w http.ResponseWriter, r *http.Request, router *router.Switch) {
 	acceptsGzip := false
 	contentType := ""
 

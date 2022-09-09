@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [Unreleased]
+
+### Changed
+1. Changed _send_ URL to `/udp/send`
+2. Added _broadcast_ URL `/udp/broadcast`
+
 ## [0.8.1](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.1) - 2022-08-01
 
 ### Changed

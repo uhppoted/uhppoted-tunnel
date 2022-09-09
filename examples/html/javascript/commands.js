@@ -95,14 +95,26 @@ export function setTime (controller, datetime) {
 //  controller = document.querySelector(`input#${controller}`).value
 //  card = document.querySelector(`input#${card}`).value
 //
-//  return uhppote.GetCard(controller, card)
+//  response = uhppote.GetCard(controller, card)
+//  if (response.cardNumber === 0) {
+//      throw new Error(`card ${card} not found`)
+//  }
+//
+//  return response
 // }
 //
 // export function getCardByIndex(controller, index) {
 //  controller = document.querySelector(`input#${controller}`).value
 //  index = document.querySelector(`input#${index}`).value
 //
-//  return uhppote.GetCardByIndex(controller,index)
+//  response = uhppote.GetCardByIndex(controller,index)
+//  if (response.cardNumber === 0) {
+//      throw new Error(`card @ index ${index} not found`)
+//  } else if (response.cardNumber === 0xffffffff) {
+//      throw new Error(`card @ index ${index} deleted`)
+//  }
+//
+//  return response
 // }
 //
 // export function putCard(controller, card, start, end, door1, door2, door3, door4) {
@@ -135,7 +147,14 @@ export function setTime (controller, datetime) {
 //  controller = document.querySelector(`input#${controller}`).value
 //  index = document.querySelector(`input#${index}`).value
 //
-//  return uhppote.GetEvent(controller,index)
+//  response = uhppote.GetEvent(controller,index)
+//  if (response.eventType === 0xff) {
+//      throw new Error(`event @ index ${index} overwritten`)
+//  } else if (response.index === 0) {
+//      throw new Error(`event @ index ${index} not found`)
+//  }
+//
+//  return response
 // }
 //
 // export function getEventIndex(controller) {
@@ -162,7 +181,12 @@ export function setTime (controller, datetime) {
 //  controller = document.querySelector(`input#${controller}`).value
 //  profileID = document.querySelector(`input#${profileID}`).value
 //
-//  return uhppote.GetTimeProfile(controller, profileID)
+//  response = uhppote.GetTimeProfile(controller, profileID)
+//  if (response.profileId === 0) {
+//      throw new Error(`time profile ${profileID} not defined`)
+//  }
+//
+//  return response
 // }
 //
 /// / export function setTimeProfile(controller,

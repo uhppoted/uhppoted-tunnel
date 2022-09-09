@@ -11,3 +11,5 @@ server.key
 client.cert
 client.key
 examples/html/images/logo-new.png
+assets
+

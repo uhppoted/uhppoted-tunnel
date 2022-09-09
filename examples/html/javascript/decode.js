@@ -12,7 +12,7 @@ export function GetControllerResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     ipAddress: unpackIPv4(view, 8),
     subnetMask: unpackIPv4(view, 12),
     gateway: unpackIPv4(view, 16),
@@ -35,7 +35,7 @@ export function GetTimeResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     datetime: unpackDatetime(view, 8)
   }
 }
@@ -53,7 +53,7 @@ export function SetTimeResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     datetime: unpackDatetime(view, 8)
   }
 }
@@ -71,7 +71,7 @@ export function GetStatusResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     systemDate: unpackShortdate(view, 51),
     systemTime: unpackTime(view, 37),
     door1Open: unpackBool(view, 28),
@@ -92,7 +92,7 @@ export function GetStatusResponse (packet) {
     eventDoor: unpackUint8(view, 14),
     eventDirection: unpackUint8(view, 15),
     eventCard: unpackUint32(view, 16),
-    eventTimestamp: unpackDatetime(view, 20),
+    eventTimestamp: unpackOptionalDatetime(view, 20),
     eventReason: unpackUint8(view, 27),
     sequenceNo: unpackUint32(view, 40)
   }
@@ -111,7 +111,7 @@ export function GetListenerResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     address: unpackIPv4(view, 8),
     port: unpackUint16(view, 12)
   }
@@ -130,7 +130,7 @@ export function SetListenerResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     ok: unpackBool(view, 8)
   }
 }
@@ -148,7 +148,7 @@ export function GetDoorControlResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     door: unpackUint8(view, 8),
     mode: unpackUint8(view, 9),
     delay: unpackUint8(view, 10)
@@ -168,7 +168,7 @@ export function SetDoorControlResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     door: unpackUint8(view, 8),
     mode: unpackUint8(view, 9),
     delay: unpackUint8(view, 10)
@@ -188,7 +188,7 @@ export function OpenDoorResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     opened: unpackBool(view, 8)
   }
 }
@@ -206,7 +206,7 @@ export function GetCardsResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     cards: unpackUint32(view, 8)
   }
 }
@@ -224,10 +224,10 @@ export function GetCardResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     cardNumber: unpackUint32(view, 8),
-    startDate: unpackDate(view, 12),
-    endDate: unpackDate(view, 16),
+    startDate: unpackOptionalDate(view, 12),
+    endDate: unpackOptionalDate(view, 16),
     door1: unpackUint8(view, 20),
     door2: unpackUint8(view, 21),
     door3: unpackUint8(view, 22),
@@ -248,10 +248,10 @@ export function GetCardByIndexResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     cardNumber: unpackUint32(view, 8),
-    startDate: unpackDate(view, 12),
-    endDate: unpackDate(view, 16),
+    startDate: unpackOptionalDate(view, 12),
+    endDate: unpackOptionalDate(view, 16),
     door1: unpackUint8(view, 20),
     door2: unpackUint8(view, 21),
     door3: unpackUint8(view, 22),
@@ -272,7 +272,7 @@ export function PutCardResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     stored: unpackBool(view, 8)
   }
 }
@@ -290,7 +290,7 @@ export function DeleteCardResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     deleted: unpackBool(view, 8)
   }
 }
@@ -308,7 +308,7 @@ export function DeleteAllCardsResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     deleted: unpackBool(view, 8)
   }
 }
@@ -326,14 +326,14 @@ export function GetEventResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     index: unpackUint32(view, 8),
     eventType: unpackUint8(view, 12),
     accessGranted: unpackBool(view, 13),
     door: unpackUint8(view, 14),
     direction: unpackUint8(view, 15),
     card: unpackUint32(view, 16),
-    timestamp: unpackDatetime(view, 20),
+    timestamp: unpackOptionalDatetime(view, 20),
     reason: unpackUint8(view, 27)
   }
 }
@@ -351,7 +351,7 @@ export function GetEventIndexResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     eventIndex: unpackUint32(view, 8)
   }
 }
@@ -369,7 +369,7 @@ export function SetEventIndexResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     updated: unpackBool(view, 8)
   }
 }
@@ -387,7 +387,7 @@ export function RecordSpecialEventsResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     enabled: unpackBool(view, 8)
   }
 }
@@ -405,10 +405,10 @@ export function GetTimeProfileResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     profileId: unpackUint8(view, 8),
-    startDate: unpackDate(view, 9),
-    endDate: unpackDate(view, 13),
+    startDate: unpackOptionalDate(view, 9),
+    endDate: unpackOptionalDate(view, 13),
     monday: unpackBool(view, 17),
     tuesday: unpackBool(view, 18),
     wednesday: unpackBool(view, 19),
@@ -439,7 +439,7 @@ export function SetTimeProfileResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     stored: unpackBool(view, 8)
   }
 }
@@ -457,7 +457,7 @@ export function DeleteAllTimeProfilesResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     deleted: unpackBool(view, 8)
   }
 }
@@ -475,7 +475,7 @@ export function AddTaskResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     added: unpackBool(view, 8)
   }
 }
@@ -493,7 +493,7 @@ export function RefreshTasklistResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     refreshed: unpackBool(view, 8)
   }
 }
@@ -511,7 +511,7 @@ export function ClearTasklistResponse (packet) {
   }
 
   return {
-    deviceId: unpackUint32(view, 4),
+    controller: unpackUint32(view, 4),
     cleared: unpackBool(view, 8)
   }
 }
@@ -555,40 +555,43 @@ function unpackDate (packet, offset) {
   const bytes = new Uint8Array(packet.buffer.slice(offset, offset + 4))
   const datetime = bcd(bytes)
 
-  if (datetime === '00000000') {
-    return ''
-  }
-
-  const date = `${datetime.substr(0, 4)}-${datetime.substr(4, 2)}-${datetime.substr(6, 2)}`
-
-  return `${date}`
+  return parseYYYYMMDD(datetime)
 }
 
 function unpackShortdate (packet, offset) {
   const bytes = new Uint8Array(packet.buffer.slice(offset, offset + 3))
   const datetime = bcd('20' + bytes)
 
-  if (datetime === '20000000') {
-    return ''
+  return parseYYYYMMDD(datetime)
+}
+
+function unpackOptionalDate (packet, offset) {
+  const bytes = new Uint8Array(packet.buffer.slice(offset, offset + 4))
+  const datetime = bcd(bytes)
+
+  try {
+    return parseYYYYMMDD(datetime)
+  } catch {
+    return null
   }
-
-  const date = `${datetime.substr(0, 4)}-${datetime.substr(4, 2)}-${datetime.substr(6, 2)}`
-
-  return `${date}`
 }
 
 function unpackDatetime (packet, offset) {
   const bytes = new Uint8Array(packet.buffer.slice(offset, offset + 7))
   const datetime = bcd(bytes)
 
-  if (datetime === '00000000000000') {
-    return ''
+  return parseYYYYMMDDHHmmss(datetime)
+}
+
+function unpackOptionalDatetime (packet, offset) {
+  const bytes = new Uint8Array(packet.buffer.slice(offset, offset + 7))
+  const datetime = bcd(bytes)
+
+  try {
+    return parseYYYYMMDDHHmmss(datetime)
+  } catch {
+    return null
   }
-
-  const date = `${datetime.substr(0, 4)}-${datetime.substr(4, 2)}-${datetime.substr(6, 2)}`
-  const time = `${datetime.substr(8, 2)}:${datetime.substr(10, 2)}:${datetime.substr(12, 2)}`
-
-  return `${date} ${time}`
 }
 
 function unpackTime (packet, offset) {
@@ -619,4 +622,61 @@ function unpackHHmm (packet, offset) {
 
 function bcd (bytes) {
   return [...bytes].map(x => [(x >>> 4) & 0x0f, (x >>> 0) & 0x0f]).flat().join('')
+}
+
+function parseYYYYMMDD (s) {
+  if (!/[0-9]{8}/.test(s)) {
+    throw new Error(`invalid date value ${s}`)
+  }
+
+  const year = parseInt(s.substr(0, 4))
+  const month = parseInt(s.substr(4, 2))
+  const day = parseInt(s.substr(6, 2))
+
+  if ((year < 2000 || year > 3000) || (month < 1 || month > 12) || (day < 1 || day > 31)) {
+    throw new Error(`invalid date value ${s}`)
+  }
+
+  const date = new Date()
+  date.setFullYear(year)
+  date.setMonth(month - 1)
+  date.setDate(day)
+  date.setHours(0)
+  date.setMinutes(0)
+  date.setSeconds(0)
+  date.setMilliseconds(0)
+
+  return date
+}
+
+function parseYYYYMMDDHHmmss (s) {
+  if (!/[0-9]{14}/.test(s)) {
+    throw new Error(`invalid datetime value ${s}`)
+  }
+
+  const year = parseInt(s.substr(0, 4))
+  const month = parseInt(s.substr(4, 2))
+  const day = parseInt(s.substr(6, 2))
+  const hours = parseInt(s.substr(8, 2))
+  const minutes = parseInt(s.substr(10, 2))
+  const seconds = parseInt(s.substr(12, 2))
+
+  if ((year < 2000 || year > 3000) || (month < 1 || month > 12) || (day < 1 || day > 31)) {
+    throw new Error(`invalid datetime value ${s}`)
+  }
+
+  if (hours > 24 || minutes > 60 || seconds > 60) {
+    throw new Error(`invalid datetime value ${s}`)
+  }
+
+  const date = new Date()
+  date.setFullYear(year)
+  date.setMonth(month - 1)
+  date.setDate(day)
+  date.setHours(hours)
+  date.setMinutes(minutes)
+  date.setSeconds(seconds)
+  date.setMilliseconds(0)
+
+  return date
 }

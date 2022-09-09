@@ -5,7 +5,7 @@ import * as udp from './udp.js'
 export function GetAllControllers () {
   const request = encode.GetControllerRequest(0)
 
-  return udp.post(request, '500ms')
+  return udp.broadcast(request)
     .then(replies => {
       const list = []
 
@@ -20,7 +20,7 @@ export function GetAllControllers () {
 export function GetController (deviceId) {
   const request = encode.GetControllerRequest(deviceId)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.GetControllerResponse(replies[0])
@@ -33,7 +33,7 @@ export function GetController (deviceId) {
 export function SetIP (deviceId, address, netmask, gateway) {
   const request = encode.SetIPRequest(deviceId, address, netmask, gateway)
 
-  return udp.post(request, '0.1ms')
+  return udp.send(request, '0.1ms')
     .then(replies => {
       return true
     })
@@ -42,7 +42,7 @@ export function SetIP (deviceId, address, netmask, gateway) {
 export function GetTime (deviceId) {
   const request = encode.GetTimeRequest(deviceId)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.GetTimeResponse(replies[0])
@@ -55,7 +55,7 @@ export function GetTime (deviceId) {
 export function SetTime (deviceId, time) {
   const request = encode.SetTimeRequest(deviceId, time)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.SetTimeResponse(replies[0])
@@ -68,7 +68,7 @@ export function SetTime (deviceId, time) {
 export function GetStatus (deviceId) {
   const request = encode.GetStatusRequest(deviceId)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.GetStatusResponse(replies[0])
@@ -81,7 +81,7 @@ export function GetStatus (deviceId) {
 export function GetListener (deviceId) {
   const request = encode.GetListenerRequest(deviceId)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.GetListenerResponse(replies[0])
@@ -94,7 +94,7 @@ export function GetListener (deviceId) {
 export function SetListener (deviceId, address, port) {
   const request = encode.SetListenerRequest(deviceId, address, port)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.SetListenerResponse(replies[0])
@@ -107,7 +107,7 @@ export function SetListener (deviceId, address, port) {
 export function GetDoorControl (deviceId, door) {
   const request = encode.GetDoorControlRequest(deviceId, door)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.GetDoorControlResponse(replies[0])
@@ -120,7 +120,7 @@ export function GetDoorControl (deviceId, door) {
 export function SetDoorControl (deviceId, door, mode, delay) {
   const request = encode.SetDoorControlRequest(deviceId, door, mode, delay)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.SetDoorControlResponse(replies[0])
@@ -133,7 +133,7 @@ export function SetDoorControl (deviceId, door, mode, delay) {
 export function OpenDoor (deviceId, door) {
   const request = encode.OpenDoorRequest(deviceId, door)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.OpenDoorResponse(replies[0])
@@ -146,7 +146,7 @@ export function OpenDoor (deviceId, door) {
 export function GetCards (deviceId) {
   const request = encode.GetCardsRequest(deviceId)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.GetCardsResponse(replies[0])
@@ -159,7 +159,7 @@ export function GetCards (deviceId) {
 export function GetCard (deviceId, cardNumber) {
   const request = encode.GetCardRequest(deviceId, cardNumber)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.GetCardResponse(replies[0])
@@ -172,7 +172,7 @@ export function GetCard (deviceId, cardNumber) {
 export function GetCardByIndex (deviceId, cardIndex) {
   const request = encode.GetCardByIndexRequest(deviceId, cardIndex)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.GetCardByIndexResponse(replies[0])
@@ -185,7 +185,7 @@ export function GetCardByIndex (deviceId, cardIndex) {
 export function PutCard (deviceId, cardNumber, startDate, endDate, door1, door2, door3, door4) {
   const request = encode.PutCardRequest(deviceId, cardNumber, startDate, endDate, door1, door2, door3, door4)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.PutCardResponse(replies[0])
@@ -198,7 +198,7 @@ export function PutCard (deviceId, cardNumber, startDate, endDate, door1, door2,
 export function DeleteCard (deviceId, cardNumber) {
   const request = encode.DeleteCardRequest(deviceId, cardNumber)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.DeleteCardResponse(replies[0])
@@ -211,7 +211,7 @@ export function DeleteCard (deviceId, cardNumber) {
 export function DeleteAllCards (deviceId) {
   const request = encode.DeleteCardsRequest(deviceId)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.DeleteAllCardsResponse(replies[0])
@@ -224,7 +224,7 @@ export function DeleteAllCards (deviceId) {
 export function GetEvent (deviceId, eventIndex) {
   const request = encode.GetEventRequest(deviceId, eventIndex)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.GetEventResponse(replies[0])
@@ -237,7 +237,7 @@ export function GetEvent (deviceId, eventIndex) {
 export function GetEventIndex (deviceId) {
   const request = encode.GetEventIndexRequest(deviceId)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.GetEventIndexResponse(replies[0])
@@ -250,7 +250,7 @@ export function GetEventIndex (deviceId) {
 export function SetEventIndex (deviceId, eventIndex) {
   const request = encode.SetEventIndexRequest(deviceId, eventIndex)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.SetEventIndexResponse(replies[0])
@@ -263,7 +263,7 @@ export function SetEventIndex (deviceId, eventIndex) {
 export function RecordSpecialEvents (deviceId, enable) {
   const request = encode.RecordSpecialEventsRequest(deviceId, enable)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.RecordSpecialEventsResponse(replies[0])
@@ -276,7 +276,7 @@ export function RecordSpecialEvents (deviceId, enable) {
 export function GetTimeProfile (deviceId, profileId) {
   const request = encode.GetTimeProfileRequest(deviceId, profileId)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.GetTimeProfileResponse(replies[0])
@@ -289,7 +289,7 @@ export function GetTimeProfile (deviceId, profileId) {
 export function SetTimeProfile (deviceId, profileId, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, segment1Start, segment1End, segment2Start, segment2End, segment3Start, segment3End, linkedProfileId) {
   const request = encode.SetTimeProfileRequest(deviceId, profileId, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, segment1Start, segment1End, segment2Start, segment2End, segment3Start, segment3End, linkedProfileId)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.SetTimeProfileResponse(replies[0])
@@ -302,7 +302,7 @@ export function SetTimeProfile (deviceId, profileId, startDate, endDate, monday,
 export function DeleteAllTimeProfiles (deviceId) {
   const request = encode.DeleteAllTimeProfilesRequest(deviceId)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.DeleteAllTimeProfilesResponse(replies[0])
@@ -315,7 +315,7 @@ export function DeleteAllTimeProfiles (deviceId) {
 export function AddTask (deviceId, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, startTime, door, taskType, moreCards) {
   const request = encode.AddTaskRequest(deviceId, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, startTime, door, taskType, moreCards)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.AddTaskResponse(replies[0])
@@ -328,7 +328,7 @@ export function AddTask (deviceId, startDate, endDate, monday, tuesday, wednesda
 export function RefreshTasklist (deviceId) {
   const request = encode.RefreshTasklistRequest(deviceId)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.RefreshTasklistResponse(replies[0])
@@ -341,7 +341,7 @@ export function RefreshTasklist (deviceId) {
 export function ClearTasklist (deviceId) {
   const request = encode.ClearTasklistRequest(deviceId)
 
-  return udp.post(request, '0s')
+  return udp.send(request, '0s')
     .then(replies => {
       if (replies.length > 0) {
         return decode.ClearTasklistResponse(replies[0])
