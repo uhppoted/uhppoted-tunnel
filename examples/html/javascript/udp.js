@@ -38,12 +38,12 @@ export function broadcast (bytes) {
     })
 }
 
-export function send (bytes, timeout) {
+export function send (bytes, nowait) {
   debug(bytes)
 
   const rq = {
     ID: nextID(),
-    wait: timeout,
+    wait: !nowait,
     request: [...bytes]
   }
 
@@ -71,8 +71,12 @@ export function send (bytes, timeout) {
       }
     })
     .then(reply => {
-      debug2(reply.replies)
-      return reply.replies
+      if (reply.reply) {
+        debug2([reply.reply])
+        return reply.reply
+      }
+
+      return null
     })
 }
 

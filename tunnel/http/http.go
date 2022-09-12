@@ -137,6 +137,7 @@ func (h *httpd) Run(router *router.Switch) error {
 	<-h.ctx.Done()
 
 	closing = true
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -233,10 +234,6 @@ func (h *httpd) broadcast(w http.ResponseWriter, r *http.Request, router *router
 		case reply := <-received:
 			h.Dumpf(reply, "reply %v  %v bytes for %v", id, len(reply), r.RemoteAddr)
 			replies = append(replies, reply)
-			if wait == 0 {
-				h.reply(body.ID, replies, w, acceptsGzip)
-				return
-			}
 
 		case <-ctx.Done():
 			h.Warnf("%v", ctx.Err())
@@ -244,10 +241,16 @@ func (h *httpd) broadcast(w http.ResponseWriter, r *http.Request, router *router
 			return
 
 		case <-waited:
-			if wait > 0 {
-				h.reply(body.ID, replies, w, acceptsGzip)
-				return
+			response := struct {
+				ID      int     `json:"ID"`
+				Replies []slice `json:"replies"`
+			}{
+				ID:      body.ID,
+				Replies: replies,
 			}
+
+			h.reply(response, w, acceptsGzip)
+			return
 		}
 	}
 }
@@ -257,12 +260,12 @@ func (h *httpd) send(w http.ResponseWriter, r *http.Request, router *router.Swit
 	contentType := ""
 
 	body := struct {
-		ID      int      `json:"ID"`
-		Wait    duration `json:"wait,omitempty"`
-		Request []byte   `json:"request"`
+		ID      int    `json:"ID"`
+		Wait    bool   `json:"wait,omitempty"`
+		Request []byte `json:"request"`
 	}{
 		ID:   0,
-		Wait: duration(5 * time.Second),
+		Wait: true,
 	}
 
 	for k, h := range r.Header {
@@ -303,15 +306,28 @@ func (h *httpd) send(w http.ResponseWriter, r *http.Request, router *router.Swit
 	}
 
 	id := protocol.NextID()
-	replies := []slice{}
-	received := make(chan []byte)
-	wait := time.Duration(body.Wait)
-	waited := time.After(wait)
-	ctx, cancel := context.WithTimeout(h.ctx, wait+5*time.Second)
+	ctx, cancel := context.WithTimeout(h.ctx, 5*time.Second)
 
 	defer cancel()
 
 	h.Dumpf(body.Request, "request %v  %v bytes from %v", id, len(body.Request), r.RemoteAddr)
+
+	// ... set-ip request does not expect a response
+	if !body.Wait {
+		router.Received(id, body.Request, func(reply []byte) {})
+
+		response := struct {
+			ID int `json:"ID"`
+		}{
+			ID: body.ID,
+		}
+
+		h.reply(response, w, acceptsGzip)
+		return
+	}
+
+	// ... normal request/response
+	received := make(chan []byte)
 
 	router.Received(id, body.Request, func(reply []byte) { received <- reply })
 
@@ -319,35 +335,27 @@ func (h *httpd) send(w http.ResponseWriter, r *http.Request, router *router.Swit
 		select {
 		case reply := <-received:
 			h.Dumpf(reply, "reply %v  %v bytes for %v", id, len(reply), r.RemoteAddr)
-			replies = append(replies, reply)
-			if wait == 0 {
-				h.reply(body.ID, replies, w, acceptsGzip)
-				return
+
+			response := struct {
+				ID    int   `json:"ID"`
+				Reply slice `json:"reply,omitempty"`
+			}{
+				ID:    body.ID,
+				Reply: reply,
 			}
+
+			h.reply(response, w, acceptsGzip)
+			return
 
 		case <-ctx.Done():
 			h.Warnf("%v", ctx.Err())
 			http.Error(w, "Request cancelled", http.StatusInternalServerError)
 			return
-
-		case <-waited:
-			if wait > 0 {
-				h.reply(body.ID, replies, w, acceptsGzip)
-				return
-			}
 		}
 	}
 }
 
-func (h *httpd) reply(ID int, replies []slice, w http.ResponseWriter, acceptsGzip bool) {
-	response := struct {
-		ID      int     `json:"ID"`
-		Replies []slice `json:"replies"`
-	}{
-		ID:      ID,
-		Replies: replies,
-	}
-
+func (h *httpd) reply(response any, w http.ResponseWriter, acceptsGzip bool) {
 	if b, err := json.Marshal(response); err != nil {
 		h.Warnf("%v", err)
 		http.Error(w, "Internal error generating response", http.StatusInternalServerError)
