@@ -27,14 +27,15 @@ export function broadcast (bytes) {
           return response.json()
 
         default:
-          response.text().then(w => {
-            throw new Error(w)
-          })
+          return Promise.reject(response.statusText)
       }
     })
     .then(reply => {
       debug(reply.replies, '#reply textarea')
       return reply.replies
+    })
+    .catch(err => {
+      throw new Error(err)
     })
 }
 
@@ -65,9 +66,7 @@ export function send (bytes, nowait) {
           return response.json()
 
         default:
-          response.text().then(w => {
-            throw new Error(w)
-          })
+          return Promise.reject(response.statusText)
       }
     })
     .then(reply => {
@@ -77,6 +76,9 @@ export function send (bytes, nowait) {
       }
 
       return null
+    })
+    .catch(err => {
+      throw new Error(err)
     })
 }
 
@@ -108,10 +110,4 @@ function bin2hex (bytes) {
   }
 
   return lines.join('\n')
-
-  // const f = function* chunks(array,N) {
-  //    for (let i=0; i < array.length; i += N) {
-  //        yield array.slice(i, i + N);
-  //    }
-  // }
 }

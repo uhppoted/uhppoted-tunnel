@@ -81,6 +81,9 @@ export function exec (cmd) {
       commands.exec(c.fn, ...c.args).then(response => {
         objects.value = JSON.stringify(response, null, '  ')
       })
+        .catch(err => {
+          warn(`${err}`)
+        })
     } else {
       throw new Error(`invalid command '${cmd}'`)
     }

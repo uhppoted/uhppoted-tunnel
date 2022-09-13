@@ -211,6 +211,7 @@ footer #message {
   color: #dc322f;
   font-family: sans-serif;
   font-size: 0.9em;
+  font-weight: bold;
   font-variant: small-caps;
   font-variant-caps: all-small-caps;
 }
