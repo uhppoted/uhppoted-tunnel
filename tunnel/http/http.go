@@ -1,4 +1,4 @@
-package httpd
+package http
 
 import (
 	"compress/gzip"

@@ -17,7 +17,6 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/http"
-	"github.com/uhppoted/uhppoted-tunnel/tunnel/https"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/tcp"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/tls"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/udp"
@@ -225,7 +224,7 @@ func (cmd Run) makeConn(arg, spec string, ctx context.Context) (tunnel.Conn, err
 		}
 
 	case strings.HasPrefix(spec, "http/"):
-		return httpd.NewHTTP(spec[5:], cmd.html, retry, ctx)
+		return http.NewHTTP(spec[5:], cmd.html, retry, ctx)
 
 	case strings.HasPrefix(spec, "https/"):
 		if ca, err := tlsCA(cmd.caCertificate); err != nil {
@@ -234,7 +233,7 @@ func (cmd Run) makeConn(arg, spec string, ctx context.Context) (tunnel.Conn, err
 			return nil, err
 		} else {
 			fmt.Printf("%v\n%v\n%v\n%v\n", cmd.caCertificate, cmd.certificate, cmd.key, cmd.requireClientAuth)
-			return https.NewHTTPS(spec[6:], cmd.html, ca, *certificate, cmd.requireClientAuth, retry, ctx)
+			return http.NewHTTPS(spec[6:], cmd.html, ca, *certificate, cmd.requireClientAuth, retry, ctx)
 		}
 
 	default:

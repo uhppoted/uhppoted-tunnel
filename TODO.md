@@ -2,13 +2,16 @@
 
 ## IN PROGRESS
 
-- [ ] 'events' connectors
-      (?) let ID 0 imply no reply expected
-- [ ] https://tls-anvil.com/docs/Quick-Start/index
+- [x] Codegen JS interface to UHPPOTE
+- [x] Commonalise HTTP and HTTPS
 - [ ] Logo
       https://pixabay.com/images/search/gravity/
 
 ## TODO
+
+- [ ] 'events' connectors
+      (?) let ID 0 imply no reply expected
+- [ ] https://tls-anvil.com/docs/Quick-Start/index
 
 - [ ] Commonalize connector behaviours
 - [ ] Use cancelable contexts throughout
