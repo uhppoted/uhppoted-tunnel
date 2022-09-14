@@ -2,15 +2,15 @@ import * as commands from './commands.js'
 
 const COMMANDS = new Map([
   ['get-all-controllers', { fn: commands.getAllControllers, args: [] }],
-  ['get-controller', { fn: commands.getController, args: ['device-id'] }],
-  ['set-IP', { fn: commands.setIP, args: ['device-id', 'ip-address', 'subnet', 'gateway'] }],
-  ['get-time', { fn: commands.getTime, args: ['device-id'] }],
-  ['set-time', { fn: commands.setTime, args: ['device-id', 'datetime'] }]
-  // ['get-status', { fn: commands.getStatus, args: ['controller'] }],
-  // ['get-listener', { fn: commands.getListener, args: ['controller'] }],
-  // ['set-listener', { fn: commands.setListener, args: ['controller', 'address'] }],
-  // ['get-door-control', { fn: commands.getDoorControl, args: ['controller', 'door'] }],
-  // ['set-door-control', { fn: commands.setDoorControl, args: ['controller', 'door', 'mode', 'delay'] }],
+  ['get-controller', { fn: commands.getController, args: ['controller'] }],
+  ['set-IP', { fn: commands.setIP, args: ['controller', 'ip-address', 'subnet', 'gateway'] }],
+  ['get-time', { fn: commands.getTime, args: ['controller'] }],
+  ['set-time', { fn: commands.setTime, args: ['controller', 'datetime'] }],
+  ['get-listener', { fn: commands.getListener, args: ['controller'] }],
+  ['set-listener', { fn: commands.setListener, args: ['controller', 'listener'] }],
+  ['get-door-control', { fn: commands.getDoorControl, args: ['controller', 'door'] }],
+  ['set-door-control', { fn: commands.setDoorControl, args: ['controller', 'door', 'mode', 'delay'] }],
+  ['get-status', { fn: commands.getStatus, args: ['controller'] }]
   // ['open-door, ', { fn: commands.openDoor, args: ['controller', 'door'] }],
   // ['get-cards', { fn: commands.getCards, args: ['controller'] }],
   // ['get-card', { fn: commands.getCard, args: ['controller', 'card'] }],

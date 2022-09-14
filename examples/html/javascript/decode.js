@@ -560,7 +560,7 @@ function unpackDate (packet, offset) {
 
 function unpackShortdate (packet, offset) {
   const bytes = new Uint8Array(packet.buffer.slice(offset, offset + 3))
-  const datetime = bcd('20' + bytes)
+  const datetime = '20' + bcd(bytes)
 
   return parseYYYYMMDD(datetime)
 }
@@ -596,15 +596,9 @@ function unpackOptionalDatetime (packet, offset) {
 
 function unpackTime (packet, offset) {
   const bytes = new Uint8Array(packet.buffer.slice(offset, offset + 3))
-  const datetime = bcd(bytes)
+  const time = bcd(bytes)
 
-  if (datetime === '000000') {
-    return ''
-  }
-
-  const time = `${datetime.substr(8, 2)}:${datetime.substr(10, 2)}:${datetime.substr(12, 2)}`
-
-  return `${time}`
+  return `${time.substr(0, 2)}:${time.substr(2, 2)}:${time.substr(4, 2)}`
 }
 
 function unpackHHmm (packet, offset) {
