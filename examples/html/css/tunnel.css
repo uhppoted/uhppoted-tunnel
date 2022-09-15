@@ -43,7 +43,7 @@ textarea {
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: 120px 1fr 120px;
+  grid-template-columns: 64px 1fr 64px;
   grid-template-rows: auto 1fr auto;
   grid-template-areas: "header header header" "left  content right" "footer footer footer";
 }
@@ -89,9 +89,9 @@ header button {
 main {
   grid-area: content;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: auto 1fr 1fr;
   grid-template-rows: 2fr 1fr;
-  grid-template-areas: "command response" "request reply";
+  grid-template-areas: "list command response" "list request reply";
   gap: 10px;
 
   padding-top: 12px;
@@ -121,6 +121,18 @@ main .panel button {
   font-variant-caps: all-small-caps;
 }
 
+main #list {
+  grid-area: list;
+  overflow-y: auto;
+}
+
+main #list ul li {
+  font-family: sans-serif;
+  font-variant: small-caps;
+  font-variant-caps: all-small-caps;
+  list-style-type: none;
+}
+
 main #command {
   grid-area: command;
   overflow-y: auto;
@@ -128,6 +140,15 @@ main #command {
 
 main #command div {
   margin-bottom: 8px;
+}
+
+main #command div.label {
+  display: flex;
+  align-items: flex-start;
+  font-family: sans-serif;
+  font-variant: small-caps;
+  font-variant-caps: all-small-caps;
+  font-size: 0.9em;
 }
 
 main #command button {
@@ -181,6 +202,41 @@ main #command::-webkit-scrollbar-thumb {
   background: #eee8d5;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
+}
+
+main #command div.executor {
+  background: #eee8d5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-radius: 4px;
+}
+
+main input#cmd {
+  margin-left: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  padding-left: 8px;
+  padding-right: 8px;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-variant: small-caps;
+  font-variant-caps: all-small-caps;
+  font-size: 1em;
+  border: none;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+main div.executor button#execute {
+  width: fit-content;
+  padding-left: 24px;
+  padding-right: 24px;
+  border: 2px solid green;
 }
 
 main #response {
