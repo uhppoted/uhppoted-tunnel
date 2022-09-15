@@ -72,8 +72,50 @@
             </div>
           </div>
           <div class="command">
+            <button onclick="onCommand('open-door')">open-door</button>
+            <div class="args">
+            </div>
+          </div>
+          <div class="command">
             <button onclick="onCommand('get-status')">get-status</button>
             <div class="args"></div>
+          </div>
+          <div class="command">
+            <button onclick="onCommand('get-cards')">get-cards</button>
+            <div class="args"></div>
+          </div>
+          <div class="command">
+            <button onclick="onCommand('get-card')">get-card</button>
+            <div class="args">
+              <input id="card-number" type="number" min="1" data-tag="card.number" placeholder="card number" />
+            </div>
+          </div>
+          <div class="command">
+            <button onclick="onCommand('get-card-by-index')">get-card-by-index</button>
+            <div class="args">
+              <input id="card-index" type="number" min="1" data-tag="card.index" placeholder="card index" />
+            </div>
+          </div>
+          <div class="command">
+            <button onclick="onCommand('put-card')">put-card</button>
+            <div class="args">
+              <input id="card-start-date" type="date" data-tag="card.start-date" placeholder="card start date" />
+              <input id="card-end-date"   type="date" data-tag="card.end-date"   placeholder="card end date" />
+              <input id="card-door-1"     type="number" min="0" max="254" data-tag="card.door.1" placeholder="door 1 access" />
+              <input id="card-door-2"     type="number" min="0" max="254" data-tag="card.door.2" placeholder="door 2 access" />
+              <input id="card-door-3"     type="number" min="0" max="254" data-tag="card.door.3" placeholder="door 3 access" />
+              <input id="card-door-4"     type="number" min="0" max="254" data-tag="card.door.4" placeholder="door 4 access" />
+            </div>
+          </div>
+          <div class="command">
+            <button onclick="onCommand('delete-card')">delete-card</button>
+            <div class="args">
+            </div>
+          </div>
+          <div class="command">
+            <button onclick="onCommand('delete-all-cards')">delete-all-cards</button>
+            <div class="args">
+            </div>
           </div>
         </div>
 

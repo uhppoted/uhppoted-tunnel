@@ -72,77 +72,77 @@ export function setDoorControl (controller, door, mode, delay) {
   return uhppote.SetDoorControl(controller, door, mode, delay)
 }
 
+export function openDoor (controller, door) {
+  controller = document.querySelector(`input#${controller}`).value
+  door = document.querySelector(`input#${door}`).value
+
+  return uhppote.OpenDoor(controller, door)
+}
+
 export function getStatus (controller) {
   controller = document.querySelector(`input#${controller}`).value
 
   return uhppote.GetStatus(controller)
 }
 
-// export function openDoor(controller, door) {
-//  controller = document.querySelector(`input#${controller}`).value
-//  door = document.querySelector(`input#${door}`).value
-//
-//  return uhppote.OpenDoor(controller,door)
-// }
-//
-// export function getCards(controller) {
-//  controller = document.querySelector(`input#${controller}`).value
-//
-//  return uhppote.GetCards(controller)
-// }
-//
-// export function getCard(controller, card) {
-//  controller = document.querySelector(`input#${controller}`).value
-//  card = document.querySelector(`input#${card}`).value
-//
-//  response = uhppote.GetCard(controller, card)
-//  if (response.cardNumber === 0) {
-//      throw new Error(`card ${card} not found`)
-//  }
-//
-//  return response
-// }
-//
-// export function getCardByIndex(controller, index) {
-//  controller = document.querySelector(`input#${controller}`).value
-//  index = document.querySelector(`input#${index}`).value
-//
-//  response = uhppote.GetCardByIndex(controller,index)
-//  if (response.cardNumber === 0) {
-//      throw new Error(`card @ index ${index} not found`)
-//  } else if (response.cardNumber === 0xffffffff) {
-//      throw new Error(`card @ index ${index} deleted`)
-//  }
-//
-//  return response
-// }
-//
-// export function putCard(controller, card, start, end, door1, door2, door3, door4) {
-//  controller = document.querySelector(`input#${controller}`).value
-//  card = document.querySelector(`input#${card}`).value
-//  start = document.querySelector(`input#${start}`).value
-//  end = document.querySelector(`input#${end}`).value
-//  door1 = document.querySelector(`input#${door1}`).value
-//  door2 = document.querySelector(`input#${door2}`).value
-//  door3 = document.querySelector(`input#${door3}`).value
-//  door4 = document.querySelector(`input#${door4}`).value
-//
-//  return uhppote.PutCard(controller, card, new Date(start), new Date(end), door1, door2, door3, door4)
-// }
-//
-// export function deleteCard(controller, card) {
-//  controller = document.querySelector(`input#${controller}`).value
-//  card = document.querySelector(`input#${card}`).value
-//
-//  return uhppote.DeleteCard(controller, card)
-// }
-//
-// export function deleteAllCards(controller) {
-//  controller = document.querySelector(`input#${controller}`).value
-//
-//  return uhppote.DeleteAllCards(controller)
-// }
-//
+export function getCards (controller) {
+  controller = document.querySelector(`input#${controller}`).value
+
+  return uhppote.GetCards(controller)
+}
+
+export function getCard (controller, card) {
+  controller = document.querySelector(`input#${controller}`).value
+  card = document.querySelector(`input#${card}`).value
+
+  const response = uhppote.GetCard(controller, card)
+  if (response.cardNumber === 0) {
+    throw new Error(`card ${card} not found`)
+  }
+
+  return response
+}
+
+export function getCardByIndex (controller, index) {
+  controller = document.querySelector(`input#${controller}`).value
+  index = document.querySelector(`input#${index}`).value
+
+  const response = uhppote.GetCardByIndex(controller, index)
+  if (response.cardNumber === 0) {
+    throw new Error(`card @ index ${index} not found`)
+  } else if (response.cardNumber === 0xffffffff) {
+    throw new Error(`card @ index ${index} deleted`)
+  }
+
+  return response
+}
+
+export function putCard (controller, card, start, end, door1, door2, door3, door4) {
+  controller = document.querySelector(`input#${controller}`).value
+  card = document.querySelector(`input#${card}`).value
+  start = document.querySelector(`input#${start}`).value
+  end = document.querySelector(`input#${end}`).value
+  door1 = document.querySelector(`input#${door1}`).value
+  door2 = document.querySelector(`input#${door2}`).value
+  door3 = document.querySelector(`input#${door3}`).value
+  door4 = document.querySelector(`input#${door4}`).value
+
+  return uhppote.PutCard(controller, card, new Date(start), new Date(end), door1, door2, door3, door4)
+}
+
+export function deleteCard (controller, card) {
+  controller = document.querySelector(`input#${controller}`).value
+  card = document.querySelector(`input#${card}`).value
+
+  return uhppote.DeleteCard(controller, card)
+}
+
+export function deleteAllCards (controller) {
+  controller = document.querySelector(`input#${controller}`).value
+
+  return uhppote.DeleteAllCards(controller)
+}
+
 // export function getEvent(controller, index) {
 //  controller = document.querySelector(`input#${controller}`).value
 //  index = document.querySelector(`input#${index}`).value
