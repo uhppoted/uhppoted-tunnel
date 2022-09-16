@@ -123,10 +123,14 @@ main .panel button {
 
 main div.section {
   width: fit-content;
-  display: grid;
+  display: none;
   grid-auto-rows: auto;
   grid-template-columns: auto auto;
   row-gap: 4px;
+}
+
+main div.section.visible {
+  display: grid;
 }
 
 main div.section .label {

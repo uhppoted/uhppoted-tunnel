@@ -177,18 +177,18 @@ export function recordSpecialEvents (controller, enabled) {
   return uhppote.RecordSpecialEvents(controller, enabled)
 }
 
-// export function getTimeProfile(controller, profileID) {
-//  controller = arg(controller)
-//  profileID = arg(profileID)
-//
-//  response = uhppote.GetTimeProfile(controller, profileID)
-//  if (response.profileId === 0) {
-//      throw new Error(`time profile ${profileID} not defined`)
-//  }
-//
-//  return response
-// }
-//
+export function getTimeProfile (controller, profileID) {
+  controller = arg(controller)
+  profileID = arg(profileID)
+
+  const response = uhppote.GetTimeProfile(controller, profileID)
+  if (response.profileId === 0) {
+    throw new Error(`time profile ${profileID} not defined`)
+  }
+
+  return response
+}
+
 /// / export function setTimeProfile(controller,
 //   profileID,
 //   start, end,

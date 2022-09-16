@@ -21,8 +21,8 @@ const COMMANDS = new Map([
   ['get-event', { fn: commands.getEvent, args: ['controller', 'event-index'] }],
   ['get-event-index', { fn: commands.getEventIndex, args: ['controller'] }],
   ['set-event-index', { fn: commands.setEventIndex, args: ['controller', 'event-index'] }],
-  ['record-special-events', { fn: commands.recordSpecialEvents, args: ['controller', 'record-special-events'] }]
-  // ['get-timeprofile', { fn: commands.getTimeProfile, args: ['controller', 'profileID'] }],
+  ['record-special-events', { fn: commands.recordSpecialEvents, args: ['controller', 'record-special-events'] }],
+  ['get-time-profile', { fn: commands.getTimeProfile, args: ['controller', 'time-profile-id'] }]
   // ['set-timeprofile', {
   //   fn: commands.setTimeProfile,
   //   args: ['controller',
