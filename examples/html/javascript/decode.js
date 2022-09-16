@@ -388,7 +388,7 @@ export function RecordSpecialEventsResponse (packet) {
 
   return {
     controller: unpackUint32(view, 4),
-    enabled: unpackBool(view, 8)
+    updated: unpackBool(view, 8)
   }
 }
 

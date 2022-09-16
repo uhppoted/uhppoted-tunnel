@@ -17,11 +17,11 @@ const COMMANDS = new Map([
   ['get-card-by-index', { fn: commands.getCardByIndex, args: ['controller', 'card-index'] }],
   ['put-card', { fn: commands.putCard, args: ['controller', 'card-number', 'card-start-date', 'card-end-date', 'card-door-1', 'card-door-2', 'card-door-3', 'card-door-4'] }],
   ['delete-card', { fn: commands.deleteCard, args: ['controller', 'card-number'] }],
-  ['delete-all-cards', { fn: commands.deleteAllCards, args: ['controller'] }]
-  // ['get-event', { fn: commands.getEvent, args: ['controller', 'index'] }],
-  // ['get-event-index', { fn: commands.getEventIndex, args: ['controller'] }],
-  // ['set-event-index', { fn: commands.setEventIndex, args: ['controller', 'index'] }],
-  // ['record-special-events', { fn: commands.recordSpecialEvents, args: ['controller', 'enabled'] }],
+  ['delete-all-cards', { fn: commands.deleteAllCards, args: ['controller'] }],
+  ['get-event', { fn: commands.getEvent, args: ['controller', 'event-index'] }],
+  ['get-event-index', { fn: commands.getEventIndex, args: ['controller'] }],
+  ['set-event-index', { fn: commands.setEventIndex, args: ['controller', 'event-index'] }],
+  ['record-special-events', { fn: commands.recordSpecialEvents, args: ['controller', 'record-special-events'] }]
   // ['get-timeprofile', { fn: commands.getTimeProfile, args: ['controller', 'profileID'] }],
   // ['set-timeprofile', {
   //   fn: commands.setTimeProfile,

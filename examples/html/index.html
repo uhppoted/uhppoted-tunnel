@@ -38,6 +38,10 @@
             <li onclick="onSelect('put-card')">put-card</li>
             <li onclick="onSelect('delete-card')">delete-card</li>
             <li onclick="onSelect('delete-all-cards')">delete-all-cards</li>
+            <li onclick="onSelect('get-event')">get-event</li>
+            <li onclick="onSelect('get-event-index')">get-event-index</li>
+            <li onclick="onSelect('set-event-index')">set-event-index</li>
+            <li onclick="onSelect('record-special-events')">record-special-events</li>
           </ul>
         </div>
 
@@ -47,53 +51,62 @@
             <button id="execute" onclick="onExecute(event)">execute</button>              
           </div>
 
-          <div class="command">
+          <div class="section controller">
             <div class="label">controller</div>
-            <div class="args">
-              <input id="controller" type="number" min="1" max="499999999" data-tag="device.id" placeholder="device ID" />
-            </div>
+            <input id="controller" class="parameter" type="number" min="1" max="499999999" placeholder="device ID" data-tag="device.id" />
           </div>
-          <div class="command">
+
+          <div class="section IPv4">
             <div class="label">IPv4 configuration</div>
-            <div class="args">
-              <input id="ip-address" type="text" placeholder="IPv4 address" data-tag="IP.address" value="" />
-              <input id="subnet" type="text" placeholder="IPv4 subnet mask" data-tag="IP.netmask" value="" />
-              <input id="gateway" type="text" placeholder="IPv4 gateway address" data-tag="IP.gateway" value="" />
-            </div>
+            <input id="ip-address" class="parameter" type="text" placeholder="IPv4 address"         data-tag="IP.address" />
+            <input id="subnet"     class="parameter" type="text" placeholder="IPv4 subnet mask"     data-tag="IP.netmask" />
+            <input id="gateway"    class="parameter" type="text" placeholder="IPv4 gateway address" data-tag="IP.gateway" />
           </div>
-          <div class="command">
+
+          <div class="section listener">
             <div class="label">listener</div>
-            <div class="args">
-              <input id="listener" type="text" placeholder="IPv4 address" data-tag="listener" value="" />
-            </div>
+            <input id="listener" class="parameter" type="text" placeholder="IPv4 address" data-tag="listener" />
           </div>
-          <div class="command">
+          
+          <div class="section datetime">
             <div class="label">date/time</div>
-            <div class="args">
-              <input id="datetime" type="datetime-local" placeholder="" value="" />
-            </div>
+            <input id="datetime" class="parameter" type="datetime-local" placeholder="" value="" />
           </div>
-          <div class="command">
+
+          <div class="section doors">
             <div class="label">door</div>
-            <div class="args">
-              <input id="door" type="number" min="1" max="4" data-tag="door.id" placeholder="door" />
-              <span>mode<input id="mode" type="number" min="1" max="3" data-tag="door.mode" placeholder="door control mode" value="3"/></span>
-              <span>delay<input id="delay" type="number" min="1" max="60" data-tag="door.delay" placeholder="door delay" value="5" /></span>
-            </div>
+              <input id="door" class="parameter" type="number" min="1" max="4" placeholder="door" data-tag="door.id" />
+              <label class="parameter">
+                mode
+                <input id="mode" type="number" min="1" max="3" data-tag="door.mode" placeholder="door control mode" value="3"/>
+              </label>
+              <label class="parameter">
+                delay
+                <input id="delay" type="number" min="1" max="60" data-tag="door.delay" placeholder="door delay" value="5" />
+              </label>
           </div>
-          <div class="command">
+
+          <div class="section cards">
             <div class="label">card</div>
-            <div class="args">
-              <input id="card-number" type="number" min="1" data-tag="card.number" placeholder="card number" />
-              <input id="card-index" type="number" min="1" data-tag="card.index" placeholder="card index" />
-              <input id="card-start-date" type="date" data-tag="card.start-date" placeholder="card start date" />
-              <input id="card-end-date"   type="date" data-tag="card.end-date"   placeholder="card end date" />
-              <input id="card-door-1"     type="number" min="0" max="254" data-tag="card.door.1" placeholder="door 1 access" />
-              <input id="card-door-2"     type="number" min="0" max="254" data-tag="card.door.2" placeholder="door 2 access" />
-              <input id="card-door-3"     type="number" min="0" max="254" data-tag="card.door.3" placeholder="door 3 access" />
-              <input id="card-door-4"     type="number" min="0" max="254" data-tag="card.door.4" placeholder="door 4 access" />
-            </div>
+            <input id="card-number"     class="parameter" type="number" min="1" placeholder="card number" data-tag="card.number" />
+            <input id="card-index"      class="parameter" type="number" min="1" placeholder="card index" data-tag="card.index" />
+            <input id="card-start-date" class="parameter" type="date" placeholder="card start date" data-tag="card.start-date" />
+            <input id="card-end-date"   class="parameter" type="date" placeholder="card end date" data-tag="card.end-date" />
+            <input id="card-door-1"     class="parameter" type="number" min="0" max="254" placeholder="door 1 access" data-tag="card.door.1" />
+            <input id="card-door-2"     class="parameter" type="number" min="0" max="254" placeholder="door 2 access" data-tag="card.door.2" />
+            <input id="card-door-3"     class="parameter" type="number" min="0" max="254" placeholder="door 3 access" data-tag="card.door.3" />
+            <input id="card-door-4"     class="parameter" type="number" min="0" max="254" placeholder="door 4 access" data-tag="card.door.4" />
           </div>
+
+          <div class="section events">
+            <div class="label">event</div>
+            <input id="event-index" class="parameter" type="number" min="1" placeholder="event index" data-tag="event.index" />
+            <label class="parameter">
+              Record special events
+              <input id="record-special-events" type="checkbox" data-tag="event.record-special-events" checked />
+            </label>
+          </div>
+
         </div>
 
         <div id="response" class="panel">

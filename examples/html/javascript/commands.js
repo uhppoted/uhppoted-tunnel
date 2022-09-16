@@ -9,29 +9,29 @@ export function getAllControllers () {
 }
 
 export function getController (controller) {
-  controller = document.querySelector(`input#${controller}`).value
+  controller = arg(controller)
 
   return uhppote.GetController(controller)
 }
 
 export function setIP (controller, address, netmask, gateway) {
-  controller = document.querySelector(`input#${controller}`).value
-  address = document.querySelector(`input#${address}`).value
-  netmask = document.querySelector(`input#${netmask}`).value
-  gateway = document.querySelector(`input#${gateway}`).value
+  controller = arg(controller)
+  address = arg(address)
+  netmask = arg(netmask)
+  gateway = arg(gateway)
 
   return uhppote.SetIP(controller, address, netmask, gateway)
 }
 
 export function getTime (controller) {
-  controller = document.querySelector(`input#${controller}`).value
+  controller = arg(controller)
 
   return uhppote.GetTime(controller)
 }
 
 export function setTime (controller, datetime) {
-  controller = document.querySelector(`input#${controller}`).value
-  const dt = document.querySelector(`input#${datetime}`).value
+  controller = arg(controller)
+  const dt = arg(datetime)
 
   if (dt === '') {
     return uhppote.SetTime(controller, new Date())
@@ -41,14 +41,14 @@ export function setTime (controller, datetime) {
 }
 
 export function getListener (controller) {
-  controller = document.querySelector(`input#${controller}`).value
+  controller = arg(controller)
 
   return uhppote.GetListener(controller)
 }
 
 export function setListener (controller, listener) {
-  controller = document.querySelector(`input#${controller}`).value
-  listener = document.querySelector(`input#${listener}`).value
+  controller = arg(controller)
+  listener = arg(listener)
 
   const address = listener.match(/^(.*?):([0-9]+)$/)[1]
   const port = listener.match(/^(.*?):([0-9]+)$/)[2]
@@ -57,43 +57,43 @@ export function setListener (controller, listener) {
 }
 
 export function getDoorControl (controller, door) {
-  controller = document.querySelector(`input#${controller}`).value
-  door = document.querySelector(`input#${door}`).value
+  controller = arg(controller)
+  door = arg(door)
 
   return uhppote.GetDoorControl(controller, door)
 }
 
 export function setDoorControl (controller, door, mode, delay) {
-  controller = document.querySelector(`input#${controller}`).value
-  door = document.querySelector(`input#${door}`).value
-  mode = document.querySelector(`input#${mode}`).value
-  delay = document.querySelector(`input#${delay}`).value
+  controller = arg(controller)
+  door = arg(door)
+  mode = arg(mode)
+  delay = arg(delay)
 
   return uhppote.SetDoorControl(controller, door, mode, delay)
 }
 
 export function openDoor (controller, door) {
-  controller = document.querySelector(`input#${controller}`).value
-  door = document.querySelector(`input#${door}`).value
+  controller = arg(controller)
+  door = arg(door)
 
   return uhppote.OpenDoor(controller, door)
 }
 
 export function getStatus (controller) {
-  controller = document.querySelector(`input#${controller}`).value
+  controller = arg(controller)
 
   return uhppote.GetStatus(controller)
 }
 
 export function getCards (controller) {
-  controller = document.querySelector(`input#${controller}`).value
+  controller = arg(controller)
 
   return uhppote.GetCards(controller)
 }
 
 export function getCard (controller, card) {
-  controller = document.querySelector(`input#${controller}`).value
-  card = document.querySelector(`input#${card}`).value
+  controller = arg(controller)
+  card = arg(card)
 
   const response = uhppote.GetCard(controller, card)
   if (response.cardNumber === 0) {
@@ -104,8 +104,8 @@ export function getCard (controller, card) {
 }
 
 export function getCardByIndex (controller, index) {
-  controller = document.querySelector(`input#${controller}`).value
-  index = document.querySelector(`input#${index}`).value
+  controller = arg(controller)
+  index = arg(index)
 
   const response = uhppote.GetCardByIndex(controller, index)
   if (response.cardNumber === 0) {
@@ -118,68 +118,68 @@ export function getCardByIndex (controller, index) {
 }
 
 export function putCard (controller, card, start, end, door1, door2, door3, door4) {
-  controller = document.querySelector(`input#${controller}`).value
-  card = document.querySelector(`input#${card}`).value
-  start = document.querySelector(`input#${start}`).value
-  end = document.querySelector(`input#${end}`).value
-  door1 = document.querySelector(`input#${door1}`).value
-  door2 = document.querySelector(`input#${door2}`).value
-  door3 = document.querySelector(`input#${door3}`).value
-  door4 = document.querySelector(`input#${door4}`).value
+  controller = arg(controller)
+  card = arg(card)
+  start = arg(start)
+  end = arg(end)
+  door1 = arg(door1)
+  door2 = arg(door2)
+  door3 = arg(door3)
+  door4 = arg(door4)
 
   return uhppote.PutCard(controller, card, new Date(start), new Date(end), door1, door2, door3, door4)
 }
 
 export function deleteCard (controller, card) {
-  controller = document.querySelector(`input#${controller}`).value
-  card = document.querySelector(`input#${card}`).value
+  controller = arg(controller)
+  card = arg(card)
 
   return uhppote.DeleteCard(controller, card)
 }
 
 export function deleteAllCards (controller) {
-  controller = document.querySelector(`input#${controller}`).value
+  controller = arg(controller)
 
   return uhppote.DeleteAllCards(controller)
 }
 
-// export function getEvent(controller, index) {
-//  controller = document.querySelector(`input#${controller}`).value
-//  index = document.querySelector(`input#${index}`).value
-//
-//  response = uhppote.GetEvent(controller,index)
-//  if (response.eventType === 0xff) {
-//      throw new Error(`event @ index ${index} overwritten`)
-//  } else if (response.index === 0) {
-//      throw new Error(`event @ index ${index} not found`)
-//  }
-//
-//  return response
-// }
-//
-// export function getEventIndex(controller) {
-//  controller = document.querySelector(`input#${controller}`).value
-//
-//  return uhppote.GetEventIndex(controller)
-// }
-//
-// export function setEventIndex(controller, index) {
-//  controller = document.querySelector(`input#${controller}`).value
-//  index = document.querySelector(`input#${index}`).value
-//
-//  return uhppote.SetEventIndex(controller, index)
-// }
-//
-// export function recordSpecialEvents(controller, enabled) {
-//  controller = document.querySelector(`input#${controller}`).value
-//  enabled = document.querySelector(`input#${enabled}`).checked
-//
-//  return uhppote.RecordSpecialEvents(controller, enabled)
-// }
-//
+export function getEvent (controller, index) {
+  controller = arg(controller)
+  index = arg(index)
+
+  const response = uhppote.GetEvent(controller, index)
+  if (response.eventType === 0xff) {
+    throw new Error(`event @ index ${index} overwritten`)
+  } else if (response.index === 0) {
+    throw new Error(`event @ index ${index} not found`)
+  }
+
+  return response
+}
+
+export function getEventIndex (controller) {
+  controller = arg(controller)
+
+  return uhppote.GetEventIndex(controller)
+}
+
+export function setEventIndex (controller, index) {
+  controller = arg(controller)
+  index = arg(index)
+
+  return uhppote.SetEventIndex(controller, index)
+}
+
+export function recordSpecialEvents (controller, enabled) {
+  controller = arg(controller)
+  enabled = arg(enabled)
+
+  return uhppote.RecordSpecialEvents(controller, enabled)
+}
+
 // export function getTimeProfile(controller, profileID) {
-//  controller = document.querySelector(`input#${controller}`).value
-//  profileID = document.querySelector(`input#${profileID}`).value
+//  controller = arg(controller)
+//  profileID = arg(profileID)
 //
 //  response = uhppote.GetTimeProfile(controller, profileID)
 //  if (response.profileId === 0) {
@@ -197,27 +197,27 @@ export function deleteAllCards (controller) {
 //   segment2start, segment2end,
 //   segment3start, segment3end,
 //   linkedProfileID) {
-//   controller = document.querySelector(`input#${controller}`).value
-//   profileID = document.querySelector(`input#${profileID}`).value
-//   start = document.querySelector(`input#${start}`).value
-//   end = document.querySelector(`input#${end}`).value
+//   controller = arg(controller)
+//   profileID = arg(profileID)
+//   start = arg(start)
+//   end = arg(end)
 //
-//   monday = document.querySelector(`input#${monday}`).checked
-//   tuesday = document.querySelector(`input#${tuesday}`).checked
-//   wednesday = document.querySelector(`input#${wednesday}`).checked
-//   thursday = document.querySelector(`input#${thursday}`).checked
-//   friday = document.querySelector(`input#${friday}`).checked
-//   saturday = document.querySelector(`input#${saturday}`).checked
-//   sunday = document.querySelector(`input#${sunday}`).checked
+//   monday = arg(monday}`).checked
+//   tuesday = arg(tuesday}`).checked
+//   wednesday = arg(wednesday}`).checked
+//   thursday = arg(thursday}`).checked
+//   friday = arg(friday}`).checked
+//   saturday = arg(saturday}`).checked
+//   sunday = arg(sunday}`).checked
 //
-//   segment1start = document.querySelector(`input#${segment1start}`).value
-//   segment1end = document.querySelector(`input#${segment1end}`).value
-//   segment2start = document.querySelector(`input#${segment2start}`).value
-//   segment2end = document.querySelector(`input#${segment2end}`).value
-//   segment3start = document.querySelector(`input#${segment3start}`).value
-//   segment3end = document.querySelector(`input#${segment3end}`).value
+//   segment1start = arg(segment1start)
+//   segment1end = arg(segment1end)
+//   segment2start = arg(segment2start)
+//   segment2end = arg(segment2end)
+//   segment3start = arg(segment3start)
+//   segment3end = arg(segment3end)
 //
-//   linkedProfileID = document.querySelector(`input#${linkedProfileID}`).value
+//   linkedProfileID = arg(linkedProfileID)
 //
 //   return uhppote.SetTimeProfile(controller,
 //         profileID,
@@ -230,7 +230,7 @@ export function deleteAllCards (controller) {
 // }
 //
 // export function deleteAllTimeProfiles(controller) {
-//   controller = document.querySelector(`input#${controller}`).value
+//   controller = arg(controller)
 //
 //   return uhppote.DeleteAllTimeProfiles(controller)
 // }
@@ -240,22 +240,22 @@ export function deleteAllCards (controller) {
 //   monday, tuesday, wednesday, thursday, friday, saturday, sunday,
 //   time,
 //   door, taskType, moreCards) {
-//   controller = document.querySelector(`input#${controller}`).value
-//   start = document.querySelector(`input#${start}`).value
-//   end = document.querySelector(`input#${end}`).value
+//   controller = arg(controller)
+//   start = arg(start)
+//   end = arg(end)
 //
-//   monday = document.querySelector(`input#${monday}`).checked
-//   tuesday = document.querySelector(`input#${tuesday}`).checked
-//   wednesday = document.querySelector(`input#${wednesday}`).checked
-//   thursday = document.querySelector(`input#${thursday}`).checked
-//   friday = document.querySelector(`input#${friday}`).checked
-//   saturday = document.querySelector(`input#${saturday}`).checked
-//   sunday = document.querySelector(`input#${sunday}`).checked
+//   monday = arg(monday}`).checked
+//   tuesday = arg(tuesday}`).checked
+//   wednesday = arg(wednesday}`).checked
+//   thursday = arg(thursday}`).checked
+//   friday = arg(friday}`).checked
+//   saturday = arg(saturday}`).checked
+//   sunday = arg(sunday}`).checked
 //
-//   time = document.querySelector(`input#${time}`).value
-//   door = document.querySelector(`input#${door}`).value
-//   taskType = document.querySelector(`input#${taskType}`).value
-//   moreCards = document.querySelector(`input#${moreCards}`).value
+//   time = arg(time)
+//   door = arg(door)
+//   taskType = arg(taskType)
+//   moreCards = arg(moreCards)
 //
 //   return uhppote.AddTask(controller,
 //         Date(start), Date(end),
@@ -267,13 +267,23 @@ export function deleteAllCards (controller) {
 // }
 //
 // export function refreshTaskList(controller) {
-//   controller = document.querySelector(`input#${controller}`).value
+//   controller = arg(controller)
 //
 //   return uhppote.RefreshTasklist(controller)
 // }
 //
 // export function clearTaskList(controller) {
-//   controller = document.querySelector(`input#${controller}`).value
+//   controller = arg(controller)
 //
 //   return uhppote.ClearTasklist(controller)
 // }
+
+function arg (tag) {
+  const e = document.querySelector(`input#${tag}`)
+
+  if (e.type === 'checkbox') {
+    return e.checked
+  } else {
+    return e.value
+  }
+}
