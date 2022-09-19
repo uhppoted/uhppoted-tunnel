@@ -127,7 +127,7 @@ export function putCard (controller, card, start, end, door1, door2, door3, door
   door3 = arg(door3)
   door4 = arg(door4)
 
-  return uhppote.PutCard(controller, card, new Date(start), new Date(end), door1, door2, door3, door4)
+  return uhppote.PutCard(controller, card, start, end, door1, door2, door3, door4)
 }
 
 export function deleteCard (controller, card) {
@@ -189,52 +189,52 @@ export function getTimeProfile (controller, profileID) {
   return response
 }
 
-/// / export function setTimeProfile(controller,
-//   profileID,
-//   start, end,
-//   monday, tuesday, wednesday, thursday, friday, saturday, sunday,
-//   segment1start, segment1end,
-//   segment2start, segment2end,
-//   segment3start, segment3end,
-//   linkedProfileID) {
-//   controller = arg(controller)
-//   profileID = arg(profileID)
-//   start = arg(start)
-//   end = arg(end)
-//
-//   monday = arg(monday}`).checked
-//   tuesday = arg(tuesday}`).checked
-//   wednesday = arg(wednesday}`).checked
-//   thursday = arg(thursday}`).checked
-//   friday = arg(friday}`).checked
-//   saturday = arg(saturday}`).checked
-//   sunday = arg(sunday}`).checked
-//
-//   segment1start = arg(segment1start)
-//   segment1end = arg(segment1end)
-//   segment2start = arg(segment2start)
-//   segment2end = arg(segment2end)
-//   segment3start = arg(segment3start)
-//   segment3end = arg(segment3end)
-//
-//   linkedProfileID = arg(linkedProfileID)
-//
-//   return uhppote.SetTimeProfile(controller,
-//         profileID,
-//         new Date(start), new Date(end),
-//         monday, tuesday, wednesday, thursday, friday, saturday, sunday,
-//         uhppote.HHmm(segment1start), uhppote.HHmm(segment1end),
-//         uhppote.HHmm(segment2start), uhppote.HHmm(segment2end),
-//         uhppote.HHmm(segment3start), uhppote.HHmm(segment3end),
-//         linkedProfileID)
-// }
-//
-// export function deleteAllTimeProfiles(controller) {
-//   controller = arg(controller)
-//
-//   return uhppote.DeleteAllTimeProfiles(controller)
-// }
-//
+export function setTimeProfile (controller,
+  profileID,
+  start, end,
+  monday, tuesday, wednesday, thursday, friday, saturday, sunday,
+  segment1start, segment1end,
+  segment2start, segment2end,
+  segment3start, segment3end,
+  linkedProfileID) {
+  controller = arg(controller)
+  profileID = arg(profileID)
+  start = arg(start)
+  end = arg(end)
+
+  monday = arg(monday)
+  tuesday = arg(tuesday)
+  wednesday = arg(wednesday)
+  thursday = arg(thursday)
+  friday = arg(friday)
+  saturday = arg(saturday)
+  sunday = arg(sunday)
+
+  segment1start = arg(segment1start)
+  segment1end = arg(segment1end)
+  segment2start = arg(segment2start)
+  segment2end = arg(segment2end)
+  segment3start = arg(segment3start)
+  segment3end = arg(segment3end)
+
+  linkedProfileID = arg(linkedProfileID)
+
+  return uhppote.SetTimeProfile(controller,
+    profileID,
+    start, end,
+    monday, tuesday, wednesday, thursday, friday, saturday, sunday,
+    segment1start, segment1end,
+    segment2start, segment2end,
+    segment3start, segment3end,
+    linkedProfileID)
+}
+
+export function deleteAllTimeProfiles (controller) {
+  controller = arg(controller)
+
+  return uhppote.DeleteAllTimeProfiles(controller)
+}
+
 // export function addTask(controller,
 //   start, end,
 //   monday, tuesday, wednesday, thursday, friday, saturday, sunday,
@@ -279,11 +279,23 @@ export function getTimeProfile (controller, profileID) {
 // }
 
 function arg (tag) {
-  const e = document.querySelector(`input#${tag}`)
+  let e = document.querySelector(`input[data-tag="${tag}"]`)
 
-  if (e.type === 'checkbox') {
-    return e.checked
-  } else {
-    return e.value
+  if (e) {
+    if (e.type === 'checkbox') {
+      return e.checked
+    } else {
+      return e.value
+    }
+  }
+
+  e = document.querySelector(`input#${tag}`)
+
+  if (e) {
+    if (e.type === 'checkbox') {
+      return e.checked
+    } else {
+      return e.value
+    }
   }
 }

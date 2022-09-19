@@ -166,10 +166,19 @@ main #list {
 }
 
 main #list ul li {
+  vertical-align: middle;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-bottom: 2px;
   font-family: sans-serif;
   font-variant: small-caps;
   font-variant-caps: all-small-caps;
   list-style-type: none;
+  border-radius: 4px;
+}
+
+main #list ul li:hover {
+  background: #e0e0e0;
 }
 
 main #command {
@@ -276,6 +285,12 @@ main div.executor button#execute {
   padding-left: 24px;
   padding-right: 24px;
   border: 2px solid green;
+  font-weight: bold;
+}
+
+main div.executor button#execute:disabled {
+  font-weight: normal;
+  border: 2px solid #a0a0a0;
 }
 
 main #response {

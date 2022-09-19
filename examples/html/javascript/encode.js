@@ -411,15 +411,20 @@ function packIPv4 (v, packet, offset) {
 }
 
 function packDate (v, packet, offset) {
-  const year = String(v.getFullYear()).padStart(4, '0')
-  const month = String(v.getMonth() + 1).padStart(2, '0')
-  const day = String(v.getDate()).padStart(2, '0')
+  const match = /([0-9]{4})-([0-9]{2})-([0-9]{2})/.exec(v)
 
-  const date = `${year}${month}${day}`
-  const bytes = bcd2bin(`${date}`)
+  if (match) {
+    const year = match[1]
+    const month = match[2]
+    const day = match[3]
 
-  for (let i = 0; i < 4; i++) {
-    packet.setUint8(offset + i, bytes[i])
+    const date = `${year}${month}${day}`
+    const bytes = bcd2bin(`${date}`)
+
+    packet.setUint8(offset + 0, bytes[0])
+    packet.setUint8(offset + 1, bytes[1])
+    packet.setUint8(offset + 2, bytes[2])
+    packet.setUint8(offset + 3, bytes[3])
   }
 }
 
@@ -441,14 +446,18 @@ function packDatetime (v, packet, offset) {
 }
 
 function packHHmm (v, packet, offset) {
-  const hour = String(v.getHours()).padStart(2, '0')
-  const minute = String(v.getMinutes()).padStart(2, '0')
+  const match = /([0-9]{2}):([0-9]{2})/.exec(v)
 
-  const time = `${hour}${minute}`
-  const bytes = bcd2bin(`${time}`)
+  if (match) {
+    const hour = match[1]
+    const minute = match[2]
 
-  packet.setUint8(offset, bytes[0])
-  packet.setUint8(offset + 1, bytes[1])
+    const time = `${hour}${minute}`
+    const bytes = bcd2bin(`${time}`)
+
+    packet.setUint8(offset + 0, bytes[0])
+    packet.setUint8(offset + 1, bytes[1])
+  }
 }
 
 function bcd2bin (bcd) {
