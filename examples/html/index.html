@@ -58,69 +58,66 @@
           </div>
 
           <div class="section controller">
-            <div class="label">controller</div>
-            <input class="parameter" type="number" min="1" max="499999999" data-tag="controller" />
+            <div class="section-label">controller</div>
+            <input class="parameter-value" type="number" min="1" max="499999999" data-tag="controller" />
           </div>
 
           <div class="section IP">
-            <div class="label">IPv4 configuration</div>
-            <label class="parameter">
-              address
-              <input type="text" placeholder="IPv4 address" data-tag="IP.address" />
-            </label>
+            <div class="section-label">IPv4 configuration</div>
+            <label class="parameter-label">address</label>
+            <input class="parameter-value" type="text" placeholder="IPv4 address" data-tag="IP.address" />
             
-            <label class="parameter">
-              net mask
-              <input type="text" placeholder="IPv4 subnet mask" data-tag="IP.netmask" />
-            </label>
+            <label class="parameter-label">net mask</label>
+            <input class="parameter-value" type="text" placeholder="IPv4 subnet mask" data-tag="IP.netmask" />
             
-            <label class="parameter">
-              gateway
-              <input type="text" placeholder="IPv4 gateway address" data-tag="IP.gateway" />
-            </label>
+            <label class="parameter-label">gateway</label>
+            <input class="parameter-value" type="text" placeholder="IPv4 gateway address" data-tag="IP.gateway" />
           </div>
 
           <div class="section listener">
-            <div class="label">listener</div>
-            <input class="parameter" type="text" placeholder="IPv4 address" data-tag="listener" />
+            <div class="section-label">listener</div>
+            <input class="parameter-value" type="text" placeholder="IPv4 address" data-tag="listener" />
           </div>
           
           <div class="section datetime">
-            <div class="label">date/time</div>
-            <input id="datetime" class="parameter" type="datetime-local" placeholder="" value="" />
+            <div class="section-label">date/time</div>
+            <input class="parameter-value" type="datetime-local" data-tag="datetime" />
           </div>
 
           <div class="section doors">
-            <div class="label">door</div>
-              <input class="parameter" type="number" min="1" max="4" placeholder="door" data-tag="door.id" />
-              <label class="parameter">
-                mode
-                <input type="number" min="1" max="3" placeholder="door control mode" value="3" data-tag="door.mode" />
-              </label>
-              <label class="parameter">
-                delay
-                <input type="number" min="1" max="60" placeholder="door delay" value="5" data-tag="door.delay" />
-              </label>
+            <div class="section-label">doors</div>
+            <label class="parameter-label">door</label>
+            <input class="parameter-value" type="number" min="1" max="4" placeholder="door" data-tag="door.id" />
+            <label class="parameter-label">mode</label>
+            <input class="parameter-value" type="number" min="1" max="3" placeholder="door control mode" value="3" data-tag="door.mode" />
+            <label class="parameter-label">delay</label>
+            <input class="parameter-value" type="number" min="1" max="60" placeholder="door delay" value="5" data-tag="door.delay" />
           </div>
 
           <div class="section cards">
-            <div class="label">card</div>
-            <input class="parameter" type="number" min="1" placeholder="card number" data-tag="card.number" />
-            <input class="parameter" type="number" min="1" placeholder="card index"  data-tag="card.index" />
-            <input class="parameter" type="date" placeholder="card start date" data-tag="card.start-date" />
-            <input class="parameter" type="date" placeholder="card end date"   data-tag="card.end-date" />
-            <input class="parameter" type="number" min="0" max="254" placeholder="door 1 access" data-tag="card.doors.1" />
-            <input class="parameter" type="number" min="0" max="254" placeholder="door 2 access" data-tag="card.doors.2" />
-            <input class="parameter" type="number" min="0" max="254" placeholder="door 3 access" data-tag="card.doors.3" />
-            <input class="parameter" type="number" min="0" max="254" placeholder="door 4 access" data-tag="card.doors.4" />
+            <div class="section-label">card</div>
+            <label class="parameter-label">number</label>
+            <input class="parameter-value" type="number" min="1" placeholder="card number" data-tag="card.number" />
+            <label class="parameter-label">index</label>
+            <input class="parameter-value" type="number" min="1" placeholder="card index"  data-tag="card.index" />
+            <label class="parameter-label">start date</label>
+            <input class="parameter-value" type="date" placeholder="card start date" data-tag="card.start-date" />
+            <label class="parameter-label">end date</label>
+            <input class="parameter-value" type="date" placeholder="card end date"   data-tag="card.end-date" />
+            <label class="parameter-label">door 1</label>
+            <input class="parameter-value" type="number" min="0" max="254" placeholder="permissions" data-tag="card.doors.1" />
+            <label class="parameter-label">door 2</label>
+            <input class="parameter-value" type="number" min="0" max="254" placeholder="permissions" data-tag="card.doors.2" />
+            <label class="parameter-label">door 3</label>
+            <input class="parameter-value" type="number" min="0" max="254" placeholder="permissions" data-tag="card.doors.3" />
+            <label class="parameter-label">door 4</label>
+            <input class="parameter-value" type="number" min="0" max="254" placeholder="permissions" data-tag="card.doors.4" />
           </div>
 
           <div class="section events">
-            <div class="label">events</div>
-            <label class="parameter">
-              index
-              <input type="number" min="1" placeholder="event index" data-tag="events.index" />
-            </label>
+            <div class="section-label">events</div>
+            <label class="parameter-label">index</label>
+            <input class="parameter-value" type="number" min="1" placeholder="event index" data-tag="events.index" />
             <label class="parameter">
               Record special events
               <input type="checkbox" data-tag="events.record-special-events" checked />
@@ -128,33 +125,25 @@
           </div>
 
           <div class="section profiles">
-            <div class="label">time profiles</div>
+            <div class="section-label">time profiles</div>
+            <label class="parameter-label">profile id</label>
+            <input class="parameter-value" type="number" min="2" max="254" data-tag="time-profile.id" value="2"/>
+            <label class="parameter-label">start date</label>
+            <input class="parameter-value" type="date" data-tag="time-profile.start-date" />
             
-            <label class="parameter">
-              profile id
-              <input type="number" min="2" max="254" data-tag="time-profile.id" value="2"/>
-            </label>
+            <label class="parameter-label">end date</label>
+            <input class="parameter-value" type="date" data-tag="time-profile.end-date" />
             
-            <label class="parameter">
-              start date
-              <input class="parameter" type="date" data-tag="time-profile.start-date" />
-            </label>
-            
-            <label class="parameter">
-              end date
-              <input class="parameter" type="date" data-tag="time-profile.end-date" />
-            </label>
-            
-            <label class="parameter">
-              weekdays
-              <label><input class="parameter" type="checkbox" data-tag="time-profile.monday" />Mon</label>
-              <label><input class="parameter" type="checkbox" data-tag="time-profile.tuesday" />Tue</label>
-              <label><input class="parameter" type="checkbox" data-tag="time-profile.wednesday" />Wed</label>
-              <label><input class="parameter" type="checkbox" data-tag="time-profile.thursday" />Thu</label>
-              <label><input class="parameter" type="checkbox" data-tag="time-profile.friday" />Fri</label>
-              <label><input class="parameter" type="checkbox" data-tag="time-profile.saturday" />Sat</label>
-              <label><input class="parameter" type="checkbox" data-tag="time-profile.sunday" />Sun</label>
-            </label>
+            <label class="parameter-label">weekdays</label>
+            <div class="weekdays">
+              <label class="weekday"><input type="checkbox" data-tag="time-profile.monday" />Mon</label>
+              <label class="weekday"><input type="checkbox" data-tag="time-profile.tuesday" />Tue</label>
+              <label class="weekday"><input type="checkbox" data-tag="time-profile.wednesday" />Wed</label>
+              <label class="weekday"><input type="checkbox" data-tag="time-profile.thursday" />Thu</label>
+              <label class="weekday"><input type="checkbox" data-tag="time-profile.friday" />Fri</label>
+              <label class="weekday"><input type="checkbox" data-tag="time-profile.saturday" />Sat</label>
+              <label class="weekday"><input type="checkbox" data-tag="time-profile.sunday" />Sun</label>
+            </div>
             
             <label class="parameter">
               segment 1
@@ -176,53 +165,39 @@
             
             <label class="parameter">
               linked profile id
-              <input type="number" min="2" max="254" data-tag="time-profile.linked-profile.id" value="2"/>
+              <input type="number" min="2" max="254" placeholder="profile id" data-tag="time-profile.linked-profile.id" />
             </label>
           </div>
 
           <div class="section tasks">
-            <div class="label">tasks</div>
+            <div class="section-label">task</div>
+            <label class="parameter-label">start date</label>
+            <input class="parameter-value" type="date" data-tag="task.start-date" />
+            <label class="parameter-label">end date</label>
+            <input class="parameter-value" type="date" data-tag="task.end-date" />
             
-            <label class="parameter">
-              start date
-              <input class="parameter" type="date" data-tag="task.start-date" />
-            </label>
+            <label class="parameter-label">weekdays</label>
+            <div class="weekdays">
+              <label class="weekday"><input type="checkbox" data-tag="task.monday" />Mon</label>
+              <label class="weekday"><input type="checkbox" data-tag="task.tuesday" />Tue</label>
+              <label class="weekday"><input type="checkbox" data-tag="task.wednesday" />Wed</label>
+              <label class="weekday"><input type="checkbox" data-tag="task.thursday" />Thu</label>
+              <label class="weekday"><input type="checkbox" data-tag="task.friday" />Fri</label>
+              <label class="weekday"><input type="checkbox" data-tag="task.saturday" />Sat</label>
+              <label class="weekday"><input type="checkbox" data-tag="task.sunday" />Sun</label>
+            </div>
             
-            <label class="parameter">
-              end date
-              <input class="parameter" type="date" data-tag="task.end-date" />
-            </label>
-            
-            <label class="parameter">
-              weekdays
-              <label><input class="parameter" type="checkbox" data-tag="task.monday" />Mon</label>
-              <label><input class="parameter" type="checkbox" data-tag="task.tuesday" />Tue</label>
-              <label><input class="parameter" type="checkbox" data-tag="task.wednesday" />Wed</label>
-              <label><input class="parameter" type="checkbox" data-tag="task.thursday" />Thu</label>
-              <label><input class="parameter" type="checkbox" data-tag="task.friday" />Fri</label>
-              <label><input class="parameter" type="checkbox" data-tag="task.saturday" />Sat</label>
-              <label><input class="parameter" type="checkbox" data-tag="task.sunday" />Sun</label>
-            </label>
-            
-            <label class="parameter">
-              start time
-              <input class="parameter" type="time" placeholder="start time" data-tag="task.start-time" />
-            </label>
+            <label class="parameter-label">start time</label>
+            <input class="parameter-value" type="time" placeholder="start time" data-tag="task.start-time" />
 
-            <label class="parameter">
-              door
-              <input class="parameter" type="number" min="1" max="4" placeholder="door" data-tag="task.door" />
-            </label>
+            <label class="parameter-label">door</label>
+            <input class="parameter-value" type="number" min="1" max="4" placeholder="door" data-tag="task.door" />
             
-            <label class="parameter">
-              task type
-              <input class="parameter" type="number" placeholder="task type" data-tag="task.type" />
-            </label>
+            <label class="parameter-label">task type</label>
+            <input class="parameter-value" type="number" placeholder="task type" data-tag="task.type" />
             
-            <label class="parameter">
-              more cards
-              <input type="number" min="0" max="255" data-tag="task.more-cards" value="0"/>
-            </label>
+            <label class="parameter-label">more cards</label>
+            <input class="parameter-value" type="number" min="0" max="255" placeholder="number of cards" data-tag="task.more-cards" />
           </div>
 
         </div>

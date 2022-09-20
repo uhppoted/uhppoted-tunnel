@@ -125,39 +125,73 @@ main div.section {
   width: fit-content;
   display: none;
   grid-auto-rows: auto;
-  grid-template-columns: auto auto;
+  grid-template-columns: auto auto 1fr;
   row-gap: 4px;
+  column-gap: 8px;
+  margin-bottom: 8px;
+  font-family: sans-serif;
+  font-variant: small-caps;
+  font-variant-caps: all-small-caps;
+  white-space: nowrap;
 }
 
 main div.section.visible {
   display: grid;
 }
 
-main div.section .label {
+main div.section .section-label {
   height: 100%;
   grid-column: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  font-family: sans-serif;
-  font-variant: small-caps;
-  font-variant-caps: all-small-caps;
-  font-size: 0.9em;
+}
+
+main div.section .parameter-label {
+  grid-column: 2;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  width: fit-content;
+}
+
+main div.section .parameter-value {
+  grid-column: 3;
+  width: 120px;
 }
 
 main div.section .parameter {
-  grid-column: 2;
-  font-family: sans-serif;
-  font-variant: small-caps;
-  font-variant-caps: all-small-caps;
-  font-size: 0.9em;
-}
-
-main div.section label.parameter {
+  grid-column: 2 / span 2;
   display: flex;
   align-items: center;
-  margin-left: 12px;
+}
+
+main div.section .parameter input {
+  margin-left: 8px;
+}
+
+main div.section label.weekday {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-left: 3px;
+  margin-right: 3px;
+  font-variant: none;
+  font-size: 0.7em;
+}
+
+main div.section div.weekdays {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  margin-bottom: 0px;
+}
+
+main div.section label.weekday input {
+  margin-left: 0px;
 }
 
 main #list {
@@ -186,8 +220,8 @@ main #command {
   overflow-y: auto;
 }
 
-main #command div {
-  margin-bottom: 8px;
+main #command div.executor {
+  margin-bottom: 12px;
 }
 
 main #command div.label {
@@ -205,7 +239,6 @@ main #command button {
 }
 
 main #command input {
-  margin-left: 12px;
   border: 1px solid #dc322f;
   border-radius: 4px;
   padding-top: 3px;
@@ -344,3 +377,4 @@ footer #message {
   font-variant: small-caps;
   font-variant-caps: all-small-caps;
 }
+

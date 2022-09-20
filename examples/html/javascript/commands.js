@@ -36,7 +36,7 @@ export function setTime (controller, datetime) {
   if (dt === '') {
     return uhppote.SetTime(controller, new Date())
   } else {
-    return uhppote.SetTime(controller, new Date(datetime))
+    return uhppote.SetTime(controller, new Date(dt))
   }
 }
 
