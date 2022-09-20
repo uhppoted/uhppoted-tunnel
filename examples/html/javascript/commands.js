@@ -235,48 +235,48 @@ export function deleteAllTimeProfiles (controller) {
   return uhppote.DeleteAllTimeProfiles(controller)
 }
 
-// export function addTask(controller,
-//   start, end,
-//   monday, tuesday, wednesday, thursday, friday, saturday, sunday,
-//   time,
-//   door, taskType, moreCards) {
-//   controller = arg(controller)
-//   start = arg(start)
-//   end = arg(end)
-//
-//   monday = arg(monday}`).checked
-//   tuesday = arg(tuesday}`).checked
-//   wednesday = arg(wednesday}`).checked
-//   thursday = arg(thursday}`).checked
-//   friday = arg(friday}`).checked
-//   saturday = arg(saturday}`).checked
-//   sunday = arg(sunday}`).checked
-//
-//   time = arg(time)
-//   door = arg(door)
-//   taskType = arg(taskType)
-//   moreCards = arg(moreCards)
-//
-//   return uhppote.AddTask(controller,
-//         Date(start), Date(end),
-//         monday, tuesday, wednesday, thursday, friday, saturday, sunday,
-//         time,
-//         door,
-//         taskType,
-//         moreCards)
-// }
-//
-// export function refreshTaskList(controller) {
-//   controller = arg(controller)
-//
-//   return uhppote.RefreshTasklist(controller)
-// }
-//
-// export function clearTaskList(controller) {
-//   controller = arg(controller)
-//
-//   return uhppote.ClearTasklist(controller)
-// }
+export function addTask (controller,
+  startdate, enddate,
+  monday, tuesday, wednesday, thursday, friday, saturday, sunday,
+  starttime,
+  door, taskType, moreCards) {
+  controller = arg(controller)
+  startdate = arg(startdate)
+  enddate = arg(enddate)
+
+  monday = arg(monday)
+  tuesday = arg(tuesday)
+  wednesday = arg(wednesday)
+  thursday = arg(thursday)
+  friday = arg(friday)
+  saturday = arg(saturday)
+  sunday = arg(sunday)
+
+  starttime = arg(starttime)
+  door = arg(door)
+  taskType = arg(taskType)
+  moreCards = arg(moreCards)
+
+  return uhppote.AddTask(controller,
+    startdate, enddate,
+    monday, tuesday, wednesday, thursday, friday, saturday, sunday,
+    starttime,
+    door,
+    taskType,
+    moreCards)
+}
+
+export function refreshTaskList (controller) {
+  controller = arg(controller)
+
+  return uhppote.RefreshTasklist(controller)
+}
+
+export function clearTaskList (controller) {
+  controller = arg(controller)
+
+  return uhppote.ClearTasklist(controller)
+}
 
 function arg (tag) {
   let e = document.querySelector(`input[data-tag="${tag}"]`)

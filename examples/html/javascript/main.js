@@ -55,17 +55,28 @@ const COMMANDS = new Map([
       'time-profile.segment.3.end',
       'time-profile.linked-profile.id']
   }],
-  ['delete-all-time-profiles', { fn: commands.deleteAllTimeProfiles, args: ['controller'] }]
-  // ['add-task', {
-  //   fn: commands.addTask,
-  //   args: ['controller',
-  //     'start', 'end',
-  //     'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
-  //     'time',
-  //     'door', 'taskType', 'moreCards']
-  // }],
-  // ['refresh-tasklist', { fn: commands.refreshTaskList, args: ['controller'] }],
-  // ['clear-tasklist', { fn: commands.clearTaskList, args: ['controller'] }]
+
+  ['delete-all-time-profiles', { fn: commands.deleteAllTimeProfiles, args: ['controller'] }],
+
+  ['add-task', {
+    fn: commands.addTask,
+    args: ['controller',
+      'task.start-date',
+      'task.end-date',
+      'task.monday',
+      'task.tuesday',
+      'task.wednesday',
+      'task.thursday',
+      'task.friday',
+      'task.saturday',
+      'task.sunday',
+      'task.start-time',
+      'task.door',
+      'task.type',
+      'task.more-cards']
+  }],
+  ['refresh-tasklist', { fn: commands.refreshTaskList, args: ['controller'] }],
+  ['clear-tasklist', { fn: commands.clearTaskList, args: ['controller'] }]
 ])
 
 export function initialise () {

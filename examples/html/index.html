@@ -45,6 +45,9 @@
             <li onclick="onSelect('get-time-profile',        'controller', 'profiles')">get-time-profile</li>
             <li onclick="onSelect('set-time-profile',        'controller', 'profiles')">set-time-profile</li>
             <li onclick="onSelect('delete-all-time-profiles','controller', 'profiles')">delete-all-time-profiles</li>
+            <li onclick="onSelect('add-task',                'controller', 'tasks')">add-task</li>
+            <li onclick="onSelect('refresh-tasklist',        'controller', 'tasks')">refresh-tasklist</li>
+            <li onclick="onSelect('clear-tasklist',          'controller', 'tasks')">clear-tasklist</li>
           </ul>
         </div>
 
@@ -174,6 +177,51 @@
             <label class="parameter">
               linked profile id
               <input type="number" min="2" max="254" data-tag="time-profile.linked-profile.id" value="2"/>
+            </label>
+          </div>
+
+          <div class="section tasks">
+            <div class="label">tasks</div>
+            
+            <label class="parameter">
+              start date
+              <input class="parameter" type="date" data-tag="task.start-date" />
+            </label>
+            
+            <label class="parameter">
+              end date
+              <input class="parameter" type="date" data-tag="task.end-date" />
+            </label>
+            
+            <label class="parameter">
+              weekdays
+              <label><input class="parameter" type="checkbox" data-tag="task.monday" />Mon</label>
+              <label><input class="parameter" type="checkbox" data-tag="task.tuesday" />Tue</label>
+              <label><input class="parameter" type="checkbox" data-tag="task.wednesday" />Wed</label>
+              <label><input class="parameter" type="checkbox" data-tag="task.thursday" />Thu</label>
+              <label><input class="parameter" type="checkbox" data-tag="task.friday" />Fri</label>
+              <label><input class="parameter" type="checkbox" data-tag="task.saturday" />Sat</label>
+              <label><input class="parameter" type="checkbox" data-tag="task.sunday" />Sun</label>
+            </label>
+            
+            <label class="parameter">
+              start time
+              <input class="parameter" type="time" placeholder="start time" data-tag="task.start-time" />
+            </label>
+
+            <label class="parameter">
+              door
+              <input class="parameter" type="number" min="1" max="4" placeholder="door" data-tag="task.door" />
+            </label>
+            
+            <label class="parameter">
+              task type
+              <input class="parameter" type="number" placeholder="task type" data-tag="task.type" />
+            </label>
+            
+            <label class="parameter">
+              more cards
+              <input type="number" min="0" max="255" data-tag="task.more-cards" value="0"/>
             </label>
           </div>
 
