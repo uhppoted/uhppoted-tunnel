@@ -157,6 +157,10 @@ main div.section .parameter-label {
   width: fit-content;
 }
 
+main div.section .parameter-label.disabled {
+  color: #c0c0c0;
+}
+
 main div.section .parameter-value {
   grid-column: 3;
   width: 120px;
@@ -166,6 +170,10 @@ main div.section .parameter {
   grid-column: 2 / span 2;
   display: flex;
   align-items: center;
+}
+
+main div.section .parameter.disabled {
+  color: #c0c0c0;
 }
 
 main div.section .parameter input {
@@ -181,6 +189,10 @@ main div.section label.weekday {
   margin-right: 3px;
   font-variant: none;
   font-size: 0.7em;
+}
+
+main div.section label.weekday.disabled {
+  color: #c0c0c0;
 }
 
 main div.section div.weekdays {
@@ -244,21 +256,32 @@ main #command button {
 }
 
 main #command input {
-  border: 1px solid #dc322f;
-  border-radius: 4px;
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 8px;
   padding-right: 8px;
+
   font-family: sans-serif;
   font-variant: small-caps;
   font-variant-caps: all-small-caps;
   font-size: 1em;
+
+  border: 1px solid #dc322f;
+  border-radius: 4px;
   box-shadow: none;
+}
+
+main #command input:disabled {
+  color: #c0c0c0;
+  border: 1px solid #c0c0c0;
 }
 
 main #command input::placeholder {
   font-size: 0.8em;
+}
+
+main #command input:disabled::placeholder {
+  color: #c0c0c0;
 }
 
 main #command div.command {

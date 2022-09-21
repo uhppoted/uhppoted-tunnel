@@ -11,7 +11,7 @@ const COMMANDS = new Map([
   ['get-door-control', { fn: commands.getDoorControl, args: ['controller', 'door.id'] }],
   ['set-door-control', { fn: commands.setDoorControl, args: ['controller', 'door.id', 'door.mode', 'door.delay'] }],
   ['get-status', { fn: commands.getStatus, args: ['controller'] }],
-  ['open-door', { fn: commands.openDoor, args: ['controller', 'door'] }],
+  ['open-door', { fn: commands.openDoor, args: ['controller', 'door.id'] }],
   ['get-cards', { fn: commands.getCards, args: ['controller'] }],
   ['get-card', { fn: commands.getCard, args: ['controller', 'card.number'] }],
   ['get-card-by-index', { fn: commands.getCardByIndex, args: ['controller', 'card.index'] }],

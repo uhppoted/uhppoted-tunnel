@@ -21,38 +21,38 @@
       <main>
         <div id="list" class="panel">
           <ul>
-            <li onclick="onSelect('get-all-controllers')">get-all-controllers</li>
+            <li onclick="onSelect(event)" data-cmd="get-all-controllers"       data-sections="" data-uses="">get-all-controllers</li>
             <li class="spacer"></li>
-            <li onclick="onSelect('get-controller',          'controller')">get-controller</li>
-            <li onclick="onSelect('set-IP',                  'controller', 'IP')">set-IP</li>
-            <li onclick="onSelect('get-listener',            'controller', 'listener')">get-listener</li>
-            <li onclick="onSelect('set-listener',            'controller', 'listener')">set-listener</li>
-            <li onclick="onSelect('get-time',                'controller', 'datetime')">get-time</li>
-            <li onclick="onSelect('set-time',                'controller', 'datetime')">set-time</li>
-            <li onclick="onSelect('get-door-control',        'controller', 'doors')">get-door-control</li>
-            <li onclick="onSelect('set-door-control',        'controller', 'doors')">set-door-control</li>
-            <li onclick="onSelect('open-door',               'controller', 'doors')">open-door</li>
-            <li onclick="onSelect('get-status',              'controller')">get-status</li>
+            <li onclick="onSelect(event)" data-cmd="get-controller"            data-sections="controller"          data-uses="controller">get-controller</li>
+            <li onclick="onSelect(event)" data-cmd="set-IP",                   data-sections="controller,IP"       data-uses="controller,IP.*">set-IP</li>
+            <li onclick="onSelect(event)" data-cmd="get-listener",             data-sections="controller,listener" data-uses="controller">get-listener</li>
+            <li onclick="onSelect(event)" data-cmd="set-listener",             data-sections="controller,listener" data-uses="controller,listener">set-listener</li>
+            <li onclick="onSelect(event)" data-cmd="get-time",                 data-sections="controller,datetime" data-uses="controller">get-time</li>
+            <li onclick="onSelect(event)" data-cmd="set-time",                 data-sections="controller,datetime" data-uses="controller,datetime">set-time</li>
+            <li onclick="onSelect(event)" data-cmd="get-door-control",         data-sections="controller,doors"    data-uses="controller,door.id">get-door-control</li>
+            <li onclick="onSelect(event)" data-cmd="set-door-control",         data-sections="controller,doors"    data-uses="controller,door.*">set-door-control</li>
+            <li onclick="onSelect(event)" data-cmd="open-door",                data-sections="controller,doors"    data-uses="controller,door.id">open-door</li>
+            <li onclick="onSelect(event)" data-cmd="get-status",               data-sections="controller"          data-uses="controller">get-status</li>
             <li class="spacer"></li>
-            <li onclick="onSelect('get-cards',               'controller', 'cards')">get-cards</li>
-            <li onclick="onSelect('get-card',                'controller', 'cards')">get-card</li>
-            <li onclick="onSelect('get-card-by-index',       'controller', 'cards')">get-card-by-index</li>
-            <li onclick="onSelect('put-card',                'controller', 'cards')">put-card</li>
-            <li onclick="onSelect('delete-card',             'controller', 'cards')">delete-card</li>
-            <li onclick="onSelect('delete-all-cards',        'controller', 'cards')">delete-all-cards</li>
+            <li onclick="onSelect(event)" data-cmd="get-cards",                data-sections="controller,cards"    data-uses="controller">get-cards</li>
+            <li onclick="onSelect(event)" data-cmd="get-card",                 data-sections="controller,cards"    data-uses="controller,card.number">get-card</li>
+            <li onclick="onSelect(event)" data-cmd="get-card-by-index",        data-sections="controller,cards"    data-uses="controller,card.index">get-card-by-index</li>
+            <li onclick="onSelect(event)" data-cmd="put-card",                 data-sections="controller,cards"    data-uses="controller,card.number,card.start-date,card.end-date,card.doors.1,card.doors.2,card.doors.3,card.doors.4">put-card</li>
+            <li onclick="onSelect(event)" data-cmd="delete-card",              data-sections="controller,cards"    data-uses="controller,card.number">delete-card</li>
+            <li onclick="onSelect(event)" data-cmd="delete-all-cards",         data-sections="controller,cards"    data-uses="controller">delete-all-cards</li>
             <li class="spacer"></li>
-            <li onclick="onSelect('get-event',               'controller', 'events')">get-event</li>
-            <li onclick="onSelect('get-event-index',         'controller', 'events')">get-event-index</li>
-            <li onclick="onSelect('set-event-index',         'controller', 'events')">set-event-index</li>
-            <li onclick="onSelect('record-special-events',   'controller', 'events')">record-special-events</li>
+            <li onclick="onSelect(event)" data-cmd="get-event",                data-sections="controller,events"   data-uses="controller,events.index"get-event</li>
+            <li onclick="onSelect(event)" data-cmd="get-event-index",          data-sections="controller,events"   data-uses="controller"get-event-index</li>
+            <li onclick="onSelect(event)" data-cmd="set-event-index",          data-sections="controller,events"   data-uses="controller,events.index"set-event-index</li>
+            <li onclick="onSelect(event)" data-cmd="record-special-events",    data-sections="controller,events"   data-uses="controller,events.record-special-events"record-special-events</li>
             <li class="spacer"></li>
-            <li onclick="onSelect('get-time-profile',        'controller', 'profiles')">get-time-profile</li>
-            <li onclick="onSelect('set-time-profile',        'controller', 'profiles')">set-time-profile</li>
-            <li onclick="onSelect('delete-all-time-profiles','controller', 'profiles')">delete-all-time-profiles</li>
+            <li onclick="onSelect(event)" data-cmd="get-time-profile",         data-sections="controller,profiles" data-uses="controller,time-profile.id">get-time-profile</li>
+            <li onclick="onSelect(event)" data-cmd="set-time-profile",         data-sections="controller,profiles" data-uses="controller,time-profile.*">set-time-profile</li>
+            <li onclick="onSelect(event)" data-cmd="delete-all-time-profiles", data-sections="controller,profiles" data-uses="controller">delete-all-time-profiles</li>
             <li class="spacer"></li>
-            <li onclick="onSelect('add-task',                'controller', 'tasks')">add-task</li>
-            <li onclick="onSelect('refresh-tasklist',        'controller', 'tasks')">refresh-tasklist</li>
-            <li onclick="onSelect('clear-tasklist',          'controller', 'tasks')">clear-tasklist</li>
+            <li onclick="onSelect(event)" data-cmd="add-task",                 data-sections="controller,tasks"    data-uses="controller,task.*">add-task</li>
+            <li onclick="onSelect(event)" data-cmd="refresh-tasklist",         data-sections="controller,tasks"    data-uses="controller">refresh-tasklist</li>
+            <li onclick="onSelect(event)" data-cmd="clear-tasklist",           data-sections="controller,tasks"    data-uses="controller">clear-tasklist</li>
           </ul>
         </div>
 
@@ -69,14 +69,14 @@
 
           <div class="section IP">
             <div class="section-label">IPv4 configuration</div>
-            <label class="parameter-label">address</label>
-            <input class="parameter-value" type="text" placeholder="IPv4 address" data-tag="IP.address" />
+            <label for="ip-address" class="parameter-label">address</label>
+            <input id="ip-address"  class="parameter-value" type="text" placeholder="IPv4 address" data-tag="IP.address" />
             
-            <label class="parameter-label">net mask</label>
-            <input class="parameter-value" type="text" placeholder="IPv4 subnet mask" data-tag="IP.netmask" />
+            <label for="ip-netmask" class="parameter-label">net mask</label>
+            <input id="ip-netmask"  class="parameter-value" type="text" placeholder="IPv4 subnet mask" data-tag="IP.netmask" />
             
-            <label class="parameter-label">gateway</label>
-            <input class="parameter-value" type="text" placeholder="IPv4 gateway address" data-tag="IP.gateway" />
+            <label for="ip-gateway" class="parameter-label">gateway</label>
+            <input id="ip-gateway"  class="parameter-value" type="text" placeholder="IPv4 gateway address" data-tag="IP.gateway" />
           </div>
 
           <div class="section listener">
@@ -91,12 +91,12 @@
 
           <div class="section doors">
             <div class="section-label">doors</div>
-            <label class="parameter-label">door</label>
-            <input class="parameter-value" type="number" min="1" max="4" placeholder="door" data-tag="door.id" />
-            <label class="parameter-label">mode</label>
-            <input class="parameter-value" type="number" min="1" max="3" placeholder="door control mode" value="3" data-tag="door.mode" />
-            <label class="parameter-label">delay</label>
-            <input class="parameter-value" type="number" min="1" max="60" placeholder="door delay" value="5" data-tag="door.delay" />
+            <label for="door-id"    class="parameter-label">door</label>
+            <input id="door-id"     class="parameter-value" type="number" min="1" max="4" placeholder="door" data-tag="door.id" />
+            <label for="door-mode"  class="parameter-label">mode</label>
+            <input id="door-mode"   class="parameter-value" type="number" min="1" max="3" placeholder="door control mode" value="3" data-tag="door.mode" />
+            <label for="door-delay" class="parameter-label">delay</label>
+            <input id="door-delay"  class="parameter-value" type="number" min="1" max="60" placeholder="door delay" value="5" data-tag="door.delay" />
           </div>
 
           <div class="section cards">
@@ -131,46 +131,45 @@
 
           <div class="section profiles">
             <div class="section-label">time profiles</div>
-            <label class="parameter-label">profile id</label>
-            <input class="parameter-value" type="number" min="2" max="254" data-tag="time-profile.id" value="2"/>
-            <label class="parameter-label">start date</label>
-            <input class="parameter-value" type="date" data-tag="time-profile.start-date" />
+            <label for="time-profile-id" class="parameter-label">profile id</label>
+            <input id="time-profile-id"  class="parameter-value" type="number" min="2" max="254" data-tag="time-profile.id" value="2"/>
+            <label for="time-profile-start-date" class="parameter-label">start date</label>
+            <input id="time-profile-start-date"  class="parameter-value" type="date" data-tag="time-profile.start-date" />
+            <label for="time-profile-end-date" class="parameter-label">end date</label>
+            <input id="time-profile-end-date" class="parameter-value" type="date" data-tag="time-profile.end-date" />
             
-            <label class="parameter-label">end date</label>
-            <input class="parameter-value" type="date" data-tag="time-profile.end-date" />
-            
-            <label class="parameter-label">weekdays</label>
-            <div class="weekdays">
-              <label class="weekday"><input type="checkbox" data-tag="time-profile.monday" />Mon</label>
-              <label class="weekday"><input type="checkbox" data-tag="time-profile.tuesday" />Tue</label>
-              <label class="weekday"><input type="checkbox" data-tag="time-profile.wednesday" />Wed</label>
-              <label class="weekday"><input type="checkbox" data-tag="time-profile.thursday" />Thu</label>
-              <label class="weekday"><input type="checkbox" data-tag="time-profile.friday" />Fri</label>
-              <label class="weekday"><input type="checkbox" data-tag="time-profile.saturday" />Sat</label>
-              <label class="weekday"><input type="checkbox" data-tag="time-profile.sunday" />Sun</label>
+            <label for="time-profile-weekdays" class="parameter-label">weekdays</label>
+            <div id="time-profile-weekdays" class="weekdays">
+              <label for="time-profile-monday"    class="weekday"><input id="time-profile-monday"    type="checkbox" data-tag="time-profile.monday" />Mon</label>
+              <label for="time-profile-tuesday"   class="weekday"><input id="time-profile-tuesday"   type="checkbox" data-tag="time-profile.tuesday" />Tue</label>
+              <label for="time-profile-wednesday" class="weekday"><input id="time-profile-wednesday" type="checkbox" data-tag="time-profile.wednesday" />Wed</label>
+              <label for="time-profile-thursday"  class="weekday"><input id="time-profile-thursday"  type="checkbox" data-tag="time-profile.thursday" />Thu</label>
+              <label for="time-profile-friday"    class="weekday"><input id="time-profile-friday"    type="checkbox" data-tag="time-profile.friday" />Fri</label>
+              <label for="time-profile-saturdday" class="weekday"><input id="time-profile-saturdday" type="checkbox" data-tag="time-profile.saturday" />Sat</label>
+              <label for="time-profile-sunday"    class="weekday"><input id="time-profile-sunday"    type="checkbox" data-tag="time-profile.sunday" />Sun</label>
             </div>
             
-            <label class="parameter">
+            <label for="time-profile-segment-1" class="parameter">
               segment 1
-              <input class="parameter" type="time" placeholder="start time" data-tag="time-profile.segment.1.start" />
-              <input class="parameter" type="time" placeholder="end time" data-tag="time-profile.segment.1.end" />
+              <input id="time-profile-segment-1"     class="parameter" type="time" placeholder="start time" data-tag="time-profile.segment.1.start" />
+              <input id="time-profile-segment-3-end" class="parameter" type="time" placeholder="end time" data-tag="time-profile.segment.1.end" />
             </label>
             
-            <label class="parameter">
+            <label for="time-profile-segment-2" class="parameter">
               segment 2
-              <input class="parameter" type="time" placeholder="start time" data-tag="time-profile.segment.2.start" />
-              <input class="parameter" type="time" placeholder="end time" data-tag="time-profile.segment.2.end" />
+              <input id="time-profile-segment-2"     class="parameter" type="time" placeholder="start time" data-tag="time-profile.segment.2.start" />
+              <input id="time-profile-segment-2-end" class="parameter" type="time" placeholder="end time" data-tag="time-profile.segment.2.end" />
             </label>
             
-            <label class="parameter">
+            <label for="time-profile-segment-3" class="parameter">
               segment 3
-              <input class="parameter" type="time" placeholder="start time" data-tag="time-profile.segment.3.start" />
-              <input class="parameter" type="time" placeholder="end time" data-tag="time-profile.segment.3.end" />
+              <input id="time-profile-segment-3"     class="parameter" type="time" placeholder="start time" data-tag="time-profile.segment.3.start" />
+              <input id="time-profile-segment-3-end" class="parameter" type="time" placeholder="end time" data-tag="time-profile.segment.3.end" />
             </label>
             
-            <label class="parameter">
+            <label for="linked-profile-id" class="parameter">
               linked profile id
-              <input type="number" min="2" max="254" placeholder="profile id" data-tag="time-profile.linked-profile.id" />
+              <input id="linked-profile-id" type="number" min="2" max="254" placeholder="profile id" data-tag="time-profile.linked-profile.id" />
             </label>
           </div>
 
@@ -181,15 +180,15 @@
             <label class="parameter-label">end date</label>
             <input class="parameter-value" type="date" data-tag="task.end-date" />
             
-            <label class="parameter-label">weekdays</label>
-            <div class="weekdays">
-              <label class="weekday"><input type="checkbox" data-tag="task.monday" />Mon</label>
-              <label class="weekday"><input type="checkbox" data-tag="task.tuesday" />Tue</label>
-              <label class="weekday"><input type="checkbox" data-tag="task.wednesday" />Wed</label>
-              <label class="weekday"><input type="checkbox" data-tag="task.thursday" />Thu</label>
-              <label class="weekday"><input type="checkbox" data-tag="task.friday" />Fri</label>
-              <label class="weekday"><input type="checkbox" data-tag="task.saturday" />Sat</label>
-              <label class="weekday"><input type="checkbox" data-tag="task.sunday" />Sun</label>
+            <label for="task-weekdays" class="parameter-label">weekdays</label>
+            <div id="task-weekdays" class="weekdays">
+              <label for="task-monday"    class="weekday"><input id="task-monday"    type="checkbox" data-tag="task.monday" />Mon</label>
+              <label for="task-tuesday"   class="weekday"><input id="task-tuesday"   type="checkbox" data-tag="task.tuesday" />Tue</label>
+              <label for="task-wednesday" class="weekday"><input id="task-wednesday" type="checkbox" data-tag="task.wednesday" />Wed</label>
+              <label for="task-thursday"  class="weekday"><input id="task-thursday"  type="checkbox" data-tag="task.thursday" />Thu</label>
+              <label for="task-friday"    class="weekday"><input id="task-friday"    type="checkbox" data-tag="task.friday" />Fri</label>
+              <label for="task-saturdday" class="weekday"><input id="task-saturdday" type="checkbox" data-tag="task.saturday" />Sat</label>
+              <label for="task-sunday"    class="weekday"><input id="task-sunday"    type="checkbox" data-tag="task.sunday" />Sun</label>
             </div>
             
             <label class="parameter-label">start time</label>
@@ -254,8 +253,12 @@
   </script>
 
   <script>
-    function onSelect(cmd, ...depends) {
+    function onSelect(event) {
+      const cmd = event.currentTarget.dataset.cmd
+      const depends = event.currentTarget.dataset.sections.split(',')
+      const uses = event.currentTarget.dataset.uses.split(',')
       const sections = document.querySelectorAll('div.section')
+      const fields = document.querySelectorAll('input[data-tag]:not([data-tag=""])')
 
       sections.forEach(section => {
         for (d of depends) {
@@ -267,6 +270,28 @@
 
         section.classList.remove('visible')        
       })
+
+      const f = function(element, enabled) {
+        const label = document.querySelector(`label[for="${element.id}"]`)
+
+        element.disabled = !enabled
+        
+        if (label && enabled) {
+          label.classList.remove('disabled')
+        } else if (label && !enabled) {
+          label.classList.add('disabled')
+        }
+      }
+
+      fields.forEach(e => f(e, false))
+
+      uses
+        .filter(u => !u.endsWith('.*'))
+        .forEach(u => document.querySelectorAll(`[data-tag^="${u}"]`).forEach(e => f(e,true)))
+
+      uses
+        .filter(u => u.endsWith('.*'))
+        .forEach(u => document.querySelectorAll(`[data-tag^="${u.substring(0,u.length-1)}"]`).forEach(e => f(e,true)))
 
       select(cmd)
     }
