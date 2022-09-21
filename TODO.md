@@ -4,6 +4,12 @@
 
 - [x] Codegen JS interface to UHPPOTE
 - [x] Commonalise HTTP and HTTPS
+- [ ] WebUI
+      - [ ] Fix remaining stash/unstash
+      - [ ] Enable/disable fields
+      - [ ] Clean CSS
+            - https://stackoverflow.com/questions/33242/how-can-i-find-unused-images-and-css-styles-in-a-website
+
 - [ ] Logo
       https://pixabay.com/images/search/gravity/
 
@@ -15,8 +21,9 @@
 
 - [ ] Commonalize connector behaviours
 - [ ] Use cancelable contexts throughout
-- [ ] gRPC portal
-- [ ] WebUI
+- [ ] gRPC
+- [ ] WSS
+- [ ] XMPP
 
 - (?) eBPF
 - (?) Encode packet with protocol buffers
