@@ -1,6 +1,6 @@
 import * as commands from './commands.js'
 
-const COMMANDS = new Map([
+export const COMMANDS = new Map([
   ['get-all-controllers', { fn: commands.getAllControllers, args: [] }],
   ['get-controller', { fn: commands.getController, args: ['controller'] }],
   ['set-IP', { fn: commands.setIP, args: ['controller', 'IP.address', 'IP.netmask', 'IP.gateway'] }],

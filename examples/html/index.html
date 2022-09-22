@@ -21,38 +21,38 @@
       <main>
         <div id="list" class="panel">
           <ul>
-            <li onclick="onSelect(event)" data-cmd="get-all-controllers"       data-sections="" data-uses="">get-all-controllers</li>
+            <li onclick="onSelect(event)" data-cmd="get-all-controllers">get-all-controllers</li>
             <li class="spacer"></li>
-            <li onclick="onSelect(event)" data-cmd="get-controller"            data-sections="controller"          data-uses="controller">get-controller</li>
-            <li onclick="onSelect(event)" data-cmd="set-IP",                   data-sections="controller,IP"       data-uses="controller,IP.*">set-IP</li>
-            <li onclick="onSelect(event)" data-cmd="get-listener",             data-sections="controller,listener" data-uses="controller">get-listener</li>
-            <li onclick="onSelect(event)" data-cmd="set-listener",             data-sections="controller,listener" data-uses="controller,listener">set-listener</li>
-            <li onclick="onSelect(event)" data-cmd="get-time",                 data-sections="controller,datetime" data-uses="controller">get-time</li>
-            <li onclick="onSelect(event)" data-cmd="set-time",                 data-sections="controller,datetime" data-uses="controller,datetime">set-time</li>
-            <li onclick="onSelect(event)" data-cmd="get-door-control",         data-sections="controller,doors"    data-uses="controller,door.id">get-door-control</li>
-            <li onclick="onSelect(event)" data-cmd="set-door-control",         data-sections="controller,doors"    data-uses="controller,door.*">set-door-control</li>
-            <li onclick="onSelect(event)" data-cmd="open-door",                data-sections="controller,doors"    data-uses="controller,door.id">open-door</li>
-            <li onclick="onSelect(event)" data-cmd="get-status",               data-sections="controller"          data-uses="controller">get-status</li>
+            <li onclick="onSelect(event)" data-cmd="get-controller">get-controller</li>
+            <li onclick="onSelect(event)" data-cmd="set-IP">set-IP</li>
+            <li onclick="onSelect(event)" data-cmd="get-listener">get-listener</li>
+            <li onclick="onSelect(event)" data-cmd="set-listener">set-listener</li>
+            <li onclick="onSelect(event)" data-cmd="get-time">get-time</li>
+            <li onclick="onSelect(event)" data-cmd="set-time">set-time</li>
+            <li onclick="onSelect(event)" data-cmd="get-door-control">get-door-control</li>
+            <li onclick="onSelect(event)" data-cmd="set-door-control">set-door-control</li>
+            <li onclick="onSelect(event)" data-cmd="open-door">open-door</li>
+            <li onclick="onSelect(event)" data-cmd="get-status">get-status</li>
             <li class="spacer"></li>
-            <li onclick="onSelect(event)" data-cmd="get-cards",                data-sections="controller,cards"    data-uses="controller">get-cards</li>
-            <li onclick="onSelect(event)" data-cmd="get-card",                 data-sections="controller,cards"    data-uses="controller,card.number">get-card</li>
-            <li onclick="onSelect(event)" data-cmd="get-card-by-index",        data-sections="controller,cards"    data-uses="controller,card.index">get-card-by-index</li>
-            <li onclick="onSelect(event)" data-cmd="put-card",                 data-sections="controller,cards"    data-uses="controller,card.number,card.start-date,card.end-date,card.doors.1,card.doors.2,card.doors.3,card.doors.4">put-card</li>
-            <li onclick="onSelect(event)" data-cmd="delete-card",              data-sections="controller,cards"    data-uses="controller,card.number">delete-card</li>
-            <li onclick="onSelect(event)" data-cmd="delete-all-cards",         data-sections="controller,cards"    data-uses="controller">delete-all-cards</li>
+            <li onclick="onSelect(event)" data-cmd="get-cards">get-cards</li>
+            <li onclick="onSelect(event)" data-cmd="get-card">get-card</li>
+            <li onclick="onSelect(event)" data-cmd="get-card-by-index">get-card-by-index</li>
+            <li onclick="onSelect(event)" data-cmd="put-card">put-card</li>
+            <li onclick="onSelect(event)" data-cmd="delete-card">delete-card</li>
+            <li onclick="onSelect(event)" data-cmd="delete-all-cards">delete-all-cards</li>
             <li class="spacer"></li>
-            <li onclick="onSelect(event)" data-cmd="get-event",                data-sections="controller,events"   data-uses="controller,events.index"get-event</li>
-            <li onclick="onSelect(event)" data-cmd="get-event-index",          data-sections="controller,events"   data-uses="controller"get-event-index</li>
-            <li onclick="onSelect(event)" data-cmd="set-event-index",          data-sections="controller,events"   data-uses="controller,events.index"set-event-index</li>
-            <li onclick="onSelect(event)" data-cmd="record-special-events",    data-sections="controller,events"   data-uses="controller,events.record-special-events"record-special-events</li>
+            <li onclick="onSelect(event)" data-cmd="get-event">get-event</li>
+            <li onclick="onSelect(event)" data-cmd="get-event-index">get-event-index</li>
+            <li onclick="onSelect(event)" data-cmd="set-event-index">set-event-index</li>
+            <li onclick="onSelect(event)" data-cmd="record-special-events">record-special-events</li>
             <li class="spacer"></li>
-            <li onclick="onSelect(event)" data-cmd="get-time-profile",         data-sections="controller,profiles" data-uses="controller,time-profile.id">get-time-profile</li>
-            <li onclick="onSelect(event)" data-cmd="set-time-profile",         data-sections="controller,profiles" data-uses="controller,time-profile.*">set-time-profile</li>
-            <li onclick="onSelect(event)" data-cmd="delete-all-time-profiles", data-sections="controller,profiles" data-uses="controller">delete-all-time-profiles</li>
+            <li onclick="onSelect(event)" data-cmd="get-time-profile">get-time-profile</li>
+            <li onclick="onSelect(event)" data-cmd="set-time-profile">set-time-profile</li>
+            <li onclick="onSelect(event)" data-cmd="delete-all-time-profiles">delete-all-time-profiles</li>
             <li class="spacer"></li>
-            <li onclick="onSelect(event)" data-cmd="add-task",                 data-sections="controller,tasks"    data-uses="controller,task.*">add-task</li>
-            <li onclick="onSelect(event)" data-cmd="refresh-tasklist",         data-sections="controller,tasks"    data-uses="controller">refresh-tasklist</li>
-            <li onclick="onSelect(event)" data-cmd="clear-tasklist",           data-sections="controller,tasks"    data-uses="controller">clear-tasklist</li>
+            <li onclick="onSelect(event)" data-cmd="add-task">add-task</li>
+            <li onclick="onSelect(event)" data-cmd="refresh-tasklist">refresh-tasklist</li>
+            <li onclick="onSelect(event)" data-cmd="clear-tasklist">clear-tasklist</li>
           </ul>
         </div>
 
@@ -101,31 +101,31 @@
 
           <div class="section cards">
             <div class="section-label">card</div>
-            <label class="parameter-label">number</label>
-            <input class="parameter-value" type="number" min="1" placeholder="card number" data-tag="card.number" />
-            <label class="parameter-label">index</label>
-            <input class="parameter-value" type="number" min="1" placeholder="card index"  data-tag="card.index" />
-            <label class="parameter-label">start date</label>
-            <input class="parameter-value" type="date" placeholder="card start date" data-tag="card.start-date" />
-            <label class="parameter-label">end date</label>
-            <input class="parameter-value" type="date" placeholder="card end date"   data-tag="card.end-date" />
-            <label class="parameter-label">door 1</label>
-            <input class="parameter-value" type="number" min="0" max="254" placeholder="permissions" data-tag="card.doors.1" />
-            <label class="parameter-label">door 2</label>
-            <input class="parameter-value" type="number" min="0" max="254" placeholder="permissions" data-tag="card.doors.2" />
-            <label class="parameter-label">door 3</label>
-            <input class="parameter-value" type="number" min="0" max="254" placeholder="permissions" data-tag="card.doors.3" />
-            <label class="parameter-label">door 4</label>
-            <input class="parameter-value" type="number" min="0" max="254" placeholder="permissions" data-tag="card.doors.4" />
+            <label for="card-number" class="parameter-label">number</label>
+            <input id="card-number"  class="parameter-value" type="number" min="1" placeholder="card number" data-tag="card.number" />
+            <label for="card-index" class="parameter-label">index</label>
+            <input id="card-index"  class="parameter-value" type="number" min="1" placeholder="card index"  data-tag="card.index" />
+            <label for="card-start-date" class="parameter-label">start date</label>
+            <input id="card-start-date"  class="parameter-value" type="date" placeholder="card start date" data-tag="card.start-date" />
+            <label for="card-end-date" class="parameter-label">end date</label>
+            <input id="card-end-date"  class="parameter-value" type="date" placeholder="card end date"   data-tag="card.end-date" />
+            <label for="card-doors-1" class="parameter-label">door 1</label>
+            <input id="card-doors-1"  class="parameter-value" type="number" min="0" max="254" placeholder="permissions" data-tag="card.doors.1" />
+            <label for="card-doors-2" class="parameter-label">door 2</label>
+            <input id="card-doors-2"  class="parameter-value" type="number" min="0" max="254" placeholder="permissions" data-tag="card.doors.2" />
+            <label for="card-doors-3" class="parameter-label">door 3</label>
+            <input id="card-doors-3"  class="parameter-value" type="number" min="0" max="254" placeholder="permissions" data-tag="card.doors.3" />
+            <label for="card-doors-4" class="parameter-label">door 4</label>
+            <input id="card-doors-4"  class="parameter-value" type="number" min="0" max="254" placeholder="permissions" data-tag="card.doors.4" />
           </div>
 
           <div class="section events">
             <div class="section-label">events</div>
-            <label class="parameter-label">index</label>
-            <input class="parameter-value" type="number" min="1" placeholder="event index" data-tag="events.index" />
-            <label class="parameter">
+            <label for="event-index" class="parameter-label">index</label>
+            <input id="event-index"  class="parameter-value" type="number" min="1" placeholder="event index" data-tag="events.index" />
+            <label for="record-special-events" class="parameter">
               Record special events
-              <input type="checkbox" data-tag="events.record-special-events" checked />
+              <input id="record-special-events" type="checkbox" data-tag="events.record-special-events" checked />
             </label>
           </div>
 
@@ -232,10 +232,12 @@
       initialise,
       exec, 
       clear,
+      COMMANDS,
     } from './javascript/main.js'
 
     window.exec = exec
     window.clear = clear
+    window.uses = new Map([...COMMANDS].map(([u,v]) => [u,v.args]))
 
     window.select = function(cmd) {
       const c = document.querySelector('input#cmd')
@@ -255,14 +257,15 @@
   <script>
     function onSelect(event) {
       const cmd = event.currentTarget.dataset.cmd
-      const depends = event.currentTarget.dataset.sections.split(',')
-      const uses = event.currentTarget.dataset.uses.split(',')
+      const uses = window.uses.get(cmd)
       const sections = document.querySelectorAll('div.section')
       const fields = document.querySelectorAll('input[data-tag]:not([data-tag=""])')
+      const labels = [...fields].map(e => document.querySelector(`label[for="${e.id}"]`)).filter(l => l !== null)
 
+      // ... show/hide sections
       sections.forEach(section => {
-        for (d of depends) {
-          if (section.classList.contains(d)) {
+        for (u of uses) {
+          if (section.querySelector(`[data-tag="${u}"]`)) {
             section.classList.add('visible')
             return
           }
@@ -271,41 +274,44 @@
         section.classList.remove('visible')        
       })
 
-      const f = function(element, enabled) {
-        const label = document.querySelector(`label[for="${element.id}"]`)
+      // ... enable/disable fields
+      fields.forEach(e => e.disabled = true)
+      labels.forEach(e => e.classList.add('disabled'))
 
-        element.disabled = !enabled
-        
-        if (label && enabled) {
-          label.classList.remove('disabled')
-        } else if (label && !enabled) {
-          label.classList.add('disabled')
+      uses.forEach(u => {
+        const e = document.querySelector(`[data-tag^="${u}"]`)
+        if (e) {
+          e.disabled = false
+          
+          const label = document.querySelector(`label[for="${e.id}"]`)
+          if (label) {
+            label.classList.remove('disabled')
+          }
+        }
+      })
+
+      // ... weekdays are a special snowflake 
+      const label = document.querySelector(`label[for="time-profile-weekdays"]`)
+      if (label) {
+        label.classList.add('disabled')
+
+        const weekdays = [...document.querySelectorAll(`div#time-profile-weekdays input`)].map(e => e.dataset.tag)
+        for (day of weekdays) {
+          if (uses.includes(day)) {
+            label.classList.remove('disabled')
+            break
+          }
         }
       }
-
-      fields.forEach(e => f(e, false))
-
-      uses
-        .filter(u => !u.endsWith('.*'))
-        .forEach(u => document.querySelectorAll(`[data-tag^="${u}"]`).forEach(e => f(e,true)))
-
-      uses
-        .filter(u => u.endsWith('.*'))
-        .forEach(u => document.querySelectorAll(`[data-tag^="${u.substring(0,u.length-1)}"]`).forEach(e => f(e,true)))
 
       select(cmd)
     }
 
     function onExecute(event) {
       const command = event.target.dataset.command
-
       if (command) {
         exec(command)        
       }
-    }
-
-    function onCommand(cmd) {
-      exec(cmd)
     }
 
     function onClear(event) {

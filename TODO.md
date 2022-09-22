@@ -2,11 +2,9 @@
 
 ## IN PROGRESS
 
-- [x] Codegen JS interface to UHPPOTE
-- [x] Commonalise HTTP and HTTPS
 - [ ] WebUI
       - [x] Enable/disable fields
-      - [ ] Enable/disable weekdays label
+      - [x] Enable/disable weekdays label
       - [ ] Fix remaining stash/unstash
       - [ ] Clean CSS
             - https://stackoverflow.com/questions/33242/how-can-i-find-unused-images-and-css-styles-in-a-website

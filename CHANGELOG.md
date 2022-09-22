@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+1. HTTP: implemented remaining UHPPOTE functions
+2. HTTP: reworked to used codegen'd JS
+3. Commonalised HTTP/S implementations
+
 ### Changed
 1. Changed _send_ URL to `/udp/send`
 2. Added _broadcast_ URL `/udp/broadcast`
