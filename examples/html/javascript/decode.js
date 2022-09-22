@@ -598,20 +598,14 @@ function unpackTime (packet, offset) {
   const bytes = new Uint8Array(packet.buffer.slice(offset, offset + 3))
   const time = bcd(bytes)
 
-  return `${time.substr(0, 2)}:${time.substr(2, 2)}:${time.substr(4, 2)}`
+  return parseHHmmss(time)
 }
 
 function unpackHHmm (packet, offset) {
   const bytes = new Uint8Array(packet.buffer.slice(offset, offset + 2))
-  const datetime = bcd(bytes)
+  const time = bcd(bytes)
 
-  if (datetime === '0000') {
-    return ''
-  }
-
-  const time = `${datetime.substr(8, 2)}:${datetime.substr(10, 2)}}`
-
-  return `${time}`
+  return parseHHmm(time)
 }
 
 function bcd (bytes) {
@@ -631,16 +625,11 @@ function parseYYYYMMDD (s) {
     throw new Error(`invalid date value ${s}`)
   }
 
-  const date = new Date()
-  date.setFullYear(year)
-  date.setMonth(month - 1)
-  date.setDate(day)
-  date.setHours(0)
-  date.setMinutes(0)
-  date.setSeconds(0)
-  date.setMilliseconds(0)
+  const yyyy = `${year}`.padStart(4, '0')
+  const MM = `${month}`.padStart(2, '0')
+  const dd = `${day}`.padStart(2, '0')
 
-  return date
+  return `${yyyy}-${MM}-${dd}`
 }
 
 function parseYYYYMMDDHHmmss (s) {
@@ -663,14 +652,42 @@ function parseYYYYMMDDHHmmss (s) {
     throw new Error(`invalid datetime value ${s}`)
   }
 
-  const date = new Date()
-  date.setFullYear(year)
-  date.setMonth(month - 1)
-  date.setDate(day)
-  date.setHours(hours)
-  date.setMinutes(minutes)
-  date.setSeconds(seconds)
-  date.setMilliseconds(0)
+  const yyyy = `${year}`.padStart(4, '0')
+  const MM = `${month}`.padStart(2, '0')
+  const dd = `${day}`.padStart(2, '0')
+  const HH = `${hours}`.padStart(2, '0')
+  const mm = `${minutes}`.padStart(2, '0')
+  const ss = `${seconds}`.padStart(2, '0')
 
-  return date
+  return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}`
+}
+
+function parseHHmmss (s) {
+  const hours = parseInt(s.substr(0, 2))
+  const minutes = parseInt(s.substr(2, 2))
+  const seconds = parseInt(s.substr(4, 2))
+
+  if (hours > 24 || minutes > 60 || seconds > 60) {
+    throw new Error(`invalid time value ${s}`)
+  }
+
+  const HH = `${hours}`.padStart(2, '0')
+  const mm = `${minutes}`.padStart(2, '0')
+  const ss = `${seconds}`.padStart(2, '0')
+
+  return `${HH}:${mm}:${ss}`
+}
+
+function parseHHmm (s) {
+  const hours = parseInt(s.substr(0, 2))
+  const minutes = parseInt(s.substr(2, 2))
+
+  if (hours > 24 || minutes > 60) {
+    throw new Error(`invalid time value ${s}`)
+  }
+
+  const HH = `${hours}`.padStart(2, '0')
+  const mm = `${minutes}`.padStart(2, '0')
+
+  return `${HH}:${mm}`
 }

@@ -95,26 +95,28 @@ export function getCard (controller, card) {
   controller = arg(controller)
   card = arg(card)
 
-  const response = uhppote.GetCard(controller, card)
-  if (response.cardNumber === 0) {
-    throw new Error(`card ${card} not found`)
-  }
+  return uhppote.GetCard(controller, card).then(response => {
+    if (response.cardNumber === 0) {
+      throw new Error(`card ${card} not found`)
+    }
 
-  return response
+    return response
+  })
 }
 
 export function getCardByIndex (controller, index) {
   controller = arg(controller)
   index = arg(index)
 
-  const response = uhppote.GetCardByIndex(controller, index)
-  if (response.cardNumber === 0) {
-    throw new Error(`card @ index ${index} not found`)
-  } else if (response.cardNumber === 0xffffffff) {
-    throw new Error(`card @ index ${index} deleted`)
-  }
+  return uhppote.GetCardByIndex(controller, index).then(response => {
+    if (response.cardNumber === 0) {
+      throw new Error(`card @ index ${index} not found`)
+    } else if (response.cardNumber === 0xffffffff) {
+      throw new Error(`card @ index ${index} deleted`)
+    }
 
-  return response
+    return response
+  })
 }
 
 export function putCard (controller, card, start, end, door1, door2, door3, door4) {
@@ -147,14 +149,15 @@ export function getEvent (controller, index) {
   controller = arg(controller)
   index = arg(index)
 
-  const response = uhppote.GetEvent(controller, index)
-  if (response.eventType === 0xff) {
-    throw new Error(`event @ index ${index} overwritten`)
-  } else if (response.index === 0) {
-    throw new Error(`event @ index ${index} not found`)
-  }
+  return uhppote.GetEvent(controller, index).then(response => {
+    if (response.eventType === 0xff) {
+      throw new Error(`event @ index ${index} overwritten`)
+    } else if (response.index === 0) {
+      throw new Error(`event @ index ${index} not found`)
+    }
 
-  return response
+    return response
+  })
 }
 
 export function getEventIndex (controller) {
@@ -181,12 +184,13 @@ export function getTimeProfile (controller, profileID) {
   controller = arg(controller)
   profileID = arg(profileID)
 
-  const response = uhppote.GetTimeProfile(controller, profileID)
-  if (response.profileId === 0) {
-    throw new Error(`time profile ${profileID} not defined`)
-  }
+  return uhppote.GetTimeProfile(controller, profileID).then(response => {
+    if (response.profileId === 0) {
+      throw new Error(`time profile ${profileID} not defined`)
+    }
 
-  return response
+    return response
+  })
 }
 
 export function setTimeProfile (controller,
