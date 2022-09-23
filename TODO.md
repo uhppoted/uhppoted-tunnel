@@ -5,7 +5,7 @@
 - [ ] WebUI
       - [x] Enable/disable fields
       - [x] Enable/disable weekdays label
-      - [ ] Fix remaining stash/unstash
+      - [x] Fix remaining stash/unstash
       - [ ] Clean CSS
             - https://stackoverflow.com/questions/33242/how-can-i-find-unused-images-and-css-styles-in-a-website
 
