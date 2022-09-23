@@ -64,7 +64,7 @@
 
           <div class="section controller">
             <div class="section-label">controller</div>
-            <input class="parameter-value" type="number" min="1" max="499999999" data-tag="controller" />
+            <input id="controller" class="parameter-value" type="number" min="1" max="499999999" data-tag="controller" />
           </div>
 
           <div class="section IP">
@@ -230,92 +230,29 @@
   <script type="module">
     import { 
       initialise,
-      exec, 
       clear,
-      COMMANDS,
-    } from './javascript/main.js'
+      select,
+      execute, 
+    } from './javascript/tunnel.js'
 
-    window.exec = exec
     window.clear = clear
-    window.uses = new Map([...COMMANDS].map(([u,v]) => [u,v.args]))
-
-    window.select = function(cmd) {
-      const c = document.querySelector('input#cmd')
-      const x = document.querySelector('button#execute')
-
-      if (c) {
-        c.value = cmd
-        x.dataset.command = cmd
-        x.disabled = false
-      }
-    }
+    window.select = select
+    window.execute = execute
 
     initialise()
-
   </script>
 
   <script>
+    function onClear(event) {
+      clear()
+    }
+
     function onSelect(event) {
-      const cmd = event.currentTarget.dataset.cmd
-      const uses = window.uses.get(cmd)
-      const sections = document.querySelectorAll('div.section')
-      const fields = document.querySelectorAll('input[data-tag]:not([data-tag=""])')
-      const labels = [...fields].map(e => document.querySelector(`label[for="${e.id}"]`)).filter(l => l !== null)
-
-      // ... show/hide sections
-      sections.forEach(section => {
-        for (u of uses) {
-          if (section.querySelector(`[data-tag="${u}"]`)) {
-            section.classList.add('visible')
-            return
-          }
-        }
-
-        section.classList.remove('visible')        
-      })
-
-      // ... enable/disable fields
-      fields.forEach(e => e.disabled = true)
-      labels.forEach(e => e.classList.add('disabled'))
-
-      uses.forEach(u => {
-        const e = document.querySelector(`[data-tag^="${u}"]`)
-        if (e) {
-          e.disabled = false
-          
-          const label = document.querySelector(`label[for="${e.id}"]`)
-          if (label) {
-            label.classList.remove('disabled')
-          }
-        }
-      })
-
-      // ... weekdays are a special snowflake 
-      const label = document.querySelector(`label[for="time-profile-weekdays"]`)
-      if (label) {
-        label.classList.add('disabled')
-
-        const weekdays = [...document.querySelectorAll(`div#time-profile-weekdays input`)].map(e => e.dataset.tag)
-        for (day of weekdays) {
-          if (uses.includes(day)) {
-            label.classList.remove('disabled')
-            break
-          }
-        }
-      }
-
-      select(cmd)
+      select(event)
     }
 
     function onExecute(event) {
-      const command = event.target.dataset.command
-      if (command) {
-        exec(command)        
-      }
-    }
-
-    function onClear(event) {
-      clear()
+        execute(event)        
     }
   </script>
 

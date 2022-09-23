@@ -79,84 +79,12 @@ export const COMMANDS = new Map([
   ['clear-tasklist', { fn: commands.clearTaskList, args: ['controller'] }]
 ])
 
-export function initialise () {
-  const fields = document.querySelectorAll('input[data-tag]:not([data-tag=""])')
-
-  fields.forEach(f => {
-    f.value = get(f.dataset.tag)
-  })
-}
-
-export function clear () {
-  document.querySelector('#request textarea').value = ''
-  document.querySelector('#reply textarea').value = ''
-  document.querySelector('#response textarea').value = ''
-
-  warn()
-}
-
 export function exec (cmd) {
-  document.querySelector('#request textarea').value = ''
-  document.querySelector('#reply textarea').value = ''
-  document.querySelector('#response textarea').value = ''
+  if (COMMANDS.has(cmd)) {
+    const c = COMMANDS.get(cmd)
 
-  warn()
-
-  try {
-    const objects = document.querySelector('#response textarea')
-
-    if (COMMANDS.has(cmd)) {
-      const c = COMMANDS.get(cmd)
-
-      stash(c.args)
-
-      commands.exec(c.fn, ...c.args).then(response => {
-        objects.value = JSON.stringify(response, null, '  ')
-      })
-        .catch(err => {
-          console.error(err)
-          warn(`${err}`)
-        })
-    } else {
-      throw new Error(`invalid command '${cmd}'`)
-    }
-  } catch (err) {
-    console.error(err)
-    warn(err)
-  }
-}
-
-function stash (list) {
-  const f = function (e) {
-    return {
-      tag: e.dataset.tag,
-      value: e.value
-    }
-  }
-
-  list.map(id => document.querySelector('input[data-tag]:not([data-tag=""])'))
-    .filter(e => e !== null && e.dataset.tag)
-    .map(e => f(e))
-    .filter(o => o.tag)
-    .forEach(o => put(o.tag, o.value))
-}
-
-function put (tag, value) {
-  localStorage.setItem(tag, JSON.stringify(value))
-}
-
-function get (tag) {
-  const value = localStorage.getItem(tag)
-
-  return value ? JSON.parse(value) : ''
-}
-
-function warn (err) {
-  const message = document.getElementById('message')
-
-  if (err) {
-    message.innerHTML = err
+    return commands.exec(c.fn, ...c.args)
   } else {
-    message.innerHTML = ''
+    throw new Error(`invalid command '${cmd}'`)
   }
 }
