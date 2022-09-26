@@ -2,15 +2,12 @@
 
 ## IN PROGRESS
 
-- [ ] WebUI
-      - [x] Enable/disable fields
-      - [x] Enable/disable weekdays label
-      - [x] Fix remaining stash/unstash
-      - [ ] Clean CSS
-            - https://stackoverflow.com/questions/33242/how-can-i-find-unused-images-and-css-styles-in-a-website
-
 - [ ] Logo
-      https://pixabay.com/images/search/gravity/
+- [x] WebUI
+       - [x] Enable/disable fields
+       - [x] Enable/disable weekdays label
+       - [x] Fix remaining stash/unstash
+       - [x] Clean CSS
 
 ## TODO
 

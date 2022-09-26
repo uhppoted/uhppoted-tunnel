@@ -212,7 +212,6 @@ main #list {
 }
 
 main #list ul li {
-  vertical-align: middle;
   padding-left: 4px;
   padding-right: 4px;
   padding-bottom: 2px;
