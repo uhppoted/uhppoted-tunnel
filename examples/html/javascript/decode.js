@@ -7,6 +7,11 @@ export function GetControllerResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0x94) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -30,6 +35,11 @@ export function GetTimeResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0x32) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -48,6 +58,11 @@ export function SetTimeResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0x30) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -64,6 +79,11 @@ export function GetStatusResponse (packet) {
 
   if (buffer.length !== 64) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
+  }
+
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
   }
 
   if (buffer[1] !== 0x20) {
@@ -106,6 +126,11 @@ export function GetListenerResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0x92) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -125,6 +150,11 @@ export function SetListenerResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0x90) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -141,6 +171,11 @@ export function GetDoorControlResponse (packet) {
 
   if (buffer.length !== 64) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
+  }
+
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
   }
 
   if (buffer[1] !== 0x82) {
@@ -163,6 +198,11 @@ export function SetDoorControlResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0x80) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -183,6 +223,11 @@ export function OpenDoorResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0x40) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -201,6 +246,11 @@ export function GetCardsResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0x58) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -217,6 +267,11 @@ export function GetCardResponse (packet) {
 
   if (buffer.length !== 64) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
+  }
+
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
   }
 
   if (buffer[1] !== 0x5a) {
@@ -243,6 +298,11 @@ export function GetCardByIndexResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0x5c) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -267,6 +327,11 @@ export function PutCardResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0x50) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -283,6 +348,11 @@ export function DeleteCardResponse (packet) {
 
   if (buffer.length !== 64) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
+  }
+
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
   }
 
   if (buffer[1] !== 0x52) {
@@ -303,6 +373,11 @@ export function DeleteAllCardsResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0x54) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -319,6 +394,11 @@ export function GetEventResponse (packet) {
 
   if (buffer.length !== 64) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
+  }
+
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
   }
 
   if (buffer[1] !== 0xb0) {
@@ -346,6 +426,11 @@ export function GetEventIndexResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0xb4) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -362,6 +447,11 @@ export function SetEventIndexResponse (packet) {
 
   if (buffer.length !== 64) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
+  }
+
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
   }
 
   if (buffer[1] !== 0xb2) {
@@ -382,6 +472,11 @@ export function RecordSpecialEventsResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0x8e) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -398,6 +493,11 @@ export function GetTimeProfileResponse (packet) {
 
   if (buffer.length !== 64) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
+  }
+
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
   }
 
   if (buffer[1] !== 0x98) {
@@ -434,6 +534,11 @@ export function SetTimeProfileResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0x88) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -450,6 +555,11 @@ export function DeleteAllTimeProfilesResponse (packet) {
 
   if (buffer.length !== 64) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
+  }
+
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
   }
 
   if (buffer[1] !== 0x8a) {
@@ -470,6 +580,11 @@ export function AddTaskResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0xa8) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -488,6 +603,11 @@ export function RefreshTasklistResponse (packet) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
   }
 
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
   if (buffer[1] !== 0xac) {
     throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
   }
@@ -504,6 +624,11 @@ export function ClearTasklistResponse (packet) {
 
   if (buffer.length !== 64) {
     throw new Error(`invalid reply packet length (${buffer.length})`)
+  }
+
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
   }
 
   if (buffer[1] !== 0xa6) {
