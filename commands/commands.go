@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	SERVICE = `uhppoted-tunnnel`
+	SERVICE = `uhppoted-tunnel`
 )
 
 func helpOptions(flagset *flag.FlagSet) {

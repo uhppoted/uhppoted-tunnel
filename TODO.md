@@ -5,6 +5,7 @@
      > sudo systemctl start  "uhppoted-tunnnel-qwerty"\n     > sudo systemctl status "uhppoted-tunnnel-qwerty"\n
 ```
 - [x] Permissions for Linux .service file are incorrect should be `rwxrwxrwx`
+- [x] Fix misspelt SERVICE name
 
 ## IN PROGRESS
 
