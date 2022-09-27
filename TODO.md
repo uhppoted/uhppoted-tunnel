@@ -1,20 +1,16 @@
 # TODO
 
 - [x] Fix formatting in linux_daemonise:
-```
-     > sudo systemctl start  "uhppoted-tunnnel-qwerty"\n     > sudo systemctl status "uhppoted-tunnnel-qwerty"\n
-```
 - [x] Permissions for Linux .service file are incorrect should be `rwxrwxrwx`
 - [x] Fix misspelt SERVICE name
+- [x] Revert 0777 permissions for service file
 
 ## IN PROGRESS
 
 - [ ] Logo
-- [x] WebUI
-       - [x] Enable/disable fields
-       - [x] Enable/disable weekdays label
-       - [x] Fix remaining stash/unstash
-       - [x] Clean CSS
+      - ⠥⠙⠏⠀⠞⠥⠝⠝⠑⠇
+      - ⠥⠓⠏⠏⠕⠞⠑⠙ ⠞⠥⠝⠝⠑⠇
+      - https://www.boxentriq.com/code-breaking/braille-alphabet
 
 ## TODO
 

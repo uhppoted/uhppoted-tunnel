@@ -4,12 +4,14 @@
 
 ### Added
 1. HTTP: implemented remaining UHPPOTE functions
-2. HTTP: reworked to used codegen'd JS
+2. HTTP: reworked to used codegen'd Javascript
 3. Commonalised HTTP/S implementations
 
 ### Changed
 1. Changed _send_ URL to `/udp/send`
 2. Added _broadcast_ URL `/udp/broadcast`
+3. Fixed typo in service name.
+4. Fixed formatting in daemonize command.
 
 
 ## [0.8.1](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.1) - 2022-08-01

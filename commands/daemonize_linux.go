@@ -275,9 +275,8 @@ func (cmd *Daemonize) execute() error {
 	fmt.Println()
 	fmt.Println("   The daemon will start automatically on the next system restart - to start it manually, execute the following command:")
 	fmt.Println()
-	fmt.Printf(`     > sudo systemctl start  "%s"`, cmd.service)
-	fmt.Println()
-	fmt.Printf(`     > sudo systemctl status "%s"`, cmd.service)
+	fmt.Printf("     > sudo systemctl start  %q\n", cmd.service)
+	fmt.Printf("     > sudo systemctl status %q\n", cmd.service)
 	fmt.Println()
 	fmt.Println()
 
@@ -303,7 +302,7 @@ func (cmd *Daemonize) systemd(i *info) error {
 	t := template.Must(template.New(cmd.service).Parse(serviceTemplate))
 
 	fmt.Printf("   ... creating '%s'\n", path)
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
