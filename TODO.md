@@ -1,10 +1,10 @@
 # TODO
 
-- [ ] Fix formatting in linux_daemonise:
+- [x] Fix formatting in linux_daemonise:
 ```
      > sudo systemctl start  "uhppoted-tunnnel-qwerty"\n     > sudo systemctl status "uhppoted-tunnnel-qwerty"\n
 ```
-- [ ] Permissions for Linux .service file are incorrect should be `rwxrwxrwx`
+- [x] Permissions for Linux .service file are incorrect should be `rwxrwxrwx`
 
 ## IN PROGRESS
 

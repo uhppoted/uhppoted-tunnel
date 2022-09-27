@@ -303,7 +303,7 @@ func (cmd *Daemonize) systemd(i *info) error {
 	t := template.Must(template.New(cmd.service).Parse(serviceTemplate))
 
 	fmt.Printf("   ... creating '%s'\n", path)
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
 	if err != nil {
 		return err
 	}
