@@ -1,6 +1,6 @@
 module github.com/uhppoted/uhppoted-tunnel
 
-go 1.18
+go 1.19
 
 require (
 	github.com/uhppoted/uhppoted-lib v0.8.1

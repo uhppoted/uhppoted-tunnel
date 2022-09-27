@@ -275,8 +275,10 @@ func (cmd *Daemonize) execute() error {
 	fmt.Println()
 	fmt.Println("   The daemon will start automatically on the next system restart - to start it manually, execute the following command:")
 	fmt.Println()
-	fmt.Printf(`     > sudo systemctl start  "%s"\n`, cmd.service)
-	fmt.Printf(`     > sudo systemctl status "%s"\n`, cmd.service)
+	fmt.Printf(`     > sudo systemctl start  "%s"`, cmd.service)
+	fmt.Println()
+	fmt.Printf(`     > sudo systemctl status "%s"`, cmd.service)
+	fmt.Println()
 	fmt.Println()
 
 	if udp != nil {
