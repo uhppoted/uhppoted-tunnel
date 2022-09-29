@@ -62,8 +62,12 @@ header {
 
 header img#logo {
   width: 64px;
-  border-top-left-radius: 16px;
-  border-bottom-right-radius: 24px;
+  padding: 1px;
+  border-radius: 12px;
+
+  background: #b8aa90; 
+  box-shadow: inset 11px 11px 22px #9e927c,
+              inset -11px -11px 22px #d2c2a4;
 }
 
 header h1 {

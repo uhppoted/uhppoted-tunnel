@@ -12,5 +12,6 @@ client.cert
 client.key
 examples/html/images/logo-new.png
 examples/html/images/logo.svg
+examples/html/images/logo-5x.png
 assets
 
