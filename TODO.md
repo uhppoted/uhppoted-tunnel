@@ -1,16 +1,9 @@
 # TODO
 
-- [x] Fix formatting in linux_daemonise:
-- [x] Permissions for Linux .service file are incorrect should be `rwxrwxrwx`
-- [x] Fix misspelt SERVICE name
-- [x] Revert 0777 permissions for service file
-
 ## IN PROGRESS
 
 - [ ] Logo
-      - ⠥⠙⠏⠀⠞⠥⠝⠝⠑⠇
-      - ⠥⠓⠏⠏⠕⠞⠑⠙ ⠞⠥⠝⠝⠑⠇
-      - https://www.boxentriq.com/code-breaking/braille-alphabet
+      - (?) sickness font
 
 ## TODO
 
