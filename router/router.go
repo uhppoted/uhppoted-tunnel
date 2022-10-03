@@ -89,6 +89,9 @@ func (r *Router) add(id uint32, h func([]byte)) {
 }
 
 func (r *Router) get(id uint32) func([]byte) {
+	router.RLock()
+	defer router.RUnlock()
+
 	if h, ok := r.handlers[id]; ok && h.f != nil {
 		h.touched = time.Now()
 		return h.f
