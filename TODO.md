@@ -3,9 +3,11 @@
 ## IN PROGRESS
 
 - [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/4
+      - [x] Add mutex to Router::get
+      - [ ] Unit test somehow-or-other
+      - (?) Maybe abstract _handlers_ out into a mutexed map or something
 
-- [ ] Logo
-      - (?) sickness font
+- [x] Logo
 
 ## TODO
 
