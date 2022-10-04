@@ -13,11 +13,17 @@ type Switch struct {
 }
 
 type Router struct {
-	handlers map[uint32]handler
+	handlers ihandlers
 	idletime time.Duration
 	closing  chan struct{}
 	closed   chan struct{}
 	sync.RWMutex
+}
+
+type ihandlers interface {
+	get(uint32) *handler
+	put(uint32, *handler)
+	apply(f func(map[uint32]*handler))
 }
 
 type handler struct {
@@ -26,7 +32,7 @@ type handler struct {
 }
 
 var router = Router{
-	handlers: map[uint32]handler{},
+	handlers: hmake(),
 	idletime: 15 * time.Second,
 	closing:  make(chan struct{}),
 	closed:   make(chan struct{}),
@@ -79,20 +85,15 @@ func (s *Switch) Received(id uint32, message []byte, h func([]byte)) {
 }
 
 func (r *Router) add(id uint32, h func([]byte)) {
-	router.Lock()
-	defer router.Unlock()
-
-	router.handlers[id] = handler{
-		f:       h,
-		touched: time.Now(),
-	}
+	r.handlers.put(id,
+		&handler{
+			f:       h,
+			touched: time.Now(),
+		})
 }
 
 func (r *Router) get(id uint32) func([]byte) {
-	router.RLock()
-	defer router.RUnlock()
-
-	if h, ok := r.handlers[id]; ok && h.f != nil {
+	if h := r.handlers.get(id); h != nil && h.f != nil {
 		h.touched = time.Now()
 		return h.f
 	}
@@ -101,22 +102,23 @@ func (r *Router) get(id uint32) func([]byte) {
 }
 
 func (r *Router) Sweep() {
-	r.Lock()
-	defer r.Unlock()
+	f := func(handlers map[uint32]*handler) {
+		cutoff := time.Now().Add(-r.idletime)
+		idle := []uint32{}
 
-	cutoff := time.Now().Add(-r.idletime)
-	idle := []uint32{}
+		for k, v := range handlers {
+			if v.touched.Before(cutoff) {
+				idle = append(idle, k)
+			}
+		}
 
-	for k, v := range r.handlers {
-		if v.touched.Before(cutoff) {
-			idle = append(idle, k)
+		for _, k := range idle {
+			debugf("ROUTER", "removing idle handler function (%v)", k)
+			delete(handlers, k)
 		}
 	}
 
-	for _, k := range idle {
-		debugf("ROUTER", "removing idle handler function (%v)", k)
-		delete(r.handlers, k)
-	}
+	r.handlers.apply(f)
 }
 
 func Close() {

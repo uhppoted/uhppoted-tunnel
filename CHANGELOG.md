@@ -12,6 +12,7 @@
 2. Added _broadcast_ URL `/udp/broadcast`
 3. Fixed typo in service name.
 4. Fixed formatting in daemonize command.
+5. Fixed missing mutex in router.go and restructured (cf. https://github.com/uhppoted/uhppoted-tunnel/issues/4)
 
 
 ## [0.8.1](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.1) - 2022-08-01
