@@ -2,12 +2,13 @@
 
 ## IN PROGRESS
 
-- [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/4
+- [x] https://github.com/uhppoted/uhppoted-tunnel/issues/4
       - [x] Add mutex to Router::get
-      - [ ] Unit test somehow-or-other
-      - (?) Maybe abstract _handlers_ out into a mutexed map or something
+      - [x] Maybe abstract _handlers_ out into a mutexed map or something
+      - [ ] Run extended test on VPS
 
 - [x] Logo
+      - [x] Add freepik attribution for HTTP/S logo.
 
 ## TODO
 

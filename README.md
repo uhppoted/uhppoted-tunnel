@@ -408,4 +408,6 @@ e.g.
   }
 ```
 
+## Attribution
 
+1. HTTP/S connector example logo uses [image](https://www.freepik.com/free-photo/light-shine-through-round-holes-ceiling-casting-shadows_15317209.htm) designed by [Garry Killian](https://www.freepik.com/author/garrykillian) for [freepik.com](https://www.freepik.com).
