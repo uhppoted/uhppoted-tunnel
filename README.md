@@ -47,6 +47,7 @@ Supported operating systems:
 
 | *Version* | *Description*                                                                             |
 | --------- | ----------------------------------------------------------------------------------------- |
+| v0.8.2    | Completed HTTP/S example application                                                      |
 | v0.8.1    | Expanded on HTTP/S example application                                                    |
 | v0.8.0    | Initial release                                                                           |
 
