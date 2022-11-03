@@ -23,6 +23,7 @@ import (
 )
 
 type Run struct {
+	conf              string
 	label             string
 	in                string
 	out               string
@@ -50,6 +51,7 @@ const UDP_TIMEOUT = 5 * time.Second
 func (r *Run) flags() *flag.FlagSet {
 	flagset := flag.NewFlagSet("", flag.ExitOnError)
 
+	flagset.StringVar(&r.conf, "conf", r.conf, "optional tunnel TOML configuration file")
 	flagset.StringVar(&r.in, "in", "", "tunnel connection that accepts external requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
 	flagset.StringVar(&r.out, "out", "", "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
 	flagset.StringVar(&r.lockfile, "lockfile", "", "(optional) name of lockfile used to prevent running multiple copies of the service. A default lockfile name is generated if none is supplied")
@@ -79,7 +81,7 @@ func (cmd *Run) Description() string {
 }
 
 func (cmd *Run) Usage() string {
-	return "uhppoted-tunnel [--debug] [--console] [--lockfile <PID filepath>] --portal <UDP connection> --pipe <TCP connection>"
+	return "uhppoted-tunnel [--debug] [--console] [--lockfile <PID filepath>] --in <connection> --out <connection>"
 }
 
 func (cmd *Run) Help() {

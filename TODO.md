@@ -2,13 +2,13 @@
 
 ## IN PROGRESS
 
-- [x] https://github.com/uhppoted/uhppoted-tunnel/issues/4
-      - [x] Add mutex to Router::get
-      - [x] Maybe abstract _handlers_ out into a mutexed map or something
-      - [ ] Run extended test on VPS
+- [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/2
+      - [ ] Load TOML file
+      - [ ] Specify TOML file section on command line
+      - [ ] Override with command-line args
 
-- [x] Logo
-      - [x] Add freepik attribution for HTTP/S logo.
+- (?) [UDP tunnelling: ssh/nc](https://superuser.com/questions/53103/udp-traffic-through-ssh-tunnel)
+- (?) [UDP tunnelling: socat](http://www.morch.com/2011/07/05/forwarding-snmp-ports-over-ssh-using-socat/)
 
 ## TODO
 

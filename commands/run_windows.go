@@ -11,6 +11,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/pelletier/go-toml/v2"
 	"golang.org/x/sys/windows/svc"
 	syslog "golang.org/x/sys/windows/svc/eventlog"
 
@@ -23,6 +24,7 @@ import (
 
 var RUN = Run{
 	console:     false,
+	conf:        filepath.Join(workdir(), "uhppoted-tunnel.conf"),
 	workdir:     workdir(),
 	logFile:     filepath.Join(workdir(), "logs", fmt.Sprintf("%s.log", SERVICE)),
 	logFileSize: 10,

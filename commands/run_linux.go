@@ -17,6 +17,7 @@ import (
 
 var RUN = Run{
 	console:     false,
+	conf:        "/etc/com.github.uhppoted/uhppoted-tunnel.conf",
 	workdir:     "/var/uhppoted",
 	logFile:     fmt.Sprintf("/var/log/uhppoted/%s.log", SERVICE),
 	logFileSize: 10,

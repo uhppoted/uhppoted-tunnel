@@ -11,12 +11,12 @@ import (
 
 	"github.com/uhppoted/uhppote-core/uhppote"
 	"github.com/uhppoted/uhppoted-lib/eventlog"
-
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
 )
 
 var RUN = Run{
 	console:     false,
+	conf:        "/usr/local/etc/com.github.uhppoted/uhppoted-tunnel.conf",
 	workdir:     "/usr/local/var/com.github.uhppoted",
 	logFile:     fmt.Sprintf("/usr/local/var/com.github.uhppoted/logs/%s.log", SERVICE),
 	logFileSize: 10,
