@@ -17,15 +17,39 @@ import (
 var cli = []lib.Command{
 	&commands.DAEMONIZE,
 	&commands.UNDAEMONIZE,
-	&lib.Version{
-		Application: commands.SERVICE,
-		Version:     core.VERSION,
-	},
+	&version,
+}
+
+var version = lib.Version{
+	Application: commands.SERVICE,
+	Version:     core.VERSION,
 }
 
 var help = lib.NewHelp(commands.SERVICE, cli, &commands.RUN)
 
 func main() {
+	args := os.Args[1:]
+	var cmdx lib.Command = &commands.RUN
+
+	if len(args) > 0 {
+		switch args[0] {
+		case commands.DAEMONIZE.Name():
+			cmdx = &commands.DAEMONIZE
+
+		case commands.UNDAEMONIZE.Name():
+			cmdx = &commands.UNDAEMONIZE
+
+		case version.Name():
+			cmdx = &version
+
+		case help.Name():
+			cmdx = help
+		}
+	}
+
+	fmt.Printf(">>>>>>>>> CMD: %#v\n", cmdx)
+
+	// ... configuration
 	conf := flag.String("config", "", "(optional) tunnel TOML configuration file")
 
 	flag.Parse()

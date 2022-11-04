@@ -11,7 +11,6 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/pelletier/go-toml/v2"
 	"golang.org/x/sys/windows/svc"
 	syslog "golang.org/x/sys/windows/svc/eventlog"
 
