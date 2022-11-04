@@ -62,10 +62,11 @@ release: update-release build-all
 
 debug: build
 	# go test -run Test ./...
-	$(CMD) --console --in http/0.0.0.0:8082 --out udp/broadcast:192.168.1.255:60004 --udp-timeout 30s --html ./examples/html
+	# $(CMD) --console --in http/0.0.0.0:8082 --out udp/broadcast:192.168.1.255:60004 --udp-timeout 30s --html ./examples/html
 	# $(CMD) --debug --console --in tls/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s --max-retries 2
 	# npx eslint --fix ./examples/html/javascript/*.js
 	# $(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/client:216.128.182.157:8080
+	$(CMD) --config "./examples/uhppoted-tunnel.toml::client"
 
 delve: build
 #   dlv exec ./bin/uhppoted-tunnel -- --debug --console

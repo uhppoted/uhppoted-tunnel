@@ -1,11 +1,12 @@
 package main
 
 import (
-	_ "embed"
+	"flag"
 	"fmt"
 	"os"
+	"regexp"
 
-	// "github.com/pelletier/go-toml/v2"
+	"github.com/pelletier/go-toml/v2"
 
 	core "github.com/uhppoted/uhppote-core/uhppote"
 	lib "github.com/uhppoted/uhppoted-lib/command"
@@ -24,16 +25,19 @@ var cli = []lib.Command{
 
 var help = lib.NewHelp(commands.SERVICE, cli, &commands.RUN)
 
-// //go:embed uhppoted-tunnel.toml
-// var configuration []byte
-
 func main() {
-	// config := map[string]any{}
-	// if err := toml.Unmarshal(configuration, &config); err != nil {
-	// 	fmt.Printf(">>> Error unmarshalling TOML configuration (%v)\n", err)
-	// } else {
-	// 	fmt.Printf(">>> TOML: %v\n", config)
-	// }
+	conf := flag.String("config", "", "(optional) tunnel TOML configuration file")
+
+	flag.Parse()
+
+	if conf != nil && *conf != "" {
+		if config, err := configure(*conf); err != nil {
+			fmt.Printf("\nERROR  %v\n\n", err)
+			os.Exit(1)
+		} else if config != nil {
+			fmt.Printf(">>>>>> %v\n", config)
+		}
+	}
 
 	cmd, err := lib.Parse(cli, &commands.RUN, help)
 	if err != nil {
@@ -45,4 +49,42 @@ func main() {
 		fmt.Printf("\nERROR: %v\n\n", err)
 		os.Exit(1)
 	}
+}
+
+func configure(configuration string) (map[string]any, error) {
+	file := configuration
+	section := ""
+	if match := regexp.MustCompile("(.*?)::(.*)").FindStringSubmatch(configuration); match != nil {
+		file = match[1]
+		section = match[2]
+	}
+
+	config := map[string]any{}
+
+	if bytes, err := os.ReadFile(file); err != nil {
+		return nil, err
+	} else {
+		c := map[string]any{}
+		if err := toml.Unmarshal(bytes, &c); err != nil {
+			return nil, err
+		}
+
+		if m, ok := c["defaults"]; ok {
+			if defaults, ok := m.(map[string]any); ok {
+				for k, v := range defaults {
+					config[k] = v
+				}
+			}
+		}
+
+		if m, ok := c[section]; ok {
+			if tunnel, ok := m.(map[string]any); ok {
+				for k, v := range tunnel {
+					config[k] = v
+				}
+			}
+		}
+	}
+
+	return config, nil
 }
