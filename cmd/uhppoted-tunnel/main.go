@@ -14,7 +14,7 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/commands"
 )
 
-var cli = []lib.Command{
+var cli = []lib.CommandX{
 	&commands.DAEMONIZE,
 	&commands.UNDAEMONIZE,
 	&version,
@@ -25,29 +25,27 @@ var version = lib.Version{
 	Version:     core.VERSION,
 }
 
-var help = lib.NewHelp(commands.SERVICE, cli, &commands.RUN)
+var help = lib.NewHelpX(commands.SERVICE, cli, &commands.RUN)
 
 func main() {
-	args := os.Args[1:]
-	var cmdx lib.Command = &commands.RUN
+	var cmd lib.CommandX = &commands.RUN
 
+	args := os.Args[1:]
 	if len(args) > 0 {
 		switch args[0] {
 		case commands.DAEMONIZE.Name():
-			cmdx = &commands.DAEMONIZE
+			cmd = &commands.DAEMONIZE
 
 		case commands.UNDAEMONIZE.Name():
-			cmdx = &commands.UNDAEMONIZE
+			cmd = &commands.UNDAEMONIZE
 
 		case version.Name():
-			cmdx = &version
+			cmd = &version
 
 		case help.Name():
-			cmdx = help
+			cmd = help
 		}
 	}
-
-	fmt.Printf(">>>>>>>>> CMD: %#v\n", cmdx)
 
 	// ... configuration
 	conf := flag.String("config", "", "(optional) tunnel TOML configuration file")
@@ -58,18 +56,27 @@ func main() {
 		if config, err := configure(*conf); err != nil {
 			fmt.Printf("\nERROR  %v\n\n", err)
 			os.Exit(1)
-		} else if config != nil {
-			fmt.Printf(">>>>>> %v\n", config)
+		} else if config != nil && cmd != nil {
+			cmd.Configure(config)
 		}
 	}
 
-	cmd, err := lib.Parse(cli, &commands.RUN, help)
-	if err != nil {
-		fmt.Printf("\nError parsing command line: %v\n\n", err)
-		os.Exit(1)
+	if cmd != nil {
+		flagset := cmd.FlagSet()
+		if flagset == nil {
+			panic(fmt.Sprintf("'%s' command implementation without a flagset: %#v", cmd.Name(), cmd))
+		}
+
+		flagset.Parse(args)
 	}
 
-	if err = cmd.Execute(); err != nil {
+	// cmd, err := lib.Parse(cli, &commands.RUN, help)
+	// if err != nil {
+	// 	fmt.Printf("\nError parsing command line: %v\n\n", err)
+	// 	os.Exit(1)
+	// }
+
+	if err := cmd.Execute(); err != nil {
 		fmt.Printf("\nERROR: %v\n\n", err)
 		os.Exit(1)
 	}
@@ -78,7 +85,7 @@ func main() {
 func configure(configuration string) (map[string]any, error) {
 	file := configuration
 	section := ""
-	if match := regexp.MustCompile("(.*?)::(.*)").FindStringSubmatch(configuration); match != nil {
+	if match := regexp.MustCompile("(.*?)(?:::|#)(.*)").FindStringSubmatch(configuration); match != nil {
 		file = match[1]
 		section = match[2]
 	}

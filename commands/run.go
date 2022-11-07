@@ -48,26 +48,96 @@ const MAX_RETRIES = 32
 const MAX_RETRY_DELAY = 5 * time.Minute
 const UDP_TIMEOUT = 5 * time.Second
 
+func (r *Run) Configure(config map[string]any) {
+	if v, ok := config["in"]; ok {
+		r.in = fmt.Sprintf("%v", v)
+	}
+
+	if v, ok := config["out"]; ok {
+		r.out = fmt.Sprintf("%v", v)
+	}
+
+	if v, ok := config["lockfile"]; ok {
+		r.lockfile = fmt.Sprintf("%v", v)
+	}
+
+	if v, ok := config["max-retries"]; ok {
+		if i, ok := v.(int); ok {
+			r.maxRetries = i
+		}
+	}
+
+	if v, ok := config["max-retry-delay"]; ok {
+		if d, err := time.ParseDuration(fmt.Sprintf("%v", v)); err == nil {
+			r.maxRetryDelay = d
+		}
+	}
+
+	if v, ok := config["udp-timeout"]; ok {
+		if d, err := time.ParseDuration(fmt.Sprintf("%v", v)); err == nil {
+			r.udpTimeout = d
+		}
+	}
+
+	if v, ok := config["ca-cert"]; ok {
+		r.caCertificate = fmt.Sprintf("%v", v)
+	}
+
+	if v, ok := config["cert"]; ok {
+		r.certificate = fmt.Sprintf("%v", v)
+	}
+
+	if v, ok := config["key"]; ok {
+		r.key = fmt.Sprintf("%v", v)
+	}
+
+	if v, ok := config["client-auth"]; ok {
+		if b, ok := v.(bool); ok {
+			r.requireClientAuth = b
+		}
+	}
+
+	if v, ok := config["html"]; ok {
+		r.html = fmt.Sprintf("%v", v)
+	}
+
+	if v, ok := config["log-level"]; ok {
+		r.logLevel = fmt.Sprintf("%v", v)
+	}
+
+	if v, ok := config["console"]; ok {
+		if b, ok := v.(bool); ok {
+			r.console = b
+		}
+	}
+
+	if v, ok := config["debug"]; ok {
+		if b, ok := v.(bool); ok {
+			r.debug = b
+		}
+	}
+}
+
 func (r *Run) flags() *flag.FlagSet {
 	flagset := flag.NewFlagSet("", flag.ExitOnError)
 
-	flagset.StringVar(&r.conf, "conf", r.conf, "optional tunnel TOML configuration file")
-	flagset.StringVar(&r.in, "in", "", "tunnel connection that accepts external requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
-	flagset.StringVar(&r.out, "out", "", "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
-	flagset.StringVar(&r.lockfile, "lockfile", "", "(optional) name of lockfile used to prevent running multiple copies of the service. A default lockfile name is generated if none is supplied")
-	flagset.IntVar(&r.maxRetries, "max-retries", MAX_RETRIES, "Maximum number of times to retry failed connection. Defaults to -1 (retry forever)")
-	flagset.DurationVar(&r.maxRetryDelay, "max-retry-delay", MAX_RETRY_DELAY, "Maximum delay between retrying failed connections")
-	flagset.DurationVar(&r.udpTimeout, "udp-timeout", UDP_TIMEOUT, "Time limit to wait for UDP replies")
+	flagset.StringVar(&r.conf, "config", r.conf, "optional tunnel TOML configuration file")
+	flagset.StringVar(&r.in, "in", r.in, "tunnel connection that accepts external requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
+	flagset.StringVar(&r.out, "out", r.out, "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
+	flagset.StringVar(&r.lockfile, "lockfile", r.lockfile, "(optional) name of lockfile used to prevent running multiple copies of the service. A default lockfile name is generated if none is supplied")
+	flagset.IntVar(&r.maxRetries, "max-retries", r.maxRetries, "Maximum number of times to retry failed connection. Defaults to -1 (retry forever)")
+	flagset.DurationVar(&r.maxRetryDelay, "max-retry-delay", r.maxRetryDelay, "Maximum delay between retrying failed connections")
+	flagset.DurationVar(&r.udpTimeout, "udp-timeout", r.udpTimeout, "Time limit to wait for UDP replies")
 
-	flagset.StringVar(&r.caCertificate, "ca-cert", "ca.cert", "File path for CA certificate PEM file (defaults to ca.cert)")
-	flagset.StringVar(&r.certificate, "cert", "", "File path for client/server TLS certificate PEM file (defaults to client.cert or server.cert)")
-	flagset.StringVar(&r.key, "key", "", "File path for client/server TLS key PEM file (defaults to client.key or server.key)")
-	flagset.BoolVar(&r.requireClientAuth, "client-auth", false, "Requires client authentication for TLS")
+	flagset.StringVar(&r.caCertificate, "ca-cert", r.caCertificate, "File path for CA certificate PEM file (defaults to ca.cert)")
+	flagset.StringVar(&r.certificate, "cert", r.certificate, "File path for client/server TLS certificate PEM file (defaults to client.cert or server.cert)")
+	flagset.StringVar(&r.key, "key", r.key, "File path for client/server TLS key PEM file (defaults to client.key or server.key)")
+	flagset.BoolVar(&r.requireClientAuth, "client-auth", r.requireClientAuth, "Requires client authentication for TLS")
 
-	flagset.StringVar(&r.html, "html", "./html", "HTML folder for HTTP/HTTPS connectors")
-	flagset.StringVar(&r.logLevel, "log-level", "info", "Sets the log level (debug, info, warn or error)")
-	flagset.BoolVar(&r.console, "console", false, "Runs as a console application rather than a service")
-	flagset.BoolVar(&r.debug, "debug", false, "Enables detailed debugging logs")
+	flagset.StringVar(&r.html, "html", r.html, "HTML folder for HTTP/HTTPS connectors")
+	flagset.StringVar(&r.logLevel, "log-level", r.logLevel, "Sets the log level (debug, info, warn or error)")
+	flagset.BoolVar(&r.console, "console", r.console, "Runs as a console application rather than a service")
+	flagset.BoolVar(&r.debug, "debug", r.debug, "Enables detailed debugging logs")
 
 	return flagset
 }

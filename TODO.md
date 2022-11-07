@@ -3,9 +3,15 @@
 ## IN PROGRESS
 
 - [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/2
-      - [ ] Load TOML file
-      - [ ] Specify TOML file section on command line
-      - [ ] Override with command-line args
+      - [x] Load TOML file
+      - [x] Specify TOML file section on command line
+      - [x] Use # or :: as seperator
+      - [x] Override with command-line args
+      - [ ] Clean up initial command configuration
+            - (?) reflection
+            - [ ] Unit test
+      - [ ] Somehow roll lib.CommandX into lib.Command
+            - (?) reflection
 
 - (?) [UDP tunnelling: ssh/nc](https://superuser.com/questions/53103/udp-traffic-through-ssh-tunnel)
 - (?) [UDP tunnelling: socat](http://www.morch.com/2011/07/05/forwarding-snmp-ports-over-ssh-using-socat/)
@@ -28,4 +34,6 @@
 - (?) Routing matrix
 - (?) Replace handler functions with channels
 - (?) Remove dependency on uhppoted-lib and uhppote-core
+- [ ] httpd connector logo
+      - https://graphicdesign.stackexchange.com/questions/159149/how-to-draw-parallel-inclined-surfaces-in-perspective
 
