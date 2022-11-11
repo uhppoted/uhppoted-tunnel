@@ -14,7 +14,7 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/commands"
 )
 
-var cli = []lib.CommandX{
+var cli = []lib.Command{
 	&commands.DAEMONIZE,
 	&commands.UNDAEMONIZE,
 	&version,
@@ -25,10 +25,10 @@ var version = lib.Version{
 	Version:     core.VERSION,
 }
 
-var help = lib.NewHelpX(commands.SERVICE, cli, &commands.RUN)
+var help = lib.NewHelp(commands.SERVICE, cli, &commands.RUN)
 
 func main() {
-	var cmd lib.CommandX = &commands.RUN
+	var cmd lib.Command = &commands.RUN
 
 	args := os.Args[1:]
 	if len(args) > 0 {
@@ -47,34 +47,33 @@ func main() {
 		}
 	}
 
-	// ... configuration
-	conf := flag.String("config", "", "(optional) tunnel TOML configuration file")
-
-	flag.Parse()
-
-	if conf != nil && *conf != "" {
-		if config, err := configure(*conf); err != nil {
-			fmt.Printf("\nERROR  %v\n\n", err)
-			os.Exit(1)
-		} else if config != nil && cmd != nil {
-			cmd.Configure(config)
-		}
+	flagset := cmd.FlagSet()
+	if flagset == nil {
+		panic(fmt.Sprintf("'%s' command implementation without a flagset: %#v", cmd.Name(), cmd))
 	}
 
-	if cmd != nil {
-		flagset := cmd.FlagSet()
-		if flagset == nil {
-			panic(fmt.Sprintf("'%s' command implementation without a flagset: %#v", cmd.Name(), cmd))
+	flagset.Parse(args)
+
+	config := map[string]any{}
+	visited := map[string]bool{}
+
+	flagset.Visit(func(f *flag.Flag) {
+		visited[f.Name] = true
+		if f.Name == "config" {
+			if c, err := configure(f.Value.String()); err != nil {
+				fmt.Printf("\nERROR  %v\n\n", err)
+				os.Exit(1)
+			} else {
+				config = c
+			}
 		}
+	})
 
-		flagset.Parse(args)
-	}
-
-	// cmd, err := lib.Parse(cli, &commands.RUN, help)
-	// if err != nil {
-	// 	fmt.Printf("\nError parsing command line: %v\n\n", err)
-	// 	os.Exit(1)
-	// }
+	flagset.VisitAll(func(f *flag.Flag) {
+		if v, ok := config[f.Name]; ok && !visited[f.Name] {
+			flagset.Set(f.Name, fmt.Sprintf("%v", v))
+		}
+	})
 
 	if err := cmd.Execute(); err != nil {
 		fmt.Printf("\nERROR: %v\n\n", err)

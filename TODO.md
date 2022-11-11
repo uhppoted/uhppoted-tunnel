@@ -2,23 +2,13 @@
 
 ## IN PROGRESS
 
-- [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/7
-      - https://stackoverflow.com/questions/5210945/atomic-file-creation-on-linux
-      - https://www.diskodev.com/posts/linux-atomic-operations-on-files/
-      - https://stackoverflow.com/questions/29261648/atomic-writing-to-file-on-linux
-
 - [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/2
       - [x] Load TOML file
       - [x] Specify TOML file section on command line
       - [x] Use # or :: as seperator
       - [x] Override with command-line args
-      - [ ] Clean up initial command configuration
-            - (?) reflection
-            - [ ] Unit test
-      - [ ] Somehow roll lib.CommandX into lib.Command
-            - (?) reflection
-- (?) [UDP tunnelling: ssh/nc](https://superuser.com/questions/53103/udp-traffic-through-ssh-tunnel)
-- (?) [UDP tunnelling: socat](http://www.morch.com/2011/07/05/forwarding-snmp-ports-over-ssh-using-socat/)
+      - [x] Somehow roll lib.CommandX into lib.Command
+      - [x] Clean up initial command configuration
 
 ## TODO
 
