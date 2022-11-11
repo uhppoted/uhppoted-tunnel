@@ -9,6 +9,7 @@
       - [x] Override with command-line args
       - [x] Somehow roll lib.CommandX into lib.Command
       - [x] Clean up initial command configuration
+      - [ ] Merge back into _master_
 
 ## TODO
 
