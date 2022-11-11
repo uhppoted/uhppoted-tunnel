@@ -2,13 +2,10 @@
 
 ## IN PROGRESS
 
-- [x] https://github.com/uhppoted/uhppoted-tunnel/issues/4
-      - [x] Add mutex to Router::get
-      - [x] Maybe abstract _handlers_ out into a mutexed map or something
-      - [ ] Run extended test on VPS
-
-- [x] Logo
-      - [x] Add freepik attribution for HTTP/S logo.
+- [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/7
+      - https://stackoverflow.com/questions/5210945/atomic-file-creation-on-linux
+      - https://www.diskodev.com/posts/linux-atomic-operations-on-files/
+      - https://stackoverflow.com/questions/29261648/atomic-writing-to-file-on-linux
 
 ## TODO
 
