@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [Unreleased]
+
+### Added
+1. Optional TOML file configuration (cf. https://github.com/uhppoted/uhppoted-tunnel/issues/2)
+
+
 ## [0.8.2](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.2) - 2022-10-14
 
 ### Added

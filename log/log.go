@@ -7,6 +7,10 @@ import (
 
 type LogLevel int
 
+func (l LogLevel) String() string {
+	return []string{"NONE", "DEBUG", "INFO", "WARN", "ERROR"}[l]
+}
+
 const (
 	none LogLevel = iota
 	debug

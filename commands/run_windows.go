@@ -22,7 +22,22 @@ import (
 )
 
 var RUN = Run{
-	console:     false,
+	in:                "",
+	out:               "",
+	maxRetries:        MAX_RETRIES,
+	maxRetryDelay:     MAX_RETRY_DELAY,
+	udpTimeout:        UDP_TIMEOUT,
+	caCertificate:     "ca.cert",
+	certificate:       "",
+	key:               "",
+	requireClientAuth: false,
+	html:              "./html",
+	lockfile:          "",
+	logLevel:          "info",
+	debug:             false,
+	console:           false,
+
+	conf:        filepath.Join(workdir(), "uhppoted-tunnel.conf"),
 	workdir:     workdir(),
 	logFile:     filepath.Join(workdir(), "logs", fmt.Sprintf("%s.log", SERVICE)),
 	logFileSize: 10,

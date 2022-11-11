@@ -16,7 +16,22 @@ import (
 )
 
 var RUN = Run{
-	console:     false,
+	in:                "",
+	out:               "",
+	maxRetries:        MAX_RETRIES,
+	maxRetryDelay:     MAX_RETRY_DELAY,
+	udpTimeout:        UDP_TIMEOUT,
+	caCertificate:     "ca.cert",
+	certificate:       "",
+	key:               "",
+	requireClientAuth: false,
+	html:              "./html",
+	lockfile:          "",
+	logLevel:          "info",
+	debug:             false,
+	console:           false,
+
+	conf:        "/etc/com.github.uhppoted/uhppoted-tunnel.conf",
 	workdir:     "/var/uhppoted",
 	logFile:     fmt.Sprintf("/var/log/uhppoted/%s.log", SERVICE),
 	logFileSize: 10,

@@ -2,6 +2,15 @@
 
 ## IN PROGRESS
 
+- [x] https://github.com/uhppoted/uhppoted-tunnel/issues/2
+      - [x] Load TOML file
+      - [x] Specify TOML file section on command line
+      - [x] Use # or :: as seperator
+      - [x] Override with command-line args
+      - [x] Somehow roll lib.CommandX into lib.Command
+      - [x] Clean up initial command configuration
+      - [x] Merge back into _master_
+
 - [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/7
       - https://stackoverflow.com/questions/5210945/atomic-file-creation-on-linux
       - https://www.diskodev.com/posts/linux-atomic-operations-on-files/
@@ -36,4 +45,6 @@
 - (?) Routing matrix
 - (?) Replace handler functions with channels
 - (?) Remove dependency on uhppoted-lib and uhppote-core
+- [ ] httpd connector logo
+      - https://graphicdesign.stackexchange.com/questions/159149/how-to-draw-parallel-inclined-surfaces-in-perspective
 
