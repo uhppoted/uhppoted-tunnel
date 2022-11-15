@@ -150,15 +150,12 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 	}
 
 	// ... create lockfile
-
-	if err := os.MkdirAll(cmd.workdir, os.ModeDir|os.ModePerm); err != nil {
-		return fmt.Errorf("Unable to create working directory '%v': %v", cmd.workdir, err)
-	}
-
+	dir := os.TempDir()
 	lockfile := cmd.lockfile
+
 	if lockfile == "" {
 		hash := sha1.Sum([]byte(cmd.in + cmd.out))
-		lockfile = filepath.Join(cmd.workdir, fmt.Sprintf("%s-%x.pid", SERVICE, hash))
+		lockfile = filepath.Join(dir, fmt.Sprintf("%s-%x.pid", SERVICE, hash))
 	}
 
 	defer func() {
@@ -177,6 +174,11 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 		log.SetFatalHook(func() {
 			lock.Release()
 		})
+	}
+
+	// ... run
+	if err := os.MkdirAll(cmd.workdir, os.ModeDir|os.ModePerm); err != nil {
+		return fmt.Errorf("Unable to create working directory '%v': %v", cmd.workdir, err)
 	}
 
 	t := tunnel.NewTunnel(in, out, ctx)
