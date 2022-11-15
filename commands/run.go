@@ -13,6 +13,8 @@ import (
 	"sync"
 	"time"
 
+	lib "github.com/uhppoted/uhppoted-lib/lockfile"
+
 	"github.com/uhppoted/uhppoted-tunnel/log"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
@@ -153,22 +155,10 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 		return fmt.Errorf("Unable to create working directory '%v': %v", cmd.workdir, err)
 	}
 
-	pid := fmt.Sprintf("%d\n", os.Getpid())
 	lockfile := cmd.lockfile
-
 	if lockfile == "" {
 		hash := sha1.Sum([]byte(cmd.in + cmd.out))
 		lockfile = filepath.Join(cmd.workdir, fmt.Sprintf("%s-%x.pid", SERVICE, hash))
-	}
-
-	if _, err := os.Stat(lockfile); err == nil {
-		return fmt.Errorf("PID lockfile '%v' already in use", lockfile)
-	} else if !os.IsNotExist(err) {
-		return fmt.Errorf("Error checking PID lockfile '%v' (%v)", lockfile, err)
-	}
-
-	if err := os.WriteFile(lockfile, []byte(pid), 0644); err != nil {
-		return fmt.Errorf("Unable to create PID lockfile: %v", err)
 	}
 
 	defer func() {
@@ -177,13 +167,17 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 		}
 	}()
 
-	defer func() {
-		os.Remove(lockfile)
-	}()
+	if lock, err := lib.MakeLockFile(lockfile); err != nil {
+		return err
+	} else {
+		defer func() {
+			lock.Release()
+		}()
 
-	log.SetFatalHook(func() {
-		os.Remove(lockfile)
-	})
+		log.SetFatalHook(func() {
+			lock.Release()
+		})
+	}
 
 	t := tunnel.NewTunnel(in, out, ctx)
 
