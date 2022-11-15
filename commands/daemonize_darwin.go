@@ -39,7 +39,6 @@ var DAEMONIZE = Daemonize{
 	plist:   fmt.Sprintf("com.github.uhppoted.%s.plist", SERVICE),
 	workdir: "/usr/local/var/com.github.uhppoted/tunnel",
 	logdir:  "/usr/local/var/com.github.uhppoted/logs",
-	config:  "/usr/local/etc/com.github.uhppoted/uhppoted.conf",
 	etc:     "/usr/local/etc/com.github.uhppoted/tunnel",
 }
 
@@ -49,8 +48,8 @@ type Daemonize struct {
 	plist   string
 	workdir string
 	logdir  string
-	config  string
 	etc     string
+	conf    string
 	in      string
 	out     string
 	label   string
@@ -63,6 +62,7 @@ func (cmd *Daemonize) Name() string {
 func (cmd *Daemonize) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("daemonize", flag.ExitOnError)
 
+	flagset.StringVar(&cmd.conf, "config", cmd.conf, "tunnel TOML configuration file. Defaults to /usr/local/etc/com.github.uhppoted/uhppoted-tunnel.toml")
 	flagset.StringVar(&cmd.in, "in", "", "tunnel connection that accepts requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
 	flagset.StringVar(&cmd.out, "out", "", "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
 	flagset.StringVar(&cmd.label, "label", "", "(optional) Identifying label for the service to distinguish multiple tunnels running on the same machine")
@@ -80,7 +80,7 @@ func (cmd *Daemonize) Usage() string {
 
 func (cmd *Daemonize) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s daemonize --in <connection> --out <connection> [--label <label>]\n", SERVICE)
+	fmt.Printf("  Usage: %s daemonize [--config <TOML file>] [--in <connection>] [--out <connection>] [--label <label>]\n", SERVICE)
 	fmt.Println()
 	fmt.Printf("    Daemonizes %s as a service/daemon that runs on startup\n", SERVICE)
 	fmt.Println()
@@ -88,7 +88,7 @@ func (cmd *Daemonize) Help() {
 	helpOptions(cmd.FlagSet())
 }
 
-func (cmd *Daemonize) Execute(args ...interface{}) error {
+func (cmd *Daemonize) Execute(args ...any) error {
 	r := bufio.NewReader(os.Stdin)
 
 	if cmd.label == "" {
@@ -145,21 +145,6 @@ func (cmd *Daemonize) Execute(args ...interface{}) error {
 	}
 
 	// ... install daemon
-	dir := filepath.Dir(cmd.config)
-
-	fmt.Println()
-	fmt.Printf("     **** PLEASE MAKE SURE YOU HAVE A BACKUP COPY OF ANY CONFIGURATION INFORMATION AND KEYS IN %s ***\n", dir)
-	fmt.Println()
-	fmt.Printf("     Enter 'yes' to continue with the installation: ")
-
-	text, err := r.ReadString('\n')
-	if err != nil || strings.TrimSpace(text) != "yes" {
-		fmt.Println()
-		fmt.Printf("     -- installation cancelled --")
-		fmt.Println()
-		return nil
-	}
-
 	return cmd.execute()
 }
 

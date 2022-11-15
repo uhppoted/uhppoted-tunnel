@@ -10,13 +10,15 @@
       - [x] Somehow roll lib.CommandX into lib.Command
       - [x] Clean up initial command configuration
       - [x] Merge back into _master_
+      - [ ] Default to uhppoted-tunnel.toml
       - [ ] `daemonize`
+            - [ ] Add label to TOML configuration
       - [ ] Update README
       - [ ] CONFIGURATION.md
 
 - [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/7
-      - [ ] Move lockfile implementation to uhppoted-lib
-      - [ ] Default to ephemeral _tmp_ folder for lockfiles
+      - [x] Move lockfile implementation to uhppoted-lib
+      - [x] Default to ephemeral _tmp_ folder for lockfiles
       - [ ] Use `flock` for default Linux implementation 
 
 ## TODO

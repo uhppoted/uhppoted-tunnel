@@ -50,26 +50,26 @@ const MAX_RETRIES = 32
 const MAX_RETRY_DELAY = 5 * time.Minute
 const UDP_TIMEOUT = 5 * time.Second
 
-func (r *Run) flags() *flag.FlagSet {
-	flagset := flag.NewFlagSet("", flag.ExitOnError)
+func (cmd *Run) flags() *flag.FlagSet {
+	flagset := flag.NewFlagSet("run", flag.ExitOnError)
 
-	flagset.StringVar(&r.conf, "config", r.conf, "optional tunnel TOML configuration file")
-	flagset.StringVar(&r.in, "in", r.in, "tunnel connection that accepts external requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
-	flagset.StringVar(&r.out, "out", r.out, "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
-	flagset.StringVar(&r.lockfile, "lockfile", r.lockfile, "(optional) name of lockfile used to prevent running multiple copies of the service. A default lockfile name is generated if none is supplied")
-	flagset.IntVar(&r.maxRetries, "max-retries", r.maxRetries, "Maximum number of times to retry failed connection. Defaults to -1 (retry forever)")
-	flagset.DurationVar(&r.maxRetryDelay, "max-retry-delay", r.maxRetryDelay, "Maximum delay between retrying failed connections")
-	flagset.DurationVar(&r.udpTimeout, "udp-timeout", r.udpTimeout, "Time limit to wait for UDP replies")
+	flagset.StringVar(&cmd.conf, "config", cmd.conf, "optional tunnel TOML configuration file")
+	flagset.StringVar(&cmd.in, "in", cmd.in, "tunnel connection that accepts external requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
+	flagset.StringVar(&cmd.out, "out", cmd.out, "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
+	flagset.StringVar(&cmd.lockfile, "lockfile", cmd.lockfile, "(optional) name of lockfile used to prevent running multiple copies of the service. A default lockfile name is generated if none is supplied")
+	flagset.IntVar(&cmd.maxRetries, "max-retries", cmd.maxRetries, "Maximum number of times to retry failed connection. Defaults to -1 (retry forever)")
+	flagset.DurationVar(&cmd.maxRetryDelay, "max-retry-delay", cmd.maxRetryDelay, "Maximum delay between retrying failed connections")
+	flagset.DurationVar(&cmd.udpTimeout, "udp-timeout", cmd.udpTimeout, "Time limit to wait for UDP replies")
 
-	flagset.StringVar(&r.caCertificate, "ca-cert", r.caCertificate, "File path for CA certificate PEM file (defaults to ca.cert)")
-	flagset.StringVar(&r.certificate, "cert", r.certificate, "File path for client/server TLS certificate PEM file (defaults to client.cert or server.cert)")
-	flagset.StringVar(&r.key, "key", r.key, "File path for client/server TLS key PEM file (defaults to client.key or server.key)")
-	flagset.BoolVar(&r.requireClientAuth, "client-auth", r.requireClientAuth, "Requires client authentication for TLS")
+	flagset.StringVar(&cmd.caCertificate, "ca-cert", cmd.caCertificate, "File path for CA certificate PEM file (defaults to ca.cert)")
+	flagset.StringVar(&cmd.certificate, "cert", cmd.certificate, "File path for client/server TLS certificate PEM file (defaults to client.cert or server.cert)")
+	flagset.StringVar(&cmd.key, "key", cmd.key, "File path for client/server TLS key PEM file (defaults to client.key or server.key)")
+	flagset.BoolVar(&cmd.requireClientAuth, "client-auth", cmd.requireClientAuth, "Requires client authentication for TLS")
 
-	flagset.StringVar(&r.html, "html", r.html, "HTML folder for HTTP/HTTPS connectors")
-	flagset.StringVar(&r.logLevel, "log-level", r.logLevel, "Sets the log level (debug, info, warn or error)")
-	flagset.BoolVar(&r.console, "console", r.console, "Runs as a console application rather than a service")
-	flagset.BoolVar(&r.debug, "debug", r.debug, "Enables detailed debugging logs")
+	flagset.StringVar(&cmd.html, "html", cmd.html, "HTML folder for HTTP/HTTPS connectors")
+	flagset.StringVar(&cmd.logLevel, "log-level", cmd.logLevel, "Sets the log level (debug, info, warn or error)")
+	flagset.BoolVar(&cmd.console, "console", cmd.console, "Runs as a console application rather than a service")
+	flagset.BoolVar(&cmd.debug, "debug", cmd.debug, "Enables detailed debugging logs")
 
 	return flagset
 }
@@ -96,6 +96,38 @@ func (cmd *Run) Help() {
 		fmt.Printf("    --%-12s %s\n", f.Name, f.Usage)
 	})
 	fmt.Println()
+}
+
+func (cmd *Run) ParseCmd(args ...string) error {
+	flagset := cmd.FlagSet()
+	if flagset == nil {
+		panic(fmt.Sprintf("'%s' command implementation without a flagset: %#v", cmd.Name(), cmd))
+	}
+
+	flagset.Parse(args)
+
+	config := map[string]any{}
+	visited := map[string]bool{}
+
+	flagset.Visit(func(f *flag.Flag) {
+		visited[f.Name] = true
+		if f.Name == "config" {
+			if c, err := configure(f.Value.String()); err != nil {
+				fmt.Printf("\nERROR  %v\n\n", err)
+				os.Exit(1)
+			} else {
+				config = c
+			}
+		}
+	})
+
+	flagset.VisitAll(func(f *flag.Flag) {
+		if v, ok := config[f.Name]; ok && !visited[f.Name] {
+			flagset.Set(f.Name, fmt.Sprintf("%v", v))
+		}
+	})
+
+	return nil
 }
 
 func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc)) (err error) {
