@@ -109,5 +109,5 @@ daemonize: build
 
 undaemonize: build
 	sudo $(CMD) undaemonize --label qwerty
-	sudo $(CMD) undaemonize --label uiop
+	# sudo $(CMD) undaemonize --label uiop
 

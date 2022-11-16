@@ -14,14 +14,18 @@ const (
 )
 
 func configure(configuration string) (map[string]any, error) {
+	config := map[string]any{}
+
+	if configuration == "" {
+		return config, nil
+	}
+
 	file := configuration
 	section := ""
 	if match := regexp.MustCompile("(.*?)(?:::|#)(.*)").FindStringSubmatch(configuration); match != nil {
 		file = match[1]
 		section = match[2]
 	}
-
-	config := map[string]any{}
 
 	if bytes, err := os.ReadFile(file); err != nil {
 		return nil, err

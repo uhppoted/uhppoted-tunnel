@@ -50,9 +50,9 @@ type Daemonize struct {
 	logdir  string
 	etc     string
 	conf    string
-	in      string
-	out     string
-	label   string
+	inx     string
+	outx    string
+	labelx  string
 }
 
 func (cmd *Daemonize) Name() string {
@@ -63,9 +63,9 @@ func (cmd *Daemonize) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("daemonize", flag.ExitOnError)
 
 	flagset.StringVar(&cmd.conf, "config", cmd.conf, "tunnel TOML configuration file. Defaults to /usr/local/etc/com.github.uhppoted/uhppoted-tunnel.toml")
-	flagset.StringVar(&cmd.in, "in", "", "tunnel connection that accepts requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
-	flagset.StringVar(&cmd.out, "out", "", "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
-	flagset.StringVar(&cmd.label, "label", "", "(optional) Identifying label for the service to distinguish multiple tunnels running on the same machine")
+	flagset.StringVar(&cmd.inx, "in", "", "tunnel connection that accepts requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
+	flagset.StringVar(&cmd.outx, "out", "", "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
+	flagset.StringVar(&cmd.labelx, "label", "", "(optional) Identifying label for the service to distinguish multiple tunnels running on the same machine")
 
 	return flagset
 }
@@ -89,9 +89,49 @@ func (cmd *Daemonize) Help() {
 }
 
 func (cmd *Daemonize) Execute(args ...any) error {
+	// ... get configuration
+	in := ""
+	out := ""
+	label := ""
+
+	if configuration, err := configure(cmd.conf); err != nil {
+		return err
+	} else {
+		if v, ok := configuration["in"]; ok {
+			if u, ok := v.(string); ok {
+				in = u
+			}
+		}
+
+		if v, ok := configuration["out"]; ok {
+			if u, ok := v.(string); ok {
+				out = u
+			}
+		}
+
+		if v, ok := configuration["label"]; ok {
+			if u, ok := v.(string); ok {
+				label = u
+			}
+		}
+	}
+
+	if cmd.inx != "" {
+		in = cmd.inx
+	}
+
+	if cmd.outx != "" {
+		out = cmd.outx
+	}
+
+	if cmd.labelx != "" {
+		label = cmd.labelx
+	}
+
+	// ... configure service
 	r := bufio.NewReader(os.Stdin)
 
-	if cmd.label == "" {
+	if label == "" {
 		fmt.Println()
 		fmt.Printf("     **** WARNING: running daemonize without the --label option will overwrite any existing uhppoted-tunnel daemon.\n")
 		fmt.Println()
@@ -105,50 +145,50 @@ func (cmd *Daemonize) Execute(args ...any) error {
 			return nil
 		}
 	} else {
-		cmd.plist = fmt.Sprintf("com.github.uhppoted.%v-%v.plist", SERVICE, cmd.label)
+		cmd.plist = fmt.Sprintf("com.github.uhppoted.%v-%v.plist", SERVICE, label)
 	}
 
 	// ... check --in connection
 	switch {
-	case cmd.in == "":
+	case in == "":
 		return fmt.Errorf("--in argument is required")
 
 	case
-		strings.HasPrefix(cmd.in, "udp/listen:"),
-		strings.HasPrefix(cmd.in, "tcp/client:"),
-		strings.HasPrefix(cmd.in, "tcp/server:"),
-		strings.HasPrefix(cmd.in, "tls/client:"),
-		strings.HasPrefix(cmd.in, "tls/server:"),
-		strings.HasPrefix(cmd.in, "http/"),
-		strings.HasPrefix(cmd.in, "https/"):
+		strings.HasPrefix(in, "udp/listen:"),
+		strings.HasPrefix(in, "tcp/client:"),
+		strings.HasPrefix(in, "tcp/server:"),
+		strings.HasPrefix(in, "tls/client:"),
+		strings.HasPrefix(in, "tls/server:"),
+		strings.HasPrefix(in, "http/"),
+		strings.HasPrefix(in, "https/"):
 	// OK
 
 	default:
-		return fmt.Errorf("Invalid --in argument (%v)", cmd.in)
+		return fmt.Errorf("Invalid --in argument (%v)", in)
 	}
 
 	// ... check --out connection
 	switch {
-	case cmd.out == "":
+	case out == "":
 		return fmt.Errorf("--out argument is required")
 
 	case
-		strings.HasPrefix(cmd.out, "udp/broadcast:"),
-		strings.HasPrefix(cmd.in, "tcp/client:"),
-		strings.HasPrefix(cmd.in, "tcp/server:"),
-		strings.HasPrefix(cmd.in, "tls/client:"),
-		strings.HasPrefix(cmd.in, "tls/server:"):
+		strings.HasPrefix(out, "udp/broadcast:"),
+		strings.HasPrefix(in, "tcp/client:"),
+		strings.HasPrefix(in, "tcp/server:"),
+		strings.HasPrefix(in, "tls/client:"),
+		strings.HasPrefix(in, "tls/server:"):
 	// OK
 
 	default:
-		return fmt.Errorf("Invalid --out argument (%v)", cmd.out)
+		return fmt.Errorf("Invalid --out argument (%v)", out)
 	}
 
 	// ... install daemon
-	return cmd.execute()
+	return cmd.execute(in, out, label)
 }
 
-func (cmd *Daemonize) execute() error {
+func (cmd *Daemonize) execute(in, out, label string) error {
 	fmt.Println()
 	fmt.Println("   ... daemonizing")
 
@@ -157,19 +197,19 @@ func (cmd *Daemonize) execute() error {
 		return err
 	}
 
-	label := fmt.Sprintf("com.github.uhppoted.%s", SERVICE)
-	if cmd.label != "" {
-		label = fmt.Sprintf("com.github.uhppoted.%s-%v", SERVICE, cmd.label)
+	l := fmt.Sprintf("com.github.uhppoted.%s", SERVICE)
+	if label != "" {
+		l = fmt.Sprintf("com.github.uhppoted.%s-%v", SERVICE, label)
 	}
 
 	i := info{
-		Label:      label,
+		Label:      l,
 		Executable: executable,
 		StdLogFile: filepath.Join(cmd.logdir, fmt.Sprintf("%s.log", SERVICE)),
 		ErrLogFile: filepath.Join(cmd.logdir, fmt.Sprintf("%s.err", SERVICE)),
 	}
 
-	if err := cmd.launchd(&i); err != nil {
+	if err := cmd.launchd(&i, in, out); err != nil {
 		return err
 	}
 
@@ -189,14 +229,14 @@ func (cmd *Daemonize) execute() error {
 	fmt.Println()
 	fmt.Printf("   The daemon will start automatically on the next system restart - to start it manually, execute the following command:\n")
 	fmt.Println()
-	fmt.Printf("   sudo launchctl load /Library/LaunchDaemons/%v.plist\n", label)
+	fmt.Printf("   sudo launchctl load /Library/LaunchDaemons/%v.plist\n", l)
 	fmt.Println()
 	fmt.Println()
 
 	return nil
 }
 
-func (cmd *Daemonize) launchd(i *info) error {
+func (cmd *Daemonize) launchd(i *info, in string, out string) error {
 	path := filepath.Join("/Library/LaunchDaemons", cmd.plist)
 	_, err := os.Stat(path)
 	if err != nil && !os.IsNotExist(err) {
@@ -210,9 +250,9 @@ func (cmd *Daemonize) launchd(i *info) error {
 		ProgramArguments: []string{
 			path, // ref. https://apple.stackexchange.com/questions/110644/getting-launchd-to-read-program-arguments-correctly
 			"--in",
-			cmd.in,
+			in,
 			"--out",
-			cmd.out,
+			out,
 		},
 		KeepAlive:         true,
 		RunAtLoad:         true,
