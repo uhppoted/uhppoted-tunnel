@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"sync"
 	"syscall"
+	"time"
 
 	"golang.org/x/sys/windows/svc"
 	syslog "golang.org/x/sys/windows/svc/eventlog"
@@ -32,10 +33,14 @@ var RUN = Run{
 	key:               "",
 	requireClientAuth: false,
 	html:              "./html",
-	lockfile:          "",
-	logLevel:          "info",
-	debug:             false,
-	console:           false,
+	lockfile: config.Lockfile{
+		File:     "",
+		Interval: 60 * time.Second,
+		Wait:     90 * time.Second,
+	},
+	logLevel: "info",
+	debug:    false,
+	console:  false,
 
 	conf:        filepath.Join(workdir(), "uhppoted-tunnel.conf"),
 	workdir:     workdir(),

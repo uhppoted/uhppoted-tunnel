@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/uhppoted/uhppoted-lib/config"
 	lib "github.com/uhppoted/uhppoted-lib/lockfile"
 
 	"github.com/uhppoted/uhppoted-tunnel/log"
@@ -37,7 +38,7 @@ type Run struct {
 	key               string
 	requireClientAuth bool
 	html              string
-	lockfile          string
+	lockfile          config.Lockfile
 	logFile           string
 	logFileSize       int
 	logLevel          string
@@ -56,7 +57,7 @@ func (cmd *Run) flags() *flag.FlagSet {
 	flagset.StringVar(&cmd.conf, "config", cmd.conf, "optional tunnel TOML configuration file")
 	flagset.StringVar(&cmd.in, "in", cmd.in, "tunnel connection that accepts external requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
 	flagset.StringVar(&cmd.out, "out", cmd.out, "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
-	flagset.StringVar(&cmd.lockfile, "lockfile", cmd.lockfile, "(optional) name of lockfile used to prevent running multiple copies of the service. A default lockfile name is generated if none is supplied")
+	flagset.StringVar(&cmd.lockfile.File, "lockfile", cmd.lockfile.File, "(optional) name of lockfile used to prevent running multiple copies of the service. A default lockfile name is generated if none is supplied")
 	flagset.IntVar(&cmd.maxRetries, "max-retries", cmd.maxRetries, "Maximum number of times to retry failed connection. Defaults to -1 (retry forever)")
 	flagset.DurationVar(&cmd.maxRetryDelay, "max-retry-delay", cmd.maxRetryDelay, "Maximum delay between retrying failed connections")
 	flagset.DurationVar(&cmd.udpTimeout, "udp-timeout", cmd.udpTimeout, "Time limit to wait for UDP replies")
@@ -185,9 +186,9 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 	dir := os.TempDir()
 	lockfile := cmd.lockfile
 
-	if lockfile == "" {
+	if lockfile.File == "" {
 		hash := sha1.Sum([]byte(cmd.in + cmd.out))
-		lockfile = filepath.Join(dir, fmt.Sprintf("%s-%x.pid", SERVICE, hash))
+		lockfile.File = filepath.Join(dir, fmt.Sprintf("%s-%x.pid", SERVICE, hash))
 	}
 
 	defer func() {

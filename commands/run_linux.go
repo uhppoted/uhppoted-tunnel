@@ -8,8 +8,10 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/uhppoted/uhppote-core/uhppote"
+	"github.com/uhppoted/uhppoted-lib/config"
 	"github.com/uhppoted/uhppoted-lib/eventlog"
 
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
@@ -26,10 +28,14 @@ var RUN = Run{
 	key:               "",
 	requireClientAuth: false,
 	html:              "./html",
-	lockfile:          "",
-	logLevel:          "info",
-	debug:             false,
-	console:           false,
+	lockfile: config.Lockfile{
+		File:     "",
+		Interval: 60 * time.Second,
+		Wait:     90 * time.Second,
+	},
+	logLevel: "info",
+	debug:    false,
+	console:  false,
 
 	conf:        "/etc/com.github.uhppoted/uhppoted-tunnel.conf",
 	workdir:     "/var/uhppoted",
