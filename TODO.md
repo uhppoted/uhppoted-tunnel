@@ -12,7 +12,11 @@
       - [x] Merge back into _master_
       - [ ] Default to uhppoted-tunnel.toml
       - [ ] `daemonize`
+            - [x] Use `config` for service args
             - [ ] Add label to TOML configuration
+            - [x] Darwin
+            - [ ] Linux
+            - [ ] Windows
       - [ ] Update README
       - [ ] CONFIGURATION.md
 

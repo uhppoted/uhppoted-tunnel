@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"text/template"
 
@@ -50,9 +51,9 @@ type Daemonize struct {
 	logdir  string
 	etc     string
 	conf    string
-	inx     string
-	outx    string
-	labelx  string
+	in      string
+	out     string
+	label   string
 }
 
 func (cmd *Daemonize) Name() string {
@@ -63,9 +64,9 @@ func (cmd *Daemonize) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("daemonize", flag.ExitOnError)
 
 	flagset.StringVar(&cmd.conf, "config", cmd.conf, "tunnel TOML configuration file. Defaults to /usr/local/etc/com.github.uhppoted/uhppoted-tunnel.toml")
-	flagset.StringVar(&cmd.inx, "in", "", "tunnel connection that accepts requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
-	flagset.StringVar(&cmd.outx, "out", "", "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
-	flagset.StringVar(&cmd.labelx, "label", "", "(optional) Identifying label for the service to distinguish multiple tunnels running on the same machine")
+	flagset.StringVar(&cmd.in, "in", "", "tunnel connection that accepts requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
+	flagset.StringVar(&cmd.out, "out", "", "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
+	flagset.StringVar(&cmd.label, "label", "", "(optional) Identifying label for the service to distinguish multiple tunnels running on the same machine")
 
 	return flagset
 }
@@ -89,7 +90,7 @@ func (cmd *Daemonize) Help() {
 }
 
 func (cmd *Daemonize) Execute(args ...any) error {
-	// ... get configuration
+	// ... validate configuration
 	in := ""
 	out := ""
 	label := ""
@@ -116,42 +117,22 @@ func (cmd *Daemonize) Execute(args ...any) error {
 		}
 	}
 
-	if cmd.inx != "" {
-		in = cmd.inx
+	if cmd.in != "" {
+		in = cmd.in
 	}
 
-	if cmd.outx != "" {
-		out = cmd.outx
+	if cmd.out != "" {
+		out = cmd.out
 	}
 
-	if cmd.labelx != "" {
-		label = cmd.labelx
+	if cmd.label != "" {
+		label = cmd.label
 	}
 
-	// ... configure service
-	r := bufio.NewReader(os.Stdin)
-
-	if label == "" {
-		fmt.Println()
-		fmt.Printf("     **** WARNING: running daemonize without the --label option will overwrite any existing uhppoted-tunnel daemon.\n")
-		fmt.Println()
-		fmt.Printf("     Enter 'yes' to continue with the installation: ")
-
-		text, err := r.ReadString('\n')
-		if err != nil || strings.TrimSpace(text) != "yes" {
-			fmt.Println()
-			fmt.Printf("     -- installation cancelled --")
-			fmt.Println()
-			return nil
-		}
-	} else {
-		cmd.plist = fmt.Sprintf("com.github.uhppoted.%v-%v.plist", SERVICE, label)
-	}
-
-	// ... check --in connection
+	// ... verify IN connector
 	switch {
 	case in == "":
-		return fmt.Errorf("--in argument is required")
+		return fmt.Errorf("A valid IN connector is required")
 
 	case
 		strings.HasPrefix(in, "udp/listen:"),
@@ -164,13 +145,13 @@ func (cmd *Daemonize) Execute(args ...any) error {
 	// OK
 
 	default:
-		return fmt.Errorf("Invalid --in argument (%v)", in)
+		return fmt.Errorf("Invalid IN connector (%v)", in)
 	}
 
-	// ... check --out connection
+	// ... verify OUT connector
 	switch {
 	case out == "":
-		return fmt.Errorf("--out argument is required")
+		return fmt.Errorf("A valid OUT connector is required")
 
 	case
 		strings.HasPrefix(out, "udp/broadcast:"),
@@ -181,14 +162,36 @@ func (cmd *Daemonize) Execute(args ...any) error {
 	// OK
 
 	default:
-		return fmt.Errorf("Invalid --out argument (%v)", out)
+		return fmt.Errorf("Invalid OUT connector (%v)", out)
+	}
+
+	// ... verify label
+
+	if label == "" {
+		fmt.Println()
+		fmt.Printf("     **** WARNING: running daemonize without the --label option will overwrite any existing uhppoted-tunnel daemon.\n")
+		fmt.Println()
+		fmt.Printf("     Enter 'yes' to continue with the installation: ")
+
+		r := bufio.NewReader(os.Stdin)
+		text, err := r.ReadString('\n')
+		if err != nil || strings.TrimSpace(text) != "yes" {
+			fmt.Println()
+			fmt.Printf("     -- installation cancelled --")
+			fmt.Println()
+			return nil
+		}
 	}
 
 	// ... install daemon
-	return cmd.execute(in, out, label)
+	if label != "" {
+		cmd.plist = fmt.Sprintf("com.github.uhppoted.%v-%v.plist", SERVICE, label)
+	}
+
+	return cmd.execute(label)
 }
 
-func (cmd *Daemonize) execute(in, out, label string) error {
+func (cmd *Daemonize) execute(label string) error {
 	fmt.Println()
 	fmt.Println("   ... daemonizing")
 
@@ -209,7 +212,7 @@ func (cmd *Daemonize) execute(in, out, label string) error {
 		ErrLogFile: filepath.Join(cmd.logdir, fmt.Sprintf("%s.err", SERVICE)),
 	}
 
-	if err := cmd.launchd(&i, in, out); err != nil {
+	if err := cmd.launchd(&i); err != nil {
 		return err
 	}
 
@@ -236,24 +239,38 @@ func (cmd *Daemonize) execute(in, out, label string) error {
 	return nil
 }
 
-func (cmd *Daemonize) launchd(i *info, in string, out string) error {
+func (cmd *Daemonize) launchd(i *info) error {
 	path := filepath.Join("/Library/LaunchDaemons", cmd.plist)
 	_, err := os.Stat(path)
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
 
+	args := []string{
+		path, // ref. https://apple.stackexchange.com/questions/110644/getting-launchd-to-read-program-arguments-correctly
+	}
+
+	if cmd.conf != "" {
+		if file, err := resolve(cmd.workdir, cmd.conf); err != nil {
+			return err
+		} else {
+			args = append(args, "--config", file)
+		}
+	}
+
+	if cmd.in != "" {
+		args = append(args, "--in", cmd.in)
+	}
+
+	if cmd.out != "" {
+		args = append(args, "--out", cmd.out)
+	}
+
 	pl := plist{
-		Label:            i.Label,
-		Program:          i.Executable,
-		WorkingDirectory: cmd.workdir,
-		ProgramArguments: []string{
-			path, // ref. https://apple.stackexchange.com/questions/110644/getting-launchd-to-read-program-arguments-correctly
-			"--in",
-			in,
-			"--out",
-			out,
-		},
+		Label:             i.Label,
+		Program:           i.Executable,
+		WorkingDirectory:  cmd.workdir,
+		ProgramArguments:  args,
 		KeepAlive:         true,
 		RunAtLoad:         true,
 		StandardOutPath:   i.StdLogFile,
@@ -409,4 +426,24 @@ func (cmd *Daemonize) firewall(i info) error {
 	}
 
 	return nil
+}
+
+func resolve(base string, cfg string) (string, error) {
+	file := cfg
+	section := ""
+
+	if match := regexp.MustCompile("(.*?)((?:::|#).*)").FindStringSubmatch(cfg); match != nil {
+		file = match[1]
+		section = match[2]
+	}
+
+	if strings.HasPrefix(file, ".") {
+		if abs, err := filepath.Abs(file); err != nil {
+			return cfg, err
+		} else {
+			return fmt.Sprintf("%v%v", abs, section), nil
+		}
+	}
+
+	return cfg, nil
 }

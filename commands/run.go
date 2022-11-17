@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	core "github.com/uhppoted/uhppote-core/uhppote"
 	"github.com/uhppoted/uhppoted-lib/config"
 	lib "github.com/uhppoted/uhppoted-lib/lockfile"
 
@@ -193,7 +194,7 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Fatalf("%-5s %v\n", "FATAL", err)
+			fatalf("%v", err)
 		}
 	}()
 
@@ -281,8 +282,9 @@ func (cmd *Run) run(t *tunnel.Tunnel, ctx context.Context, cancel context.Cancel
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		infof("---", "uhppoted-tunnel %v", core.VERSION)
 		if err := t.Run(interrupt); err != nil {
-			log.Errorf("%-5s %v\n", "FATAL", err)
+			errorf("---", "%v", err)
 		}
 	}()
 
