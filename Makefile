@@ -61,7 +61,8 @@ release: update-release build-all
 	cd dist;  zip --recurse-paths $(DIST).zip $(DIST)
 
 debug: build
-	$(CMD) --config "./examples/uhppoted-tunnel.toml#client" --debug
+	# $(CMD) --config "./examples/uhppoted-tunnel.toml#client" --debug
+	$(CMD) 
 
 delve: build
 #   dlv exec ./bin/uhppoted-tunnel -- --debug --console

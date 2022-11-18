@@ -36,7 +36,7 @@ var RUN = Run{
 	debug:    false,
 	console:  false,
 
-	conf:        "/usr/local/etc/com.github.uhppoted/uhppoted-tunnel.conf",
+	conf:        "/usr/local/etc/com.github.uhppoted/uhppoted-tunnel.toml",
 	workdir:     "/usr/local/var/com.github.uhppoted",
 	logFile:     fmt.Sprintf("/usr/local/var/com.github.uhppoted/logs/%s.log", SERVICE),
 	logFileSize: 10,
@@ -47,7 +47,7 @@ func (cmd *Run) FlagSet() *flag.FlagSet {
 }
 
 func (cmd *Run) Execute(args ...interface{}) error {
-	log.Printf("%s service %s - %s (PID %d)\n", SERVICE, uhppote.VERSION, "MacOS", os.Getpid())
+	infof("---", "%s service %s - %s (PID %d)\n", SERVICE, uhppote.VERSION, "MacOS", os.Getpid())
 
 	f := func(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc) {
 		cmd.exec(t, ctx, cancel)

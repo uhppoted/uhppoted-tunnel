@@ -108,28 +108,47 @@ func (cmd *Run) ParseCmd(args ...string) error {
 
 	flagset.Parse(args)
 
-	config := map[string]any{}
-	visited := map[string]bool{}
+	if config, err := cmd.configuration(flagset); err != nil {
+		errorf("---", "%v", err)
+		os.Exit(1)
+	} else {
+		visited := map[string]bool{}
+		flagset.Visit(func(f *flag.Flag) {
+			visited[f.Name] = true
+		})
 
-	flagset.Visit(func(f *flag.Flag) {
-		visited[f.Name] = true
-		if f.Name == "config" {
-			if c, err := configure(f.Value.String()); err != nil {
-				fmt.Printf("\nERROR  %v\n\n", err)
-				os.Exit(1)
-			} else {
-				config = c
+		flagset.VisitAll(func(f *flag.Flag) {
+			if v, ok := config[f.Name]; ok && !visited[f.Name] {
+				flagset.Set(f.Name, fmt.Sprintf("%v", v))
 			}
-		}
-	})
-
-	flagset.VisitAll(func(f *flag.Flag) {
-		if v, ok := config[f.Name]; ok && !visited[f.Name] {
-			flagset.Set(f.Name, fmt.Sprintf("%v", v))
-		}
-	})
+		})
+	}
 
 	return nil
+}
+
+func (cmd *Run) configuration(flagset *flag.FlagSet) (map[string]any, error) {
+	file := ""
+
+	flagset.Visit(func(f *flag.Flag) {
+		if f.Name == "config" {
+			file = f.Value.String()
+		}
+	})
+
+	if file != "" {
+		return configure(file)
+	}
+
+	if f := flagset.Lookup("config"); f != nil && f.DefValue != "" {
+		if config, err := configure(f.DefValue); err != nil {
+			warnf("---", "%v", err)
+		} else {
+			return config, nil
+		}
+	}
+
+	return map[string]any{}, nil
 }
 
 func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc)) (err error) {
