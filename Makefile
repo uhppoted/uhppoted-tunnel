@@ -62,7 +62,7 @@ release: update-release build-all
 
 debug: build
 	# $(CMD) --config "./examples/uhppoted-tunnel.toml#client" --debug
-	$(CMD) 
+	$(CMD) --config "#client"
 
 delve: build
 #   dlv exec ./bin/uhppoted-tunnel -- --debug --console
@@ -107,7 +107,7 @@ daemonize: build
 	# sudo $(CMD) daemonize --in  udp/listen:0.0.0.0:60000  --out tcp/server:0.0.0.0:12345          --label qwerty
 	# sudo $(CMD) daemonize --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --label uiop
 	# sudo $(CMD) daemonize --config "./examples/uhppoted-tunnel.toml#client" --label qwerty
-	sudo $(CMD) daemonize --config "./examples/uhppoted-tunnel.toml#client"
+	sudo $(CMD) daemonize --config "#client"
 
 undaemonize: build
 	sudo $(CMD) undaemonize --label qwerty

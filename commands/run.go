@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -128,23 +129,30 @@ func (cmd *Run) ParseCmd(args ...string) error {
 }
 
 func (cmd *Run) configuration(flagset *flag.FlagSet) (map[string]any, error) {
-	file := ""
+	config := ""
 
 	flagset.Visit(func(f *flag.Flag) {
 		if f.Name == "config" {
-			file = f.Value.String()
+			config = f.Value.String()
 		}
 	})
 
+	file := config
+	section := ""
+	if match := regexp.MustCompile("(.*?)((?:::|#).*)").FindStringSubmatch(config); match != nil {
+		file = match[1]
+		section = match[2]
+	}
+
 	if file != "" {
-		return configure(file)
+		return configure(config)
 	}
 
 	if f := flagset.Lookup("config"); f != nil && f.DefValue != "" {
-		if config, err := configure(f.DefValue); err != nil {
+		if c, err := configure(f.DefValue + section); err != nil {
 			warnf("---", "%v", err)
 		} else {
-			return config, nil
+			return c, nil
 		}
 	}
 
