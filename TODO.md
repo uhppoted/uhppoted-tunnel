@@ -13,7 +13,7 @@
       - [ ] Default to uhppoted-tunnel.toml
       - [ ] `daemonize`
             - [x] Use `config` for service args
-            - [ ] Add label to TOML configuration
+            - [x] Add label to TOML configuration
             - [x] Darwin
             - [ ] Linux
             - [ ] Windows
@@ -24,6 +24,8 @@
       - [x] Move lockfile implementation to uhppoted-lib
       - [x] Default to ephemeral _tmp_ folder for lockfiles
       - [ ] Use `flock` for default Linux implementation 
+      - [ ] (optional) soft lock
+      - [ ] (optional) socket lock
 
 ## TODO
 
