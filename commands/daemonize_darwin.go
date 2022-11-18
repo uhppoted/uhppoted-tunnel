@@ -38,6 +38,7 @@ const newsyslog = `#logfilename                                       [owner:gro
 
 var DAEMONIZE = Daemonize{
 	plist:   fmt.Sprintf("com.github.uhppoted.%s.plist", SERVICE),
+	conf:    "/usr/local/etc/com.github.uhppoted/uhppoted-tunnel.toml",
 	workdir: "/usr/local/var/com.github.uhppoted/tunnel",
 	logdir:  "/usr/local/var/com.github.uhppoted/logs",
 	etc:     "/usr/local/etc/com.github.uhppoted/tunnel",
@@ -87,6 +88,43 @@ func (cmd *Daemonize) Help() {
 	fmt.Println()
 
 	helpOptions(cmd.FlagSet())
+}
+
+func (cmd *Daemonize) ParseCmd(args ...string) error {
+	flagset := cmd.FlagSet()
+	if flagset == nil {
+		panic(fmt.Sprintf("'%s' command implementation without a flagset: %#v", cmd.Name(), cmd))
+	}
+
+	flagset.Parse(args)
+
+	cmd.conf = cmd.configuration(flagset)
+
+	return nil
+}
+
+func (cmd *Daemonize) configuration(flagset *flag.FlagSet) string {
+	config := ""
+	flagset.Visit(func(f *flag.Flag) {
+		if f.Name == "config" {
+			config = f.Value.String()
+		}
+	})
+
+	file := config
+	section := ""
+	if match := regexp.MustCompile("(.*?)((?:::|#).*)").FindStringSubmatch(config); match != nil {
+		file = match[1]
+		section = match[2]
+	}
+
+	if file != "" {
+		return config
+	} else if f := flagset.Lookup("config"); f != nil && f.DefValue != "" {
+		return f.DefValue + section
+	}
+
+	return ""
 }
 
 func (cmd *Daemonize) Execute(args ...any) error {
