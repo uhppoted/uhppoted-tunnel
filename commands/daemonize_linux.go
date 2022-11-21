@@ -21,6 +21,7 @@ type info struct {
 	Description   string
 	Documentation string
 	Executable    string
+	Conf          string
 	In            string
 	Out           string
 	PID           string
@@ -38,7 +39,7 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-ExecStart={{.Executable}} --lockfile {{.PID}} --in {{.In}} --out {{.Out}}
+ExecStart={{.Executable}} --lockfile {{.PID}} {{if .Conf}}--config {{.Conf}}{{end}} {{if .In}}--in {{.In}}{{end}} {{if .Out}}--out {{.Out}}{{end}}
 PIDFile={{.PID}}
 User={{.User}}
 Group={{.Group}}
@@ -65,9 +66,9 @@ const logRotateTemplate = `{{range .LogFiles}}{{. }} {{end}}{
 
 var DAEMONIZE = Daemonize{
 	usergroup: "uhppoted:uhppoted",
+	conf:      "/etc/uhppoted/uhppoted-tunnel.toml",
 	workdir:   "/var/uhppoted/tunnel",
 	logdir:    "/var/log/uhppoted",
-	config:    "/etc/uhppoted/uhppoted.conf",
 	etc:       "/etc/uhppoted/tunnel",
 	service:   SERVICE,
 }
@@ -76,9 +77,9 @@ var replacer *strings.Replacer
 
 type Daemonize struct {
 	usergroup usergroup
+	conf      string
 	workdir   string
 	logdir    string
-	config    string
 	html      string
 	etc       string
 	label     string
@@ -94,6 +95,7 @@ func (cmd *Daemonize) Name() string {
 func (cmd *Daemonize) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("daemonize", flag.ExitOnError)
 
+	flagset.StringVar(&cmd.conf, "config", cmd.conf, "tunnel TOML configuration file. Defaults to /etc/uhppoted/uhppoted-tunnel.toml")
 	flagset.StringVar(&cmd.in, "in", "", "tunnel connection that accepts requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
 	flagset.StringVar(&cmd.out, "out", "", "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
 	flagset.StringVar(&cmd.label, "label", "", "Identifying label for the service (to distinguish multiple tunnels running on the same machine)")
@@ -107,12 +109,12 @@ func (cmd *Daemonize) Description() string {
 }
 
 func (cmd *Daemonize) Usage() string {
-	return "daemonize [--user <user:group>] --in <connection> --out <connection> [--label <label>]"
+	return "daemonize [--user <user:group>] [--config <TOML file>] [--in <connection>] [--out <connection>] [--label <label>]"
 }
 
 func (cmd *Daemonize) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s daemonize [--user <user:group>] --in <connection> --out <connection> [--label <label>]\n", SERVICE)
+	fmt.Printf("  Usage: %s daemonize [--user <user:group>] [--in <connection>] [--out <connection>] [--label <label>]\n", SERVICE)
 	fmt.Println()
 	fmt.Printf("    Registers %s as a systemd service/daemon that runs on startup.\n", SERVICE)
 	fmt.Println("      Defaults to the user:group uhppoted:uhppoted unless otherwise specified")
@@ -122,15 +124,31 @@ func (cmd *Daemonize) Help() {
 	helpOptions(cmd.FlagSet())
 }
 
-func (cmd *Daemonize) Execute(args ...interface{}) error {
-	r := bufio.NewReader(os.Stdin)
+func (cmd *Daemonize) ParseCmd(args ...string) error {
+	flagset := cmd.FlagSet()
+	if flagset == nil {
+		panic(fmt.Sprintf("'%s' command implementation without a flagset: %#v", cmd.Name(), cmd))
+	}
 
-	if cmd.label == "" {
+	flagset.Parse(args)
+
+	cmd.conf = cmd.configuration(flagset)
+
+	return nil
+}
+
+func (cmd *Daemonize) Execute(args ...interface{}) error {
+	// ... validate configuration
+
+	if label, err := cmd.validate(); err != nil {
+		return err
+	} else if label == "" {
 		fmt.Println()
 		fmt.Printf("     **** WARNING: running daemonize without the --label option will overwrite any existing uhppoted-tunnel service.\n")
 		fmt.Println()
 		fmt.Printf("     Enter 'yes' to continue with the installation: ")
 
+		r := bufio.NewReader(os.Stdin)
 		text, err := r.ReadString('\n')
 		if err != nil || strings.TrimSpace(text) != "yes" {
 			fmt.Println()
@@ -139,58 +157,10 @@ func (cmd *Daemonize) Execute(args ...interface{}) error {
 			return nil
 		}
 	} else {
-		cmd.service = fmt.Sprintf("%v-%v", SERVICE, cmd.label)
+		cmd.service = fmt.Sprintf("%v-%v", SERVICE, label)
 	}
 
-	// ... check --in connection
-	switch {
-	case cmd.in == "":
-		return fmt.Errorf("--in argument is required")
-
-	case
-		strings.HasPrefix(cmd.in, "udp/listen:"),
-		strings.HasPrefix(cmd.in, "tcp/client:"),
-		strings.HasPrefix(cmd.in, "tcp/server:"),
-		strings.HasPrefix(cmd.in, "tls/client:"),
-		strings.HasPrefix(cmd.in, "tls/server:"),
-		strings.HasPrefix(cmd.in, "http/"),
-		strings.HasPrefix(cmd.in, "https/"):
-	// OK
-
-	default:
-		return fmt.Errorf("Invalid --in argument (%v)", cmd.in)
-	}
-
-	// ... check --out connection
-	switch {
-	case cmd.out == "":
-		return fmt.Errorf("--out argument is required")
-
-	case
-		strings.HasPrefix(cmd.out, "udp/broadcast:"),
-		strings.HasPrefix(cmd.out, "tcp/client:"),
-		strings.HasPrefix(cmd.out, "tcp/server:"),
-		strings.HasPrefix(cmd.out, "tls/client:"),
-		strings.HasPrefix(cmd.out, "tls/server:"):
-
-	default:
-		return fmt.Errorf("Invalid --out argument (%v)", cmd.out)
-	}
-
-	dir := filepath.Dir(cmd.config)
-
-	fmt.Println()
-	fmt.Printf("     **** PLEASE MAKE SURE YOU HAVE A BACKUP COPY OF THE CONFIGURATION INFORMATION AND KEYS IN %s ***\n", dir)
-	fmt.Println()
-	fmt.Printf("     Enter 'yes' to continue with the installation: ")
-
-	text, err := r.ReadString('\n')
-	if err != nil || strings.TrimSpace(text) != "yes" {
-		fmt.Println()
-		fmt.Printf("     -- installation cancelled --")
-		fmt.Println()
-		return nil
-	}
+	// ... install service
 
 	return cmd.execute()
 }
@@ -221,9 +191,10 @@ func (cmd *Daemonize) execute() error {
 		Description:   "UHPPOTE UTO311-L0x access card controllers UDP tunnel service/daemon ",
 		Documentation: "https://github.com/uhppoted/uhppoted-tunnel",
 		Executable:    executable,
+		Conf:          cmd.conf,
 		In:            cmd.in,
 		Out:           cmd.out,
-		PID:           fmt.Sprintf("/var/uhppoted/%v.pid", cmd.service),
+		PID:           fmt.Sprintf("/tmp/uhppoted/%v.pid", cmd.service),
 		User:          "uhppoted",
 		Group:         "uhppoted",
 		Uid:           uid,

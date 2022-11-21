@@ -15,6 +15,7 @@ import (
 var DAEMONIZE = Daemonize{
 	name:        SERVICE,
 	description: "UHPPOTE UTO311-L0x access card controllers UDP tunnel service",
+	conf:        filepath.Join(workdir(), "uhppoted-tunnel.toml"),
 	workdir:     filepath.Join(workdir(), "tunnel"),
 	logdir:      filepath.Join(workdir(), "logs"),
 	config:      filepath.Join(workdir(), "uhppoted.conf"),
@@ -31,6 +32,7 @@ type info struct {
 type Daemonize struct {
 	name        string
 	description string
+	conf        string
 	workdir     string
 	logdir      string
 	config      string

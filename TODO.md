@@ -10,12 +10,13 @@
       - [x] Somehow roll lib.CommandX into lib.Command
       - [x] Clean up initial command configuration
       - [x] Merge back into _master_
-      - [ ] Default to uhppoted-tunnel.toml
+      - [x] Default to uhppoted-tunnel.toml
       - [ ] `daemonize`
             - [x] Use `config` for service args
             - [x] Add label to TOML configuration
             - [x] Darwin
             - [ ] Linux
+                  - [ ] PID file from config
             - [ ] Windows
       - [ ] Update README
       - [ ] CONFIGURATION.md
@@ -26,6 +27,9 @@
       - [ ] Use `flock` for default Linux implementation 
       - [ ] (optional) soft lock
       - [ ] (optional) socket lock
+
+- [ ] ARM64 build
+- (?) https://eli.thegreenplace.net/2022/ssh-port-forwarding-with-go/
 
 ## TODO
 
