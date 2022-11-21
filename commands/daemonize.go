@@ -96,10 +96,10 @@ func (cmd *Daemonize) validate() (string, error) {
 
 	case
 		strings.HasPrefix(out, "udp/broadcast:"),
-		strings.HasPrefix(in, "tcp/client:"),
-		strings.HasPrefix(in, "tcp/server:"),
-		strings.HasPrefix(in, "tls/client:"),
-		strings.HasPrefix(in, "tls/server:"):
+		strings.HasPrefix(out, "tcp/client:"),
+		strings.HasPrefix(out, "tcp/server:"),
+		strings.HasPrefix(out, "tls/client:"),
+		strings.HasPrefix(out, "tls/server:"):
 	// OK
 
 	default:

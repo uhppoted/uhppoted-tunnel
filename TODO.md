@@ -12,11 +12,14 @@
       - [x] Merge back into _master_
       - [x] Default to uhppoted-tunnel.toml
       - [ ] `daemonize`
+            - [ ] `daemonize --in  udp/listen:0.0.0.0:60000 --out tcp/server:0.0.0.0:12345 --label qwerty` 
+                   without default uhppoted-tunnel.conf
             - [x] Use `config` for service args
             - [x] Add label to TOML configuration
             - [x] Darwin
             - [ ] Linux
-                  - [ ] PID file from config
+                  - [ ] `daemonize --config "../uhppoted-tunnel.toml#client" --label qwerty`
+                  - [ ] Get PID file from config
             - [ ] Windows
       - [ ] Update README
       - [ ] CONFIGURATION.md
