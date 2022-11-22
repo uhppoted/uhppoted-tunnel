@@ -18,7 +18,7 @@
             - [x] Add label to TOML configuration
             - [x] Darwin
                   - [ ] logfile
-            - [ ] Linux
+            - [x] Linux
                   - [x] `daemonize --config "../uhppoted-tunnel.toml#client" --label qwerty`
                   - [x] Get PID file from config
                   - [x] Use GetTempDir()
@@ -38,6 +38,7 @@
 
 - [ ] ARM64 build
 - (?) https://eli.thegreenplace.net/2022/ssh-port-forwarding-with-go/
+- [ ] log.Warnf+ should default to stderr
 
 ## TODO
 

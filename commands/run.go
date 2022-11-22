@@ -152,7 +152,7 @@ func (cmd *Run) configuration(flagset *flag.FlagSet) (map[string]any, error) {
 		return configure(f.DefValue + section)
 	}
 
-		return configure(section)
+	return configure(section)
 }
 
 func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc)) (err error) {
