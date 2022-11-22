@@ -108,3 +108,23 @@ func (cmd *Daemonize) validate() (string, error) {
 
 	return label, nil
 }
+
+func resolve(base string, cfg string) (string, error) {
+	file := cfg
+	section := ""
+
+	if match := regexp.MustCompile("(.*?)((?:::|#).*)").FindStringSubmatch(cfg); match != nil {
+		file = match[1]
+		section = match[2]
+	}
+
+	if strings.HasPrefix(file, ".") {
+		if abs, err := filepath.Abs(file); err != nil {
+			return cfg, err
+		} else {
+			return fmt.Sprintf("%v%v", abs, section), nil
+		}
+	}
+
+	return cfg, nil
+}

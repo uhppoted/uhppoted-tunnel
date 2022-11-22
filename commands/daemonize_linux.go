@@ -184,6 +184,20 @@ func (cmd *Daemonize) execute() error {
 		username = u.Username
 	}
 
+    conf := cmd.conf
+	if cmd.conf != "" {
+		if file, err := resolve(cmd.workdir, cmd.conf); err != nil {
+			return err
+		} else {
+			conf = file
+		}
+	}
+
+	lockfile := cmd.lockfile
+	if lockfile.File == "" {
+		lockfile.File = filepath.Join(os.TempDir(), fmt.Sprintf("%v.pid", cmd.service))
+	}
+
 	fmt.Println()
 	fmt.Println("   ... daemonizing")
 
@@ -191,10 +205,10 @@ func (cmd *Daemonize) execute() error {
 		Description:   "UHPPOTE UTO311-L0x access card controllers UDP tunnel service/daemon ",
 		Documentation: "https://github.com/uhppoted/uhppoted-tunnel",
 		Executable:    executable,
-		Conf:          cmd.conf,
+		Conf:          conf,
 		In:            cmd.in,
 		Out:           cmd.out,
-		PID:           fmt.Sprintf("/tmp/uhppoted/%v.pid", cmd.service),
+		PID:           lockfile,
 		User:          "uhppoted",
 		Group:         "uhppoted",
 		Uid:           uid,
