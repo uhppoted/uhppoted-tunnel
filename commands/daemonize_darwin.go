@@ -38,7 +38,7 @@ const newsyslog = `#logfilename                                       [owner:gro
 
 var DAEMONIZE = Daemonize{
 	plist:   fmt.Sprintf("com.github.uhppoted.%s.plist", SERVICE),
-	conf:    "/usr/local/etc/com.github.uhppoted/uhppoted-tunnel.toml",
+	conf:    "",
 	workdir: "/usr/local/var/com.github.uhppoted/tunnel",
 	logdir:  "/usr/local/var/com.github.uhppoted/logs",
 	etc:     "/usr/local/etc/com.github.uhppoted/tunnel",

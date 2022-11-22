@@ -25,8 +25,18 @@ func configure(configuration string) (map[string]any, error) {
 		section = match[2]
 	}
 
-	if file == "" {
+	if file == "" && DefaultConfig == "" {
 		return config, nil
+	}
+
+	if file == "" && DefaultConfig != "" {
+		if _, err := os.Stat(DefaultConfig); err != nil && !os.IsNotExist(err) {
+			return config, err
+		} else if err != nil {
+			return config, nil
+		} else {
+			file = DefaultConfig
+		}
 	}
 
 	if bytes, err := os.ReadFile(file); err != nil {

@@ -104,11 +104,11 @@ https: build
 	$(CMD) --debug --console --in https/0.0.0.0:8443 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s --html ./examples/html
 
 daemonize: build
-	# sudo $(CMD) daemonize --in  udp/listen:0.0.0.0:60000  --out tcp/server:0.0.0.0:12345          --label qwerty
+	sudo $(CMD) daemonize --in  udp/listen:0.0.0.0:60000  --out tcp/server:0.0.0.0:12345          --label qwerty
 	# sudo $(CMD) daemonize --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --label uiop
 	# sudo $(CMD) daemonize --config "./examples/uhppoted-tunnel.toml#client" --label qwerty
 	# sudo $(CMD) daemonize
-	sudo $(CMD) daemonize --config "#client"
+	# sudo $(CMD) daemonize --config "#client"
 
 undaemonize: build
 	sudo $(CMD) undaemonize --label qwerty
