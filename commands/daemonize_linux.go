@@ -66,7 +66,7 @@ const logRotateTemplate = `{{range .LogFiles}}{{. }} {{end}}{
 
 var DAEMONIZE = Daemonize{
 	usergroup: "uhppoted:uhppoted",
-	conf:      "/etc/uhppoted/uhppoted-tunnel.toml",
+	conf:      "",
 	workdir:   "/var/uhppoted/tunnel",
 	logdir:    "/var/log/uhppoted",
 	etc:       "/etc/uhppoted/tunnel",

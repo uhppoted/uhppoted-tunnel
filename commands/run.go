@@ -149,14 +149,10 @@ func (cmd *Run) configuration(flagset *flag.FlagSet) (map[string]any, error) {
 	}
 
 	if f := flagset.Lookup("config"); f != nil && f.DefValue != "" {
-		if c, err := configure(f.DefValue + section); err != nil {
-			warnf("---", "%v", err)
-		} else {
-			return c, nil
-		}
+		return configure(f.DefValue + section)
 	}
 
-	return map[string]any{}, nil
+		return configure(section)
 }
 
 func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc)) (err error) {

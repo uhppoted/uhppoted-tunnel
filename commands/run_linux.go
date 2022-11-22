@@ -37,7 +37,7 @@ var RUN = Run{
 	debug:    false,
 	console:  false,
 
-	conf:        "/etc/com.github.uhppoted/uhppoted-tunnel.conf",
+	conf:        "",
 	workdir:     "/var/uhppoted",
 	logFile:     fmt.Sprintf("/var/log/uhppoted/%s.log", SERVICE),
 	logFileSize: 10,

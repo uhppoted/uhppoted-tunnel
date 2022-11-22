@@ -19,12 +19,15 @@
             - [x] Darwin
                   - [ ] logfile
             - [ ] Linux
-                  - [ ] `daemonize --config "../uhppoted-tunnel.toml#client" --label qwerty`
-                  - [ ] Get PID file from config
-                  - [ ] Use GetTempDir()
+                  - [x] `daemonize --config "../uhppoted-tunnel.toml#client" --label qwerty`
+                  - [x] Get PID file from config
+                  - [x] Use GetTempDir()
+                  - [x] ~~`daemonize --config ...` logs to stdout~~ (because `console`)
             - [ ] Windows
+            - [ ] Commonalise config file resolution
       - [ ] Update README
-      - [ ] CONFIGURATION.md
+      - [ ] uhppoted-conf.md
+      - [ ] uhppoted-tunnel-toml.md
 
 - [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/7
       - [x] Move lockfile implementation to uhppoted-lib

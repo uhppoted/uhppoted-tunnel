@@ -29,7 +29,7 @@ func (cmd *Daemonize) configuration(flagset *flag.FlagSet) string {
 		return f.DefValue + section
 	}
 
-	return ""
+	return section
 }
 
 func (cmd *Daemonize) validate() (string, error) {
