@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"text/template"
 
@@ -368,4 +367,3 @@ func (cmd *Daemonize) firewall(i info) error {
 
 	return nil
 }
-

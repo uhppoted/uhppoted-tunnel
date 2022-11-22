@@ -3,6 +3,7 @@ package commands
 import (
 	"flag"
 	"fmt"
+	"path/filepath"
 	"regexp"
 	"strings"
 )

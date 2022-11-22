@@ -17,6 +17,7 @@
             - [x] Use `config` for service args
             - [x] Add label to TOML configuration
             - [x] Darwin
+                  - [ ] logfile
             - [ ] Linux
                   - [ ] `daemonize --config "../uhppoted-tunnel.toml#client" --label qwerty`
                   - [ ] Get PID file from config

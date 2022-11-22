@@ -184,7 +184,7 @@ func (cmd *Daemonize) execute() error {
 		username = u.Username
 	}
 
-    conf := cmd.conf
+	conf := cmd.conf
 	if cmd.conf != "" {
 		if file, err := resolve(cmd.workdir, cmd.conf); err != nil {
 			return err
@@ -193,11 +193,35 @@ func (cmd *Daemonize) execute() error {
 		}
 	}
 
-	lockfile := cmd.lockfile
-	if lockfile.File == "" {
-		lockfile.File = filepath.Join(os.TempDir(), fmt.Sprintf("%v.pid", cmd.service))
+	// ... get configured lockfile and logfile
+	config, err := configure(conf)
+	if err != nil {
+		return err
 	}
 
+	lockfile := ""
+	if u, ok := config["lockfile"]; ok {
+		if v, ok := u.(string); ok {
+			lockfile = v
+		}
+	}
+
+	if lockfile == "" {
+		lockfile = filepath.Join(os.TempDir(), fmt.Sprintf("%v.pid", cmd.service))
+	}
+
+	logfile := ""
+	if u, ok := config["logfile"]; ok {
+		if v, ok := u.(string); ok {
+			logfile = v
+		}
+	}
+
+	if logfile == "" {
+		logfile = fmt.Sprintf("/var/log/uhppoted/%s.log", cmd.service)
+	}
+
+	// ... daemonize
 	fmt.Println()
 	fmt.Println("   ... daemonizing")
 
@@ -214,7 +238,7 @@ func (cmd *Daemonize) execute() error {
 		Uid:           uid,
 		Gid:           gid,
 		LogFiles: []string{
-			fmt.Sprintf("/var/log/uhppoted/%s.log", cmd.service),
+			logfile,
 		},
 	}
 
