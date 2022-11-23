@@ -3,21 +3,12 @@
 ## IN PROGRESS
 
 - [x] https://github.com/uhppoted/uhppoted-tunnel/issues/2
-      - [x] Load TOML file
-      - [x] Specify TOML file section on command line
-      - [x] Use # or :: as seperator
-      - [x] Override with command-line args
-      - [x] Somehow roll lib.CommandX into lib.Command
-      - [x] Clean up initial command configuration
-      - [x] Merge back into _master_
-      - [x] Default to uhppoted-tunnel.toml
       - [ ] `daemonize`
             - [x] `daemonize --in  udp/listen:0.0.0.0:60000 --out tcp/server:0.0.0.0:12345 --label qwerty` 
                    without default uhppoted-tunnel.conf
             - [x] Use `config` for service args
             - [x] Add label to TOML configuration
             - [x] Darwin
-                  - [ ] logfile
             - [x] Linux
                   - [x] `daemonize --config "../uhppoted-tunnel.toml#client" --label qwerty`
                   - [x] Get PID file from config
@@ -25,6 +16,7 @@
                   - [x] ~~`daemonize --config ...` logs to stdout~~ (because `console`)
             - [ ] Windows
             - [ ] Commonalise config file resolution
+            - [ ] Commonalise the 'no label' handling
       - [ ] Update README
       - [ ] uhppoted-conf.md
       - [ ] uhppoted-tunnel-toml.md

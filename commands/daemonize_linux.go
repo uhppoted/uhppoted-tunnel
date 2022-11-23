@@ -95,7 +95,7 @@ func (cmd *Daemonize) Name() string {
 func (cmd *Daemonize) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("daemonize", flag.ExitOnError)
 
-	flagset.StringVar(&cmd.conf, "config", cmd.conf, "tunnel TOML configuration file. Defaults to /etc/uhppoted/uhppoted-tunnel.toml")
+	flagset.StringVar(&cmd.conf, "config", cmd.conf, "tunnel TOML configuration file. Defaults to "+DefaultConfig)
 	flagset.StringVar(&cmd.in, "in", "", "tunnel connection that accepts requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
 	flagset.StringVar(&cmd.out, "out", "", "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
 	flagset.StringVar(&cmd.label, "label", "", "Identifying label for the service (to distinguish multiple tunnels running on the same machine)")
@@ -161,7 +161,6 @@ func (cmd *Daemonize) Execute(args ...interface{}) error {
 	}
 
 	// ... install service
-
 	return cmd.execute()
 }
 

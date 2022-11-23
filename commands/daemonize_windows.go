@@ -18,7 +18,6 @@ var DAEMONIZE = Daemonize{
 	conf:        filepath.Join(workdir(), "uhppoted-tunnel.toml"),
 	workdir:     filepath.Join(workdir(), "tunnel"),
 	logdir:      filepath.Join(workdir(), "logs"),
-	config:      filepath.Join(workdir(), "uhppoted.conf"),
 	etc:         filepath.Join(workdir(), "tunnel"),
 }
 
@@ -27,6 +26,7 @@ type info struct {
 	WorkDir    string
 	HTML       string
 	LogDir     string
+	Label      string
 }
 
 type Daemonize struct {
@@ -35,7 +35,6 @@ type Daemonize struct {
 	conf        string
 	workdir     string
 	logdir      string
-	config      string
 	etc         string
 	in          string
 	out         string
@@ -55,6 +54,7 @@ func (cmd *Daemonize) Name() string {
 func (cmd *Daemonize) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("daemonize", flag.ExitOnError)
 
+	flagset.StringVar(&cmd.conf, "config", cmd.conf, "tunnel TOML configuration file. Defaults to "+DefaultConfig)
 	flagset.StringVar(&cmd.in, "in", "", "tunnel connection that accepts requests e.g. udp/listen:0.0.0.0:60000 or tcp/client:101.102.103.104:54321")
 	flagset.StringVar(&cmd.out, "out", "", "tunnel connection that dispatches received requests e.g. udp/broadcast:255.255.255.255:60000 or tcp/server:0.0.0.0:54321")
 	flagset.StringVar(&cmd.label, "label", "", "(optional) Identifying label for the service to distinguish multiple tunnels running on the same machine")
@@ -80,51 +80,31 @@ func (cmd *Daemonize) Help() {
 	helpOptions(cmd.FlagSet())
 }
 
+func (cmd *Daemonize) ParseCmd(args ...string) error {
+	flagset := cmd.FlagSet()
+	if flagset == nil {
+		panic(fmt.Sprintf("'%s' command implementation without a flagset: %#v", cmd.Name(), cmd))
+	}
+
+	flagset.Parse(args)
+
+	cmd.conf = cmd.configuration(flagset)
+
+	return nil
+}
+
 func (cmd *Daemonize) Execute(args ...interface{}) error {
-	r := bufio.NewReader(os.Stdin)
-
-	// ... check --in connection
-	switch {
-	case cmd.in == "":
-		return fmt.Errorf("--in argument is required")
-
-	case
-		strings.HasPrefix(cmd.in, "udp/listen:"),
-		strings.HasPrefix(cmd.in, "tcp/client:"),
-		strings.HasPrefix(cmd.in, "tcp/server:"),
-		strings.HasPrefix(cmd.in, "tls/client:"),
-		strings.HasPrefix(cmd.in, "tls/server:"),
-		strings.HasPrefix(cmd.in, "http/"),
-		strings.HasPrefix(cmd.in, "https/"):
-	// OK
-
-	default:
-		return fmt.Errorf("Invalid --in argument (%v)", cmd.in)
-	}
-
-	// ... check --out connection
-	switch {
-	case cmd.out == "":
-		return fmt.Errorf("--out argument is required")
-
-	case
-		strings.HasPrefix(cmd.out, "udp/broadcast:"),
-		strings.HasPrefix(cmd.out, "tcp/client:"),
-		strings.HasPrefix(cmd.out, "tcp/server:"),
-		strings.HasPrefix(cmd.out, "tls/client:"),
-		strings.HasPrefix(cmd.out, "tls/server:"):
-
-	default:
-		return fmt.Errorf("Invalid --out argument (%v)", cmd.out)
-	}
-
-	// ... warn for no --label
-	if cmd.label == "" {
+	// ... validate configuration
+	label, err := cmd.validate()
+	if err != nil {
+		return err
+	} else if label == "" {
 		fmt.Println()
 		fmt.Printf("     **** WARNING: running daemonize without the --label option will overwrite any existing uhppoted-tunnel service.\n")
 		fmt.Println()
 		fmt.Printf("     Enter 'yes' to continue with the installation: ")
 
+		r := bufio.NewReader(os.Stdin)
 		text, err := r.ReadString('\n')
 		if err != nil || strings.TrimSpace(text) != "yes" {
 			fmt.Println()
@@ -132,29 +112,13 @@ func (cmd *Daemonize) Execute(args ...interface{}) error {
 			fmt.Println()
 			return nil
 		}
-	} else {
-		cmd.name = fmt.Sprintf("%v-%v", SERVICE, cmd.label)
 	}
 
-	dir := filepath.Dir(cmd.config)
-
-	fmt.Println()
-	fmt.Printf("     **** PLEASE MAKE SURE YOU HAVE A BACKUP COPY OF THE CONFIGURATION INFORMATION AND KEYS IN %s ***\n", dir)
-	fmt.Println()
-	fmt.Printf("     Enter 'yes' to continue with the installation: ")
-
-	text, err := r.ReadString('\n')
-	if err != nil || strings.TrimSpace(text) != "yes" {
-		fmt.Println()
-		fmt.Printf("     -- installation cancelled --")
-		fmt.Println()
-		return nil
-	}
-
-	return cmd.execute()
+	// ... install service
+	return cmd.execute(label)
 }
 
-func (cmd *Daemonize) execute() error {
+func (cmd *Daemonize) execute(label string) error {
 	fmt.Println()
 	fmt.Println("   ... daemonizing")
 
@@ -167,6 +131,7 @@ func (cmd *Daemonize) execute() error {
 		Executable: executable,
 		WorkDir:    cmd.workdir,
 		LogDir:     cmd.logdir,
+		Label:      label,
 	}
 
 	if err := cmd.register(&i); err != nil {
@@ -190,6 +155,26 @@ func (cmd *Daemonize) execute() error {
 }
 
 func (cmd *Daemonize) register(i *info) error {
+	// ... initialise service command line args
+	args := []string{}
+
+	if cmd.conf != "" {
+		args = append(args, "--config", cmd.conf)
+	}
+
+	if cmd.in != "" {
+		args = append(args, "--in", cmd.in)
+	}
+
+	if cmd.out != "" {
+		args = append(args, "--out", cmd.out)
+	}
+
+	if i.Label != "" {
+		args = append(args, "--label", i.Label)
+	}
+
+	// ... create service config
 	config := mgr.Config{
 		DisplayName:      cmd.name,
 		Description:      cmd.description,
@@ -208,18 +193,6 @@ func (cmd *Daemonize) register(i *info) error {
 	if err == nil {
 		s.Close()
 		return fmt.Errorf("service %s already exists", cmd.Name)
-	}
-
-	args := []string{
-		"--in",
-		cmd.in,
-		"--out",
-		cmd.out,
-	}
-
-	if cmd.label != "" {
-		args = append(args, "--label")
-		args = append(args, cmd.label)
 	}
 
 	s, err = m.CreateService(cmd.name, i.Executable, config, args...)
