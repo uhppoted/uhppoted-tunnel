@@ -7,7 +7,8 @@
             - [x] `daemonize --in  udp/listen:0.0.0.0:60000 --out tcp/server:0.0.0.0:12345 --label qwerty` 
                    without default uhppoted-tunnel.conf
             - [x] Use `config` for service args
-            - [x] Add label to TOML configuration
+            - [x] Add label 
+            to TOML configuration
             - [x] Darwin
             - [x] Linux
                   - [x] `daemonize --config "../uhppoted-tunnel.toml#client" --label qwerty`
@@ -20,6 +21,8 @@
                   - [ ]  --no-console arg for service
             - [ ] Commonalise config file resolution
             - [ ] Commonalise the 'no label' handling
+            - [ ] Add [console-client] etc to example TOML file (so that services don't have 
+                  --console enabled by mistake)
       - [ ] Update README
       - [ ] uhppoted-conf.md
       - [ ] uhppoted-tunnel-toml.md
