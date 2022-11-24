@@ -163,7 +163,11 @@ func (cmd *Daemonize) register(i *info) error {
 	}
 
 	if cmd.conf != "" {
-		args = append(args, "--config", cmd.conf)
+		if file, err := resolve(cmd.workdir, cmd.conf); err != nil {
+			return err
+		} else {
+			args = append(args, "--config", file)
+		}
 	}
 
 	if cmd.in != "" {
