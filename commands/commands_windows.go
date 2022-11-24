@@ -5,3 +5,4 @@ import (
 )
 
 var DefaultConfig = filepath.Join(workdir(), "uhppoted-tunnel.toml")
+var DefaultLockfile = filepath.Join(workdir(), "uhppoted-tunnel.pid")

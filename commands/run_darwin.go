@@ -28,7 +28,7 @@ var RUN = Run{
 	requireClientAuth: false,
 	html:              "./html",
 	lockfile: config.Lockfile{
-		File:     "",
+		File:     DefaultLockfile,
 		Interval: 60 * time.Second,
 		Wait:     90 * time.Second,
 	},
