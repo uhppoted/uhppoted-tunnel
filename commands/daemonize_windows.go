@@ -158,7 +158,9 @@ func (cmd *Daemonize) execute() error {
 
 func (cmd *Daemonize) register(i *info) error {
 	// ... initialise service command line args
-	args := []string{}
+	args := []string{
+		"--service",
+	}
 
 	if cmd.conf != "" {
 		args = append(args, "--config", cmd.conf)

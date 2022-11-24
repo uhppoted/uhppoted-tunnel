@@ -41,6 +41,7 @@ var RUN = Run{
 	logLevel: "info",
 	debug:    false,
 	console:  false,
+	daemon:   false, // for Windows services only - prevents running a service in console mode
 
 	conf:        "",
 	workdir:     workdir(),
@@ -61,6 +62,7 @@ func (cmd *Run) FlagSet() *flag.FlagSet {
 	flagset := cmd.flags()
 
 	flagset.StringVar(&cmd.label, "label", "", "(optional) Identifying label for the service to distinguish multiple tunnels running on the same machine")
+	flagset.BoolVar(&cmd.daemon, "service", false, "Used by 'daemonize' to expressly disable running a service in console mode (allowed on Linux and MacOS)")
 
 	return flagset
 }
@@ -81,7 +83,7 @@ func (cmd *Run) Execute(args ...interface{}) error {
 }
 
 func (cmd *Run) start(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc) {
-	if cmd.console {
+	if cmd.console && !cmd.daemon {
 		log.SetOutput(os.Stdout)
 		log.SetFlags(log.LstdFlags)
 

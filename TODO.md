@@ -18,7 +18,7 @@
             - [ ] Windows
                   - [ ] `$(CMD) daemonize --config "./examples/uhppoted-tunnel.toml#client" --label qwerty`
                   - [x] Don't use tempdir for lockfile
-                  - [ ]  --no-console arg for service
+                  - [x] --service arg to disable `console` mode
             - [ ] Commonalise config file resolution
             - [ ] Commonalise the 'no label' handling
             - [ ] Add [console-client] etc to example TOML file (so that services don't have 

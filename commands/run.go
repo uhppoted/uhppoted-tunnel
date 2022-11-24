@@ -47,6 +47,7 @@ type Run struct {
 	workdir           string
 	debug             bool
 	console           bool
+	daemon            bool // for Windows service use only - expressly disables console mode when installed as a service
 }
 
 const MAX_RETRIES = 32
