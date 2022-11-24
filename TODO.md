@@ -4,25 +4,15 @@
 
 - [x] https://github.com/uhppoted/uhppoted-tunnel/issues/2
       - [ ] `daemonize`
-            - [x] `daemonize --in  udp/listen:0.0.0.0:60000 --out tcp/server:0.0.0.0:12345 --label qwerty` 
-                   without default uhppoted-tunnel.conf
+            - [x] `daemonize --in  udp/listen:0.0.0.0:60000 ....` without default uhppoted-tunnel.conf
             - [x] Use `config` for service args
-            - [x] Add label 
-            to TOML configuration
+            - [x] Add label to TOML configuration
             - [x] Darwin
             - [x] Linux
-                  - [x] `daemonize --config "../uhppoted-tunnel.toml#client" --label qwerty`
-                  - [x] Get PID file from config
-                  - [x] Use GetTempDir()
-                  - [x] ~~`daemonize --config ...` logs to stdout~~ (because `console`)
-            - [ ] Windows
-                  - [ ] `$(CMD) daemonize --config "./examples/uhppoted-tunnel.toml#client" --label qwerty`
-                  - [x] Don't use tempdir for lockfile
-                  - [x] --service arg to disable `console` mode
+            - [x] Windows
+            - [x] Add [console-client] etc to example TOML file (so that services don't have --console enabled by mistake)
             - [ ] Commonalise config file resolution
             - [ ] Commonalise the 'no label' handling
-            - [ ] Add [console-client] etc to example TOML file (so that services don't have 
-                  --console enabled by mistake)
       - [ ] Update README
       - [ ] uhppoted-conf.md
       - [ ] uhppoted-tunnel-toml.md
@@ -37,6 +27,8 @@
 - [ ] ARM64 build
 - (?) https://eli.thegreenplace.net/2022/ssh-port-forwarding-with-go/
 - [ ] log.Warnf+ should default to stderr
+- [ ] Windows eventlog message file
+      - https://social.msdn.microsoft.com/Forums/windowsdesktop/en-US/deaa0055-7770-4e55-a5b8-6d08b80b74af/creating-event-log-message-files
 
 ## TODO
 
