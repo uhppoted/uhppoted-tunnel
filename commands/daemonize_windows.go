@@ -15,7 +15,7 @@ import (
 var DAEMONIZE = Daemonize{
 	name:        SERVICE,
 	description: "UHPPOTE UTO311-L0x access card controllers UDP tunnel service",
-	conf:        filepath.Join(workdir(), "uhppoted-tunnel.toml"),
+	conf:        "",
 	workdir:     filepath.Join(workdir(), "tunnel"),
 	logdir:      filepath.Join(workdir(), "logs"),
 	etc:         filepath.Join(workdir(), "tunnel"),
@@ -26,7 +26,6 @@ type info struct {
 	WorkDir    string
 	HTML       string
 	LogDir     string
-	Label      string
 }
 
 type Daemonize struct {
@@ -114,11 +113,15 @@ func (cmd *Daemonize) Execute(args ...interface{}) error {
 		}
 	}
 
+	if label != "" {
+		cmd.name = fmt.Sprintf("%v-%v", SERVICE, label)
+	}
+
 	// ... install service
-	return cmd.execute(label)
+	return cmd.execute()
 }
 
-func (cmd *Daemonize) execute(label string) error {
+func (cmd *Daemonize) execute() error {
 	fmt.Println()
 	fmt.Println("   ... daemonizing")
 
@@ -131,7 +134,6 @@ func (cmd *Daemonize) execute(label string) error {
 		Executable: executable,
 		WorkDir:    cmd.workdir,
 		LogDir:     cmd.logdir,
-		Label:      label,
 	}
 
 	if err := cmd.register(&i); err != nil {
@@ -147,8 +149,8 @@ func (cmd *Daemonize) execute(label string) error {
 	fmt.Println("   The service will start automatically on the next system restart. Start it manually from the")
 	fmt.Println("   'Services' application or from the command line by executing the following command:")
 	fmt.Println()
-	fmt.Printf(`     > net start "%s"\n`, cmd.name)
-	fmt.Printf(`     > sc query "%s"\n`, cmd.name)
+	fmt.Printf("     > net start %q\n", cmd.name)
+	fmt.Printf("     > sc query %q\n", cmd.name)
 	fmt.Println()
 
 	return nil
@@ -170,10 +172,6 @@ func (cmd *Daemonize) register(i *info) error {
 		args = append(args, "--out", cmd.out)
 	}
 
-	if i.Label != "" {
-		args = append(args, "--label", i.Label)
-	}
-
 	// ... create service config
 	config := mgr.Config{
 		DisplayName:      cmd.name,
@@ -192,7 +190,7 @@ func (cmd *Daemonize) register(i *info) error {
 	s, err := m.OpenService(cmd.name)
 	if err == nil {
 		s.Close()
-		return fmt.Errorf("service %s already exists", cmd.Name)
+		return fmt.Errorf("service %v already exists", cmd.name)
 	}
 
 	s, err = m.CreateService(cmd.name, i.Executable, config, args...)

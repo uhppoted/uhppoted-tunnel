@@ -42,7 +42,7 @@ var RUN = Run{
 	debug:    false,
 	console:  false,
 
-	conf:        filepath.Join(workdir(), "uhppoted-tunnel.conf"),
+	conf:        "",
 	workdir:     workdir(),
 	logFile:     filepath.Join(workdir(), "logs", fmt.Sprintf("%s.log", SERVICE)),
 	logFileSize: 10,

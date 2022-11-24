@@ -139,7 +139,6 @@ func (cmd *Daemonize) ParseCmd(args ...string) error {
 
 func (cmd *Daemonize) Execute(args ...interface{}) error {
 	// ... validate configuration
-
 	if label, err := cmd.validate(); err != nil {
 		return err
 	} else if label == "" {

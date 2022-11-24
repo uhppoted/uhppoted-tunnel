@@ -15,6 +15,9 @@
                   - [x] Use GetTempDir()
                   - [x] ~~`daemonize --config ...` logs to stdout~~ (because `console`)
             - [ ] Windows
+                  - [ ] `$(CMD) daemonize --config "./examples/uhppoted-tunnel.toml#client" --label qwerty`
+                  - [ ] Don't use tempdir for lockfile
+                  - [ ]  --no-console arg for service
             - [ ] Commonalise config file resolution
             - [ ] Commonalise the 'no label' handling
       - [ ] Update README
