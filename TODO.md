@@ -15,7 +15,7 @@
             - [ ] Commonalise the 'no label' handling
             - [x] Remove [console-client] etc and replace with --console in the Makefile
       - [x] uhppoted-tunnel-toml.md
-      - [ ] Update README
+      - [x] Update README
 
 - [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/7
       - [x] Move lockfile implementation to uhppoted-lib

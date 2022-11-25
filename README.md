@@ -42,6 +42,7 @@ Supported operating systems:
 - MacOS
 - Windows
 - ARM7 _(e.g. RaspberryPi)_
+- Linux/ARM64 (experimental)
 
 ## Releases
 
@@ -109,8 +110,14 @@ Supported commands:
 - `daemonize`
 - `undaemonize`
 
-Defaults to `run` if the command it not provided i.e. ```uhppoted-tunnel --in <connector> --out <connector> <options>``` is equivalent to 
-```uhppoted-tunnel run  --in <connector> --out <connector> <options>```.
+Defaults to `run` if the command it not provided i.e. ```uhppoted-tunnel --in <connector> --out <connector> <options>``` is equivalent to ```uhppoted-tunnel run  --in <connector> --out <connector> <options>```.
+
+#### Configuration
+
+For _uhppoted-tunnel_ v0.8.3+, runtime configuration is defined in a TOML file (documented [here](https://github.com/uhppoted/uhppoted-tunnel/blob/master/documentation/uhppoted-tunnel-toml.md)) and any future enhancements will
+be configurable only in the TOML file.
+
+The command line arguments described below are for legacy support and overriding specific settings in the TOML configuation.
 
 ### `run`
 
@@ -119,10 +126,19 @@ background.
 
 Command line:
 
-` uhppoted-tunnel [--debug] [--console] --in <connector> --out <connector> [options]`
+` uhppoted-tunnel [--debug] [--console] --config <configuration> --in <connector> --out <connector> [options]`
 
 ```
-  --in <connector>  Defines the connector that accepts incoming commands. Valid 'in' connectors include: 
+  --config <configuration> Sets the TOML file and section to use for runtime configuration settings. The
+                           configuration may be:
+                           - fully specified, e.g. "--config /etc/uhppoted/uhppoted-tunnel.toml#client"
+                           - file only e.g. "--config /etc/uhppoted/uhppoted-tunnel.toml" (uses the [defaults] section)
+                           - section only e.g. "--config #client" (uses the default TOML file and [client] section)
+                           
+                           If the --config argument not supplied, the default TOML file will be used if it exists.
+
+  --in <connector>  Defines the connector that accepts incoming commands. Overrides the 'IN' connector in the TOML
+                    configuration if it exists. Valid 'in' connectors include: 
                     - udp/listen:<bind address> (e.g. udp/listen:0.0.0.0:60000)
                     - tcp/server:<bind address> (e.g. tcp/server:0.0.0.0:12345)
                     - tcp/client:<host address> (e.g. tcp/client:192.168.1.100:12345)
@@ -131,7 +147,8 @@ Command line:
                     - http/<bind address> (e.g. http/0.0.0.0:8080)
                     - https/<bind address> (e.g. https/0.0.0.0:8443)
 
-  --out <connector> Defines the connector that forwards received commands. Valid 'out' connectors include: 
+  --out <connector> Defines the connector that forwards received commands. Overrides the 'OUT' connector in the TOML
+                    configuration if it exists. Valid 'out' connectors include: 
                     - udp/broadcast:<broadcast address> (e.g. udp/broadcast:255.255.255.255:60000)
                     - tcp/server:<bind address> (e.g. tcp/server:0.0.0.0:12345)
                     - tcp/client:<host address> (e.g. tcp/client:192.168.1.100:12345)
@@ -155,6 +172,18 @@ Command line:
 
   --log-level <level>  Lowest level log messages to include in logging output ('debug', 'info', 'warn' or 'error'). 
                        Defaults to 'info'
+
+  --ca-cert <file>  (TLS only) File path for CA certificate PEM file. Defaults to ./ca.cert
+
+  --cert <file>     (TLS only) File path for client/server certificate PEM file. Defaults to./client.cert ('IN' 
+                               connectors) or ./server.cert (OUT connectors)
+
+  --key <file>      (TLS only) File path for client/server key PEM file. Defaults to ./client.key ('IN' connectors)
+                               or ./server.key ('OUT' connectors)
+ 
+  --client-auth     (TLS only) Mandates client authentication. Defaults to false
+
+  --html            (HTTP only) Folder with HTML, CSS, images, etc. Defaults to./html
 ```
 
 In general, tunnels operate in pairs - one on the _host_, listening for commands from e.g. the _AccessControl_ application
@@ -169,12 +198,40 @@ system specific service configuration files and service manager entries. On Linu
 
 Command line:
 
-`uhppoted-tunnel daemonize --in <connector> --out <connector> [--label <label>] [--user <user>]`
+`uhppoted-tunnel daemonize --config <configuration> --in <connector> --out <connector> [--label <label>] [--user <user>]`
 
 ```
+  --config <configuration> Sets the TOML file and section to use for runtime configuration settings. The
+                           configuration may be:
+                           - fully specified, e.g. "--config /etc/uhppoted/uhppoted-tunnel.toml#client"
+                           - file only e.g. "--config /etc/uhppoted/uhppoted-tunnel.toml" (uses the [defaults] section)
+                           - section only e.g. "--config #client" (uses the default TOML file and [client] section)
+                           
+                           If the --config argument not supplied, the default TOML file will be used if it exists.
+
+  --in <connector>  Defines the connector that accepts incoming commands. Overrides the 'in' connector in the TOML
+                    configuration. Valid 'in' connectors include: 
+                    - udp/listen:<bind address> (e.g. udp/listen:0.0.0.0:60000)
+                    - tcp/server:<bind address> (e.g. tcp/server:0.0.0.0:12345)
+                    - tcp/client:<host address> (e.g. tcp/client:192.168.1.100:12345)
+                    - tls/server:<bind address> (e.g. tls/server:0.0.0.0:12345)
+                    - tls/client:<host address> (e.g. tls/client:192.168.1.100:12345)
+                    - http/<bind address> (e.g. http/0.0.0.0:8080)
+                    - https/<bind address> (e.g. https/0.0.0.0:8443)
+
+  --out <connector> Defines the connector that forwards received commands. Overrides the 'out' connector in the TOML
+                    configuration. Valid 'out' connectors include: 
+                    - udp/broadcast:<broadcast address> (e.g. udp/broadcast:255.255.255.255:60000)
+                    - tcp/server:<bind address> (e.g. tcp/server:0.0.0.0:12345)
+                    - tcp/client:<host address> (e.g. tcp/client:192.168.1.100:12345)
+                    - tls/server:<bind address> (e.g. tls/server:0.0.0.0:12345)
+                    - tls/client:<host address> (e.g. tls/client:192.168.1.100:12345)
+
   --label <label>  Identifying label for the tunnel daemon/service, used to identify the tunnel in logs and when
                    uninstalling the daemon/service. Imperative if running multiple tunnel daemons on the same machine,
                    optional but recommended otherwise. Defaults to uhppoted-tunnel if not provided.
+
+  --user <uid:group>  (Linux only) uid:group pair to use for service. Defaults to uhppoted:uhppoted.
 ```
 
 ### `undaemonize`
@@ -183,7 +240,7 @@ Unregisters `uhppoted-tunnel` as a system service, but does not delete any creat
 
 Command line:
 
-`uhppoted-tunnel undaemonize `
+`uhppoted-tunnel undaemonize [--label <label>]`
 
 
 ```

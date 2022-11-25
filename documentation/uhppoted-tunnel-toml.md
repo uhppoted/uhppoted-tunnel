@@ -56,8 +56,6 @@ udp-timeout = "5s"
 
 ```
 
-
-
 ### Settings
 
 | *Attribute*       | *Description*                                                    | *Default value*                |
