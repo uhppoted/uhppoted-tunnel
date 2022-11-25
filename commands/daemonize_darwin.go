@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -103,28 +103,14 @@ func (cmd *Daemonize) ParseCmd(args ...string) error {
 }
 
 func (cmd *Daemonize) Execute(args ...any) error {
-	// ... validate configuration
-
 	label, err := cmd.validate()
-	if err != nil {
+	if err != nil && !errors.Is(err, ErrLabel) {
 		return err
+	} else if err != nil {
+		return nil
 	}
 
-	if label == "" {
-		fmt.Println()
-		fmt.Printf("     **** WARNING: running daemonize without the --label option will overwrite any existing uhppoted-tunnel service.\n")
-		fmt.Println()
-		fmt.Printf("     Enter 'yes' to continue with the installation: ")
-
-		r := bufio.NewReader(os.Stdin)
-		text, err := r.ReadString('\n')
-		if err != nil || strings.TrimSpace(text) != "yes" {
-			fmt.Println()
-			fmt.Printf("     -- installation cancelled --")
-			fmt.Println()
-			return nil
-		}
-	} else {
+	if label != "" {
 		cmd.plist = fmt.Sprintf("com.github.uhppoted.%v-%v.plist", SERVICE, label)
 	}
 

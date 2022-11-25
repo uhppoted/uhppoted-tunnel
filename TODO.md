@@ -12,7 +12,7 @@
             - [x] Windows
             - [x] Add [console-client] etc to example TOML file (so that services don't have --console enabled by mistake)
             - [ ] Commonalise config file resolution
-            - [ ] Commonalise the 'no label' handling
+            - [x] Commonalise the 'no label' handling
             - [x] Remove [console-client] etc and replace with --console in the Makefile
       - [x] uhppoted-tunnel-toml.md
       - [x] Update README
@@ -24,7 +24,7 @@
       - [ ] (optional) soft lock
       - [ ] (optional) socket lock
 
-- [ ] ARM64 build
+- [x] ARM64 build
 - (?) https://eli.thegreenplace.net/2022/ssh-port-forwarding-with-go/
 - [ ] log.Warnf+ should default to stderr
 - [ ] Windows eventlog message file

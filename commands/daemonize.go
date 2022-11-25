@@ -1,12 +1,17 @@
 package commands
 
 import (
+	"bufio"
+	"errors"
 	"flag"
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 )
+
+var ErrLabel = errors.New("invalid label")
 
 func (cmd *Daemonize) configuration(flagset *flag.FlagSet) string {
 	config := ""
@@ -105,6 +110,23 @@ func (cmd *Daemonize) validate() (string, error) {
 
 	default:
 		return label, fmt.Errorf("Invalid OUT connector (%v)", out)
+	}
+
+	// ... check label
+	if label == "" {
+		fmt.Println()
+		fmt.Printf("     **** WARNING: running daemonize without the --label option will overwrite any existing uhppoted-tunnel service.\n")
+		fmt.Println()
+		fmt.Printf("     Enter 'yes' to continue with the installation: ")
+
+		r := bufio.NewReader(os.Stdin)
+		text, err := r.ReadString('\n')
+		if err != nil || strings.TrimSpace(text) != "yes" {
+			fmt.Println()
+			fmt.Printf("     -- installation cancelled --")
+			fmt.Println()
+			return label, ErrLabel
+		}
 	}
 
 	return label, nil
