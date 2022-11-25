@@ -3,7 +3,11 @@
 ## [Unreleased]
 
 ### Added
-1. Optional TOML file configuration (cf. https://github.com/uhppoted/uhppoted-tunnel/issues/2)
+1. TOML file configuration (cf. https://github.com/uhppoted/uhppoted-tunnel/issues/2)
+2. Experimental Linux/ARM64 binary
+
+### Changed
+1. Moved default lockfile to ephemeral system _temp_ folder
 
 
 ## [0.8.2](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.2) - 2022-10-14
