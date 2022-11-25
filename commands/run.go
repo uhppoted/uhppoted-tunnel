@@ -50,7 +50,7 @@ type Run struct {
 	daemon            bool // for Windows service use only - expressly disables console mode when installed as a service
 }
 
-const MAX_RETRIES = 32
+const MAX_RETRIES = -1
 const MAX_RETRY_DELAY = 5 * time.Minute
 const UDP_TIMEOUT = 5 * time.Second
 

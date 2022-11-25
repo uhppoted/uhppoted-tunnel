@@ -82,8 +82,9 @@ host: build
 
 client: build
 	# $(CMD) --debug --console --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
+	# $(CMD) --config "#client" --console --debug
 	# $(CMD) --config "./examples/uhppoted-tunnel.toml#client"
-	$(CMD) --config "./examples/uhppoted-tunnel.toml#console-client"
+	$(CMD) --config "./examples/uhppoted-tunnel.toml#client" --console --debug
 
 reverse-host: build
 	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/client:127.0.0.1:12345

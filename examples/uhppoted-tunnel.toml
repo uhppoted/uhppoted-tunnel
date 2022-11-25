@@ -4,15 +4,17 @@ max-retries = 32
 max-retry-delay = "5m"
 udp-timeout = "5s"
 
+[debug]
+in = "tcp/client:127.0.0.1:12345"
+out = "udp/broadcast:192.168.1.255:60005"
+udp-timeout = "1s"
+log-level = "debug"
+console = true
+debug = true
+
 [host]
 in = "udp/listen:0.0.0.0:60000"
 out = "tcp/server:0.0.0.0:12345"
-
-[console-host]
-in = "udp/listen:0.0.0.0:60000"
-out = "tcp/server:0.0.0.0:12345"
-console = true
-debug = true
 
 [client]
 in = "tcp/client:127.0.0.1:12345"
@@ -21,35 +23,14 @@ udp-timeout = "1s"
 log-level = "info"
 label = "qwerty"
 
-[console-client]
-in = "tcp/client:127.0.0.1:12345"
-out = "udp/broadcast:192.168.1.255:60005"
-udp-timeout = "1s"
-log-level = "info"
-console = true
-debug = true
-
 [reverse-host]
 in = "udp/listen:0.0.0.0:60000"
 out = "tcp/client:127.0.0.1:12345"
-
-[console-reverse-host]
-in = "udp/listen:0.0.0.0:60000"
-out = "tcp/client:127.0.0.1:12345"
-console = true
-debug = true
 
 [reverse-client]
 in = "tcp/server:0.0.0.0:12345"
 out = "udp/broadcast:192.168.1.255:60005"
 udp-timeout = "1s"
-
-[console-reverse-client]
-in = "tcp/server:0.0.0.0:12345"
-out = "udp/broadcast:192.168.1.255:60005"
-udp-timeout = "1s"
-console = true
-debug = true
 
 [tls-host]
 in = "udp/listen:0.0.0.0:60000"
@@ -59,16 +40,6 @@ cert = "server.cert"
 key = "server.key"
 client-auth = "required"
 
-[console-tls-host]
-in = "udp/listen:0.0.0.0:60000"
-out = "tls/server:0.0.0.0:12345"
-ca-cert = "ca.cert"
-cert = "server.cert"
-key = "server.key"
-client-auth = "required"
-console = true
-debug = true
-
 [tls-client]
 in = "tls/client:127.0.0.1:12345"
 out = "udp/broadcast:192.168.1.255:60005"
@@ -77,41 +48,15 @@ cert = "client.cert"
 key = "client.key"
 udp-timeout = "1s"
 
-[console-tls-client]
-in = "tls/client:127.0.0.1:12345"
-out = "udp/broadcast:192.168.1.255:60005"
-ca-cert = "ca.cert"
-cert = "client.cert"
-key = "client.key"
-udp-timeout = "1s"
-console = true
-debug = true
-
 [http]
 in = "http/0.0.0.0:8082"
 out = "udp/broadcast:192.168.1.255:60005"
 udp-timeout = "1s"
 html = "./examples/html"
 
-[console-http]
-in = "http/0.0.0.0:8082"
-out = "udp/broadcast:192.168.1.255:60005"
-udp-timeout = "1s"
-html = "./examples/html"
-console = true
-debug = true
-
 [https]
 in = "https/0.0.0.0:8443"
 out = "udp/broadcast:192.168.1.255:60005"
 udp-timeout = "1s"
 html = "./examples/html"
-
-[console-https]
-in = "https/0.0.0.0:8443"
-out = "udp/broadcast:192.168.1.255:60005"
-udp-timeout = "1s"
-html = "./examples/html"
-console = true
-debug = true
 

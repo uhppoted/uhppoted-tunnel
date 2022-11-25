@@ -13,9 +13,9 @@
             - [x] Add [console-client] etc to example TOML file (so that services don't have --console enabled by mistake)
             - [ ] Commonalise config file resolution
             - [ ] Commonalise the 'no label' handling
+            - [x] Remove [console-client] etc and replace with --console in the Makefile
+      - [x] uhppoted-tunnel-toml.md
       - [ ] Update README
-      - [ ] uhppoted-conf.md
-      - [ ] uhppoted-tunnel-toml.md
 
 - [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/7
       - [x] Move lockfile implementation to uhppoted-lib
