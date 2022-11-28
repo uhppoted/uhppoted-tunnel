@@ -11,9 +11,10 @@
             - [x] Linux
             - [x] Windows
             - [x] Add [console-client] etc to example TOML file (so that services don't have --console enabled by mistake)
-            - [ ] Commonalise config file resolution
             - [x] Commonalise the 'no label' handling
             - [x] Remove [console-client] etc and replace with --console in the Makefile
+            - [ ] Commonalise config file resolution
+            - [x] Enable --service for Linux and MacOS
       - [x] uhppoted-tunnel-toml.md
       - [x] Update README
 

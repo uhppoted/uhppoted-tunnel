@@ -47,7 +47,7 @@ type Run struct {
 	workdir           string
 	debug             bool
 	console           bool
-	daemon            bool // for Windows service use only - expressly disables console mode when installed as a service
+	daemon            bool
 }
 
 const MAX_RETRIES = -1
@@ -74,6 +74,7 @@ func (cmd *Run) flags() *flag.FlagSet {
 	flagset.StringVar(&cmd.logLevel, "log-level", cmd.logLevel, "Sets the log level (debug, info, warn or error)")
 	flagset.BoolVar(&cmd.console, "console", cmd.console, "Runs as a console application rather than a service")
 	flagset.BoolVar(&cmd.debug, "debug", cmd.debug, "Enables detailed debugging logs")
+	flagset.BoolVar(&cmd.daemon, "service", false, "(internal only) Used to expressly disable running a service in console mode")
 
 	return flagset
 }

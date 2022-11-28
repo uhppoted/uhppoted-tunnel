@@ -39,7 +39,7 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-ExecStart={{.Executable}} --lockfile {{.PID}} {{if .Conf}}--config {{.Conf}}{{end}} {{if .In}}--in {{.In}}{{end}} {{if .Out}}--out {{.Out}}{{end}}
+ExecStart={{.Executable}} --service --lockfile {{.PID}} {{if .Conf}}--config {{.Conf}}{{end}} {{if .In}}--in {{.In}}{{end}} {{if .Out}}--out {{.Out}}{{end}}
 PIDFile={{.PID}}
 User={{.User}}
 Group={{.Group}}

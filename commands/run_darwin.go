@@ -35,6 +35,7 @@ var RUN = Run{
 	logLevel: "info",
 	debug:    false,
 	console:  false,
+	daemon:   false,
 
 	conf:        "/usr/local/etc/com.github.uhppoted/uhppoted-tunnel.toml",
 	workdir:     "/usr/local/var/com.github.uhppoted",
@@ -64,7 +65,7 @@ func (cmd *Run) exec(t *tunnel.Tunnel, ctx context.Context, cancel context.Cance
 
 	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
 
-	if !cmd.console {
+	if !cmd.console || cmd.daemon {
 		events := eventlog.Ticker{Filename: cmd.logFile, MaxSize: cmd.logFileSize}
 
 		log.SetOutput(&events)

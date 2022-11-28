@@ -174,6 +174,7 @@ func (cmd *Daemonize) launchd(i *info) error {
 
 	args := []string{
 		path, // ref. https://apple.stackexchange.com/questions/110644/getting-launchd-to-read-program-arguments-correctly
+		"--service",
 	}
 
 	if cmd.conf != "" {
