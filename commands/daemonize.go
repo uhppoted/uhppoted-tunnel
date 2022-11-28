@@ -3,7 +3,6 @@ package commands
 import (
 	"bufio"
 	"errors"
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,30 +11,6 @@ import (
 )
 
 var ErrLabel = errors.New("invalid label")
-
-func (cmd *Daemonize) configuration(flagset *flag.FlagSet) string {
-	config := ""
-	flagset.Visit(func(f *flag.Flag) {
-		if f.Name == "config" {
-			config = f.Value.String()
-		}
-	})
-
-	file := config
-	section := ""
-	if match := regexp.MustCompile("(.*?)((?:::|#).*)").FindStringSubmatch(config); match != nil {
-		file = match[1]
-		section = match[2]
-	}
-
-	if file != "" {
-		return config
-	} else if f := flagset.Lookup("config"); f != nil && f.DefValue != "" {
-		return f.DefValue + section
-	}
-
-	return section
-}
 
 func (cmd *Daemonize) validate() (string, error) {
 	in := ""

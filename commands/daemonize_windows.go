@@ -87,7 +87,7 @@ func (cmd *Daemonize) ParseCmd(args ...string) error {
 
 	flagset.Parse(args)
 
-	cmd.conf = cmd.configuration(flagset)
+	cmd.conf = configuration(flagset)
 
 	return nil
 }

@@ -15,6 +15,30 @@ const (
 	SERVICE = `uhppoted-tunnel`
 )
 
+func configuration(flagset *flag.FlagSet) string {
+	config := ""
+	flagset.Visit(func(f *flag.Flag) {
+		if f.Name == "config" {
+			config = f.Value.String()
+		}
+	})
+
+	file := config
+	section := ""
+	if match := regexp.MustCompile("(.*?)((?:::|#).*)").FindStringSubmatch(config); match != nil {
+		file = match[1]
+		section = match[2]
+	}
+
+	if file != "" {
+		return config
+	} else if f := flagset.Lookup("config"); f != nil && f.DefValue != "" {
+		return f.DefValue + section
+	}
+
+	return section
+}
+
 func configure(configuration string) (map[string]any, error) {
 	config := map[string]any{}
 

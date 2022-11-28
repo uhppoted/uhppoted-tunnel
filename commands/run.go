@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
+	// "regexp"
 	"strings"
 	"sync"
 	"time"
@@ -111,7 +111,9 @@ func (cmd *Run) ParseCmd(args ...string) error {
 
 	flagset.Parse(args)
 
-	if config, err := cmd.configuration(flagset); err != nil {
+	cfg := configuration(flagset)
+
+	if config, err := configure(cfg); err != nil {
 		errorf("---", "%v", err)
 		os.Exit(1)
 	} else {
@@ -128,33 +130,6 @@ func (cmd *Run) ParseCmd(args ...string) error {
 	}
 
 	return nil
-}
-
-func (cmd *Run) configuration(flagset *flag.FlagSet) (map[string]any, error) {
-	config := ""
-
-	flagset.Visit(func(f *flag.Flag) {
-		if f.Name == "config" {
-			config = f.Value.String()
-		}
-	})
-
-	file := config
-	section := ""
-	if match := regexp.MustCompile("(.*?)((?:::|#).*)").FindStringSubmatch(config); match != nil {
-		file = match[1]
-		section = match[2]
-	}
-
-	if file != "" {
-		return configure(config)
-	}
-
-	if f := flagset.Lookup("config"); f != nil && f.DefValue != "" {
-		return configure(f.DefValue + section)
-	}
-
-	return configure(section)
 }
 
 func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc)) (err error) {
