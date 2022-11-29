@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	// "regexp"
 	"strings"
 	"sync"
 	"time"
@@ -74,7 +73,7 @@ func (cmd *Run) flags() *flag.FlagSet {
 	flagset.StringVar(&cmd.logLevel, "log-level", cmd.logLevel, "Sets the log level (debug, info, warn or error)")
 	flagset.BoolVar(&cmd.console, "console", cmd.console, "Runs as a console application rather than a service")
 	flagset.BoolVar(&cmd.debug, "debug", cmd.debug, "Enables detailed debugging logs")
-	flagset.BoolVar(&cmd.daemon, "service", false, "(internal only) Used to expressly disable running a service in console mode")
+	flagset.BoolVar(&cmd.daemon, "service", false, "(internal only) Expressly disables running a service in console mode")
 
 	return flagset
 }
@@ -133,53 +132,18 @@ func (cmd *Run) ParseCmd(args ...string) error {
 }
 
 func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc)) (err error) {
+	// ... create connectors
 	var in tunnel.Conn
 	var out tunnel.Conn
 	var ctx, cancel = context.WithCancel(context.Background())
 
 	defer cancel()
 
-	// ... create request handler
-	switch {
-	case cmd.in == "":
-		err = fmt.Errorf("--in argument is required")
-		return
-
-	case
-		strings.HasPrefix(cmd.in, "udp/listen:"),
-		strings.HasPrefix(cmd.in, "tcp/client:"),
-		strings.HasPrefix(cmd.in, "tcp/server:"),
-		strings.HasPrefix(cmd.in, "tls/client:"),
-		strings.HasPrefix(cmd.in, "tls/server:"),
-		strings.HasPrefix(cmd.in, "http/"),
-		strings.HasPrefix(cmd.in, "https/"):
-		if in, err = cmd.makeConn("--in", cmd.in, ctx); err != nil {
-			return
-		}
-
-	default:
-		err = fmt.Errorf("Invalid --in argument (%v)", cmd.in)
+	if in, err = cmd.makeInConn(ctx); err != nil {
 		return
 	}
 
-	// ... create request dispatcher
-	switch {
-	case cmd.out == "":
-		err = fmt.Errorf("--out argument is required")
-		return
-
-	case
-		strings.HasPrefix(cmd.out, "udp/broadcast:"),
-		strings.HasPrefix(cmd.out, "tcp/client:"),
-		strings.HasPrefix(cmd.out, "tcp/server:"),
-		strings.HasPrefix(cmd.out, "tls/client:"),
-		strings.HasPrefix(cmd.out, "tls/server:"):
-		if out, err = cmd.makeConn("--out", cmd.out, ctx); err != nil {
-			return
-		}
-
-	default:
-		err = fmt.Errorf("Invalid --out argument (%v)", cmd.out)
+	if out, err = cmd.makeOutConn(ctx); err != nil {
 		return
 	}
 
@@ -192,6 +156,7 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 		lockfile.File = filepath.Join(dir, fmt.Sprintf("%s-%x.pid", SERVICE, hash))
 	}
 
+	//FIXME - absolutely no idea what this thinks it is doing ????
 	defer func() {
 		if err := recover(); err != nil {
 			fatalf("%v", err)
@@ -220,6 +185,44 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 	f(t, ctx, cancel)
 
 	return nil
+}
+
+func (cmd *Run) makeInConn(ctx context.Context) (tunnel.Conn, error) {
+	switch {
+	case cmd.in == "":
+		return nil, fmt.Errorf("--in argument is required")
+
+	case
+		strings.HasPrefix(cmd.in, "udp/listen:"),
+		strings.HasPrefix(cmd.in, "tcp/client:"),
+		strings.HasPrefix(cmd.in, "tcp/server:"),
+		strings.HasPrefix(cmd.in, "tls/client:"),
+		strings.HasPrefix(cmd.in, "tls/server:"),
+		strings.HasPrefix(cmd.in, "http/"),
+		strings.HasPrefix(cmd.in, "https/"):
+		return cmd.makeConn("--in", cmd.in, ctx)
+
+	default:
+		return nil, fmt.Errorf("Invalid --in argument (%v)", cmd.in)
+	}
+}
+
+func (cmd *Run) makeOutConn(ctx context.Context) (tunnel.Conn, error) {
+	switch {
+	case cmd.out == "":
+		return nil, fmt.Errorf("--out argument is required")
+
+	case
+		strings.HasPrefix(cmd.out, "udp/broadcast:"),
+		strings.HasPrefix(cmd.out, "tcp/client:"),
+		strings.HasPrefix(cmd.out, "tcp/server:"),
+		strings.HasPrefix(cmd.out, "tls/client:"),
+		strings.HasPrefix(cmd.out, "tls/server:"):
+		return cmd.makeConn("--out", cmd.out, ctx)
+
+	default:
+		return nil, fmt.Errorf("Invalid --out argument (%v)", cmd.out)
+	}
 }
 
 func (cmd Run) makeConn(arg, spec string, ctx context.Context) (tunnel.Conn, error) {

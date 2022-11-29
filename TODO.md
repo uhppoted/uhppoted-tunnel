@@ -2,37 +2,37 @@
 
 ## IN PROGRESS
 
-- [x] https://github.com/uhppoted/uhppoted-tunnel/issues/2
-      - [ ] `daemonize`
-            - [x] `daemonize --in  udp/listen:0.0.0.0:60000 ....` without default uhppoted-tunnel.conf
-            - [x] Use `config` for service args
-            - [x] Add label to TOML configuration
-            - [x] Darwin
-            - [x] Linux
-            - [x] Windows
-            - [x] Add [console-client] etc to example TOML file (so that services don't have --console enabled by mistake)
-            - [x] Commonalise the 'no label' handling
-            - [x] Remove [console-client] etc and replace with --console in the Makefile
-            - [x] Commonalise config file resolution
-            - [x] Enable --service for Linux and MacOS
-      - [x] uhppoted-tunnel-toml.md
-      - [x] Update README
-
 - [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/7
       - [x] Move lockfile implementation to uhppoted-lib
       - [x] Default to ephemeral _tmp_ folder for lockfiles
-      - [ ] Use `flock` for default Linux implementation 
+      - [ ] Use `flock` for default implementation 
+            - https://stackoverflow.com/questions/34710460/golang-flock-filelocking-throwing-panic-runtime-error-invalid-memory-address-o
+            - https://stackoverflow.com/questions/52986413/how-to-get-an-exclusive-lock-on-a-file-in-go
+            - https://github.com/gofrs/flock
       - [ ] (optional) soft lock
       - [ ] (optional) socket lock
+      - (?) Use cancelable context
+      - [ ] Figure out what on earth this thinks it is doing ??????
+```
+      defer func() {
+            if err := recover(); err != nil {
+                  fatalf("%v", err)
+            }
+      }()
+```
+       - https://stackoverflow.com/questions/34710460/golang-flock-filelocking-throwing-panic-runtime-error-invalid-memory-address-o
+       - http://blog.golang.org/defer-panic-and-recover
 
 - [x] ARM64 build
-- (?) https://eli.thegreenplace.net/2022/ssh-port-forwarding-with-go/
+      - [ ] Test on Google VM
+
 - [ ] log.Warnf+ should default to stderr
 - [ ] Windows eventlog message file
       - https://social.msdn.microsoft.com/Forums/windowsdesktop/en-US/deaa0055-7770-4e55-a5b8-6d08b80b74af/creating-event-log-message-files
 
 ## TODO
 
+- (?) https://eli.thegreenplace.net/2022/ssh-port-forwarding-with-go/
 - (?) [UDP tunnelling: ssh/nc](https://superuser.com/questions/53103/udp-traffic-through-ssh-tunnel)
 - (?) [UDP tunnelling: socat](http://www.morch.com/2011/07/05/forwarding-snmp-ports-over-ssh-using-socat/)
 

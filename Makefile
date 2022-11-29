@@ -63,8 +63,7 @@ release: update-release build-all
 	cd dist;  zip --recurse-paths $(DIST).zip $(DIST)
 
 debug: build
-	mkdir -p dist/$(DIST)/windows
-	env GOOS=windows GOARCH=amd64       GOWORK=off go build -trimpath -o dist/$(DIST)/windows ./...
+	$(CMD) --debug --console --lockfile ./lockety.lock --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
 
 delve: build
 #   dlv exec ./bin/uhppoted-tunnel -- --debug --console
