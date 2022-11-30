@@ -5,17 +5,14 @@
 - [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/7
       - [x] Move lockfile implementation to uhppoted-lib
       - [x] Default to ephemeral _tmp_ folder for lockfiles
-      - [ ] Use `flock` for default implementation 
+      - [x] Use `flock` for default implementation 
             - [x] Darwin
             - [x] Linux
-            - [ ] Windows
-            - https://stackoverflow.com/questions/34710460/golang-flock-filelocking-throwing-panic-runtime-error-invalid-memory-address-o
-            - https://stackoverflow.com/questions/52986413/how-to-get-an-exclusive-lock-on-a-file-in-go
-            - https://github.com/gofrs/flock
+            - [x] Windows
       - [ ] Clean up flocked lockfile
             - https://stackoverflow.com/questions/17708885/flock-removing-locked-file-without-race-condition
             - (?) unlink
-      - [ ] Replace soft lock (MQTT) with flock
+      - [ ] Remove soft lock entirely (MQTT)
       - (?) Use cancelable context to release lock
       - [ ] Figure out what on earth this thinks it is doing ??????
 ```
