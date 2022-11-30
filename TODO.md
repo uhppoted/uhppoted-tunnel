@@ -6,12 +6,17 @@
       - [x] Move lockfile implementation to uhppoted-lib
       - [x] Default to ephemeral _tmp_ folder for lockfiles
       - [ ] Use `flock` for default implementation 
+            - [x] Darwin
+            - [x] Linux
+            - [ ] Windows
             - https://stackoverflow.com/questions/34710460/golang-flock-filelocking-throwing-panic-runtime-error-invalid-memory-address-o
             - https://stackoverflow.com/questions/52986413/how-to-get-an-exclusive-lock-on-a-file-in-go
             - https://github.com/gofrs/flock
-      - [ ] (optional) soft lock
-      - [ ] (optional) socket lock
-      - (?) Use cancelable context
+      - [ ] Clean up flocked lockfile
+            - https://stackoverflow.com/questions/17708885/flock-removing-locked-file-without-race-condition
+            - (?) unlink
+      - [ ] Replace soft lock (MQTT) with flock
+      - (?) Use cancelable context to release lock
       - [ ] Figure out what on earth this thinks it is doing ??????
 ```
       defer func() {
@@ -20,8 +25,8 @@
             }
       }()
 ```
-       - https://stackoverflow.com/questions/34710460/golang-flock-filelocking-throwing-panic-runtime-error-invalid-memory-address-o
-       - http://blog.golang.org/defer-panic-and-recover
+            - https://stackoverflow.com/questions/34710460/golang-flock-filelocking-throwing-panic-runtime-error-invalid-memory-address-o
+            - http://blog.golang.org/defer-panic-and-recover
 
 - [x] ARM64 build
       - [ ] Test on Google VM
@@ -29,6 +34,8 @@
 - [ ] log.Warnf+ should default to stderr
 - [ ] Windows eventlog message file
       - https://social.msdn.microsoft.com/Forums/windowsdesktop/en-US/deaa0055-7770-4e55-a5b8-6d08b80b74af/creating-event-log-message-files
+      - FormatMessage
+         - https://go.dev/src/syscall/syscall_windows.go
 
 ## TODO
 

@@ -12,8 +12,8 @@ github.com/stretchr/testify v1.8.0 h1:pSgiaMZlXftHpm5L7V1+rVB+AZJydKsMxsQBIJw4PK
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
 github.com/uhppoted/uhppote-core v0.8.3-0.20221014202027-b01c41cc87cb h1:C52puy+NuWqg9jmARakjn2+CBLAaHdG9QjRB1Y+FpVg=
 github.com/uhppoted/uhppote-core v0.8.3-0.20221014202027-b01c41cc87cb/go.mod h1:DsKVqUqHPQoZx4C4qp0fmYuyDXfFH8k+ejTriM9pOE4=
-github.com/uhppoted/uhppoted-lib v0.8.3-0.20221116214812-bcece742b2aa h1:5MPDA0tZGymVF0tQ4vAmEqj6cBXJYCA/9wjIazTrZp4=
-github.com/uhppoted/uhppoted-lib v0.8.3-0.20221116214812-bcece742b2aa/go.mod h1:+NEqv7+r9tR5E4fU/hv4R3JiQcfKZq5ystW8EfiJf08=
+github.com/uhppoted/uhppoted-lib v0.8.3-0.20221130204101-716cafd25840 h1:qA9itvCk0R3EgF8wd1EE/axsnlvtMVFRwRK7aq13O/c=
+github.com/uhppoted/uhppoted-lib v0.8.3-0.20221130204101-716cafd25840/go.mod h1:+NEqv7+r9tR5E4fU/hv4R3JiQcfKZq5ystW8EfiJf08=
 golang.org/x/sys v0.2.0 h1:ljd4t30dBnAvMZaQCevtY0xLLD0A+bRZXbgLMLU1F/A=
 golang.org/x/sys v0.2.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
