@@ -9,6 +9,7 @@
             - [x] Darwin
             - [x] Linux
             - [x] Windows
+      - [ ] Stress test on RPi 3B+
       - [ ] Clean up flocked lockfile
             - https://stackoverflow.com/questions/17708885/flock-removing-locked-file-without-race-condition
             - (?) unlink
@@ -24,6 +25,8 @@
 ```
             - https://stackoverflow.com/questions/34710460/golang-flock-filelocking-throwing-panic-runtime-error-invalid-memory-address-o
             - http://blog.golang.org/defer-panic-and-recover
+
+https://unix.stackexchange.com/questions/257888/systemd-wait-for-network-interface-to-be-up-before-running-service
 
 - [x] ARM64 build
       - [ ] Test on Google VM

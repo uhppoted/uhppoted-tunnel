@@ -35,7 +35,8 @@ type info struct {
 const serviceTemplate = `[Unit]
 Description={{.Description}}
 Documentation={{.Documentation}}
-After=syslog.target network.target
+After=syslog.target network-online.target
+Wants=syslog.target network-online.target
 
 [Service]
 Type=simple
