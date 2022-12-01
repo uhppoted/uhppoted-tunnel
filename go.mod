@@ -3,7 +3,7 @@ module github.com/uhppoted/uhppoted-tunnel
 go 1.19
 
 require (
-	github.com/uhppoted/uhppoted-lib v0.8.3-0.20221130204101-716cafd25840
+	github.com/uhppoted/uhppoted-lib v0.8.3-0.20221201205610-92589ee22e4e
 	golang.org/x/sys v0.2.0
 )
 

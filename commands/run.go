@@ -126,6 +126,12 @@ func (cmd *Run) ParseCmd(args ...string) error {
 				flagset.Set(f.Name, fmt.Sprintf("%v", v))
 			}
 		})
+
+		if u, ok := config["remove-lockfile"]; ok {
+			if v, ok := u.(bool); ok {
+				cmd.lockfile.Remove = v
+			}
+		}
 	}
 
 	return nil

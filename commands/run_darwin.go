@@ -29,6 +29,7 @@ var RUN = Run{
 	html:              "./html",
 	lockfile: config.Lockfile{
 		File:     DefaultLockfile,
+		Remove:   false,
 		Interval: 60 * time.Second,
 		Wait:     90 * time.Second,
 	},

@@ -15,7 +15,7 @@
             - [x] Linux
             - [x] Windows
       - [x] Stress test on RPi 3B+
-      - [ ] Clean up flocked lockfile
+      - [x] Delete flocked lockfile
             - https://stackoverflow.com/questions/17708885/flock-removing-locked-file-without-race-condition
             - (?) unlink
       - [ ] Remove soft lock entirely (MQTT)
@@ -30,7 +30,6 @@
 ```
             - https://stackoverflow.com/questions/34710460/golang-flock-filelocking-throwing-panic-runtime-error-invalid-memory-address-o
             - http://blog.golang.org/defer-panic-and-recover
-
 
 - [x] ARM64 build
       - [ ] Test on Google VM

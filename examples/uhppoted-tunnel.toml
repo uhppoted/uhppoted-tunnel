@@ -7,6 +7,7 @@ udp-timeout = "5s"
 [debug]
 in = "tcp/client:127.0.0.1:12345"
 out = "udp/broadcast:192.168.1.255:60005"
+remove-lockfile = true
 udp-timeout = "1s"
 log-level = "debug"
 console = true
