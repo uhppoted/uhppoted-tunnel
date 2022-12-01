@@ -2,6 +2,11 @@
 
 ## IN PROGRESS
 
+- [x] Update systemd unit file
+      - [x] https://unix.stackexchange.com/questions/257888/systemd-wait-for-network-interface-to-be-up-before-running-service
+      - [x] https://www.freedesktop.org/software/systemd/man/systemd-networkd-wait-online.service.html
+      - [x] `systemctl enable service_name`
+
 - [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/7
       - [x] Move lockfile implementation to uhppoted-lib
       - [x] Default to ephemeral _tmp_ folder for lockfiles
@@ -9,7 +14,7 @@
             - [x] Darwin
             - [x] Linux
             - [x] Windows
-      - [ ] Stress test on RPi 3B+
+      - [x] Stress test on RPi 3B+
       - [ ] Clean up flocked lockfile
             - https://stackoverflow.com/questions/17708885/flock-removing-locked-file-without-race-condition
             - (?) unlink
@@ -26,7 +31,6 @@
             - https://stackoverflow.com/questions/34710460/golang-flock-filelocking-throwing-panic-runtime-error-invalid-memory-address-o
             - http://blog.golang.org/defer-panic-and-recover
 
-https://unix.stackexchange.com/questions/257888/systemd-wait-for-network-interface-to-be-up-before-running-service
 
 - [x] ARM64 build
       - [ ] Test on Google VM
@@ -42,6 +46,9 @@ https://unix.stackexchange.com/questions/257888/systemd-wait-for-network-interfa
 - (?) https://eli.thegreenplace.net/2022/ssh-port-forwarding-with-go/
 - (?) [UDP tunnelling: ssh/nc](https://superuser.com/questions/53103/udp-traffic-through-ssh-tunnel)
 - (?) [UDP tunnelling: socat](http://www.morch.com/2011/07/05/forwarding-snmp-ports-over-ssh-using-socat/)
+
+- [ ] Consider using IP_FREEBIND sockopt
+      - https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget
 
 - [ ] 'events' connectors
       (?) let ID 0 imply no reply expected

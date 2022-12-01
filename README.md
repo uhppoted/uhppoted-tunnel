@@ -193,8 +193,14 @@ and returns the replies to the _host_. It is however, possible to chain multiple
 ### `daemonize`
 
 Registers `uhppoted-tunnel` as a system service that will be started on system boot. The command creates the necessary
-system specific service configuration files and service manager entries. On Linux it defaults to using the 
-`uhppoted:uhppoted` user:group - this can be changed with the `--user` option
+system specific service configuration files and service manager entries. 
+
+On Linux:
+- The service defaults to using the `uhppoted:uhppoted` user:group - this can be changed with the `--user` option
+- Depending on the system, it may be necessary to run `sudo systemctl enable uhppoted-tunnel-xxx` after _daemonizing_
+  to get the _uhppoted-tunnel_ service to start on boot.
+- By default, the service is configured to wait for the `network-online.target` (cf. https://systemd.io/NETWORK_ONLINE). To wait
+  for a specific interface modify the unit file (_/etc/systemd/system/uhpppoted-tunnel-xxx_) to wait for [systemd-networkd-wait-online.service](https://www.freedesktop.org/software/systemd/man/systemd-networkd-wait-online.service.html)
 
 Command line:
 

@@ -8,6 +8,8 @@
 
 ### Changed
 1. Moved default lockfile to ephemeral system _temp_ folder
+2. Updated Linux systemd unit file to wait on network-online.target
+   (ref. https://systemd.io/NETWORK_ONLINE)
 
 
 ## [0.8.2](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.2) - 2022-10-14
