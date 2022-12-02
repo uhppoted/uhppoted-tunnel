@@ -276,6 +276,11 @@ func (cmd *Daemonize) execute() error {
 	fmt.Printf("     > sudo systemctl status %q\n", cmd.service)
 	fmt.Println()
 	fmt.Println()
+	fmt.Println("   NOTE: for some system configurations it may be necessary to also enable the service:")
+	fmt.Println()
+	fmt.Printf("     > sudo systemctl enable %q\n", cmd.service)
+	fmt.Println()
+	fmt.Println()
 
 	if udp != nil {
 		fmt.Println("   The firewall may need additional rules to allow UDP broadcast e.g. for UFW:")
