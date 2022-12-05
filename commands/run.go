@@ -157,9 +157,8 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 	lockfile := cmd.lockfile
 
 	if lockfile.File == "" {
-		dir := os.TempDir()
 		hash := sha1.Sum([]byte(cmd.in + cmd.out))
-		lockfile.File = filepath.Join(dir, fmt.Sprintf("%s-%x.pid", SERVICE, hash))
+		lockfile.File = filepath.Join(os.TempDir(), fmt.Sprintf("%s-%x.pid", SERVICE, hash))
 	}
 
 	//FIXME - absolutely no idea what this thinks it is doing ????

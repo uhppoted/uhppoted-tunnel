@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"sync"
 	"syscall"
-	"time"
 
 	"golang.org/x/sys/windows/svc"
 	syslog "golang.org/x/sys/windows/svc/eventlog"
@@ -34,10 +33,8 @@ var RUN = Run{
 	requireClientAuth: false,
 	html:              "./html",
 	lockfile: config.Lockfile{
-		File:     DefaultLockfile,
-		Remove:   true,
-		Interval: 60 * time.Second,
-		Wait:     90 * time.Second,
+		File:   DefaultLockfile,
+		Remove: true,
 	},
 	logLevel: "info",
 	debug:    false,

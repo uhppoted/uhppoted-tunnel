@@ -2,24 +2,17 @@
 
 ## IN PROGRESS
 
-- [x] Update systemd unit file
-      - [x] https://unix.stackexchange.com/questions/257888/systemd-wait-for-network-interface-to-be-up-before-running-service
-      - [x] https://www.freedesktop.org/software/systemd/man/systemd-networkd-wait-online.service.html
-      - [x] `systemctl enable service_name`
-
 - [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/7
       - [x] Move lockfile implementation to uhppoted-lib
       - [x] Default to ephemeral _tmp_ folder for lockfiles
       - [x] Use `flock` for default implementation 
-            - [x] Darwin
-            - [x] Linux
-            - [x] Windows
       - [x] Stress test on RPi 3B+
       - [x] Delete flocked lockfile
             - https://stackoverflow.com/questions/17708885/flock-removing-locked-file-without-race-condition
             - (?) unlink
-      - [ ] Remove soft lock entirely (MQTT)
+      - [x] Remove soft lock entirely (MQTT)
       - (?) Use cancelable context to release lock
+      - (?) Remove log.SetFatalHook
       - [ ] Figure out what on earth this thinks it is doing ??????
 ```
       defer func() {

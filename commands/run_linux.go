@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/uhppoted/uhppote-core/uhppote"
 	"github.com/uhppoted/uhppoted-lib/config"
@@ -29,10 +28,8 @@ var RUN = Run{
 	requireClientAuth: false,
 	html:              "./html",
 	lockfile: config.Lockfile{
-		File:     DefaultLockfile,
-		Remove:   false,
-		Interval: 60 * time.Second,
-		Wait:     90 * time.Second,
+		File:   DefaultLockfile,
+		Remove: false,
 	},
 	logLevel: "info",
 	debug:    false,
