@@ -12,8 +12,9 @@
             - (?) unlink
       - [x] Remove soft lock entirely (MQTT)
       - [x] Figure out what on earth this thinks it is doing ??????
-      - (?) Maybe invoke log.Fatalf in goroutines
-      - (?) (OR) Maybe use context + CancelFunc to release lock
+      - [x] Maybe invoke log.Fatalf in goroutines
+      - [x] Tunnel connector error: log error and cancel context
+      - (?) (maybe) use context + CancelFunc to release lock
       
 - [x] ARM64 build
       - [ ] Test on Google VM

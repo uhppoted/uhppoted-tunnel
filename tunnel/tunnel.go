@@ -37,7 +37,7 @@ func NewTunnel(in Conn, out Conn, ctx context.Context) *Tunnel {
 	}
 }
 
-func (t *Tunnel) Run(interrupt chan os.Signal) error {
+func (t *Tunnel) Run(interrupt chan os.Signal) (err error) {
 	infof("", "%v", "uhppoted-tunnel::run")
 
 	p := router.NewSwitch(func(id uint32, message []byte) {
@@ -48,30 +48,37 @@ func (t *Tunnel) Run(interrupt chan os.Signal) error {
 		t.in.Send(id, message)
 	})
 
-	u := make(chan error)
-	v := make(chan error)
+	ctx, cancel := context.WithCancel(t.ctx)
 
 	go func() {
-		if err := t.in.Run(&p); err != nil {
-			u <- err
+		defer func() {
+			if err := recover(); err != nil {
+				fatalf("%v", err)
+			}
+		}()
+
+		if err = t.in.Run(&p); err != nil {
+			errorf("OUT", "%v", err)
+			cancel()
 		}
 	}()
 
 	go func() {
-		if err := t.out.Run(&q); err != nil {
-			v <- err
+		defer func() {
+			if err := recover(); err != nil {
+				fatalf("%v", err)
+			}
+		}()
+
+		if err = t.out.Run(&q); err != nil {
+			errorf("IN", "%v", err)
+			cancel()
 		}
 	}()
 
 	select {
 	case <-t.ctx.Done():
-		// closing
-
-	case err := <-u:
-		return err
-
-	case err := <-v:
-		return err
+	case <-ctx.Done():
 	}
 
 	infof("", "closing")
@@ -97,7 +104,7 @@ func (t *Tunnel) Run(interrupt chan os.Signal) error {
 	wg.Wait()
 	infof("", "closed")
 
-	return nil
+	return
 }
 
 func dump(m []byte, prefix string) string {

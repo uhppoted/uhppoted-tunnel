@@ -154,26 +154,26 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 	}
 
 	// ... create lockfile
-	var lockFile = cmd.lockfile
-	var lock lib.Lockfile
+	var lockfile = cmd.lockfile
+	var kraken lib.Lockfile
 
-	if lockFile.File == "" {
+	if lockfile.File == "" {
 		hash := sha1.Sum([]byte(cmd.in + cmd.out))
-		lockFile.File = filepath.Join(os.TempDir(), fmt.Sprintf("%s-%x.pid", SERVICE, hash))
+		lockfile.File = filepath.Join(os.TempDir(), fmt.Sprintf("%s-%x.pid", SERVICE, hash))
 	}
 
-	if lock, err = lib.MakeLockFile(lockFile); err != nil {
+	if kraken, err = lib.MakeLockFile(lockfile); err != nil {
 		return
 	} else {
 		// NTS
 		// This will not ever be invoked on a panic because pretty much everything below it runs in a goroutine.
 		// However the 'flock' syscall establishes the lock at a process level and it seems to recover ok.
 		defer func() {
-			lock.Release()
+			kraken.Release()
 		}()
 
 		log.SetFatalHook(func() {
-			lock.Release()
+			kraken.Release()
 		})
 	}
 
