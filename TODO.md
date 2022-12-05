@@ -11,19 +11,10 @@
             - https://stackoverflow.com/questions/17708885/flock-removing-locked-file-without-race-condition
             - (?) unlink
       - [x] Remove soft lock entirely (MQTT)
-      - (?) Use cancelable context to release lock
-      - (?) Remove log.SetFatalHook
-      - [ ] Figure out what on earth this thinks it is doing ??????
-```
-      defer func() {
-            if err := recover(); err != nil {
-                  fatalf("%v", err)
-            }
-      }()
-```
-            - https://stackoverflow.com/questions/34710460/golang-flock-filelocking-throwing-panic-runtime-error-invalid-memory-address-o
-            - http://blog.golang.org/defer-panic-and-recover
-
+      - [x] Figure out what on earth this thinks it is doing ??????
+      - (?) Maybe invoke log.Fatalf in goroutines
+      - (?) (OR) Maybe use context + CancelFunc to release lock
+      
 - [x] ARM64 build
       - [ ] Test on Google VM
 

@@ -154,23 +154,20 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 	}
 
 	// ... create lockfile
-	lockfile := cmd.lockfile
+	var lockFile = cmd.lockfile
+	var lock lib.Lockfile
 
-	if lockfile.File == "" {
+	if lockFile.File == "" {
 		hash := sha1.Sum([]byte(cmd.in + cmd.out))
-		lockfile.File = filepath.Join(os.TempDir(), fmt.Sprintf("%s-%x.pid", SERVICE, hash))
+		lockFile.File = filepath.Join(os.TempDir(), fmt.Sprintf("%s-%x.pid", SERVICE, hash))
 	}
 
-	//FIXME - absolutely no idea what this thinks it is doing ????
-	defer func() {
-		if err := recover(); err != nil {
-			fatalf("%v", err)
-		}
-	}()
-
-	if lock, err := lib.MakeLockFile(lockfile); err != nil {
-		return err
+	if lock, err = lib.MakeLockFile(lockFile); err != nil {
+		return
 	} else {
+		// NTS
+		// This will not ever be invoked on a panic because pretty much everything below it runs in a goroutine.
+		// However the 'flock' syscall establishes the lock at a process level and it seems to recover ok.
 		defer func() {
 			lock.Release()
 		}()
@@ -181,15 +178,15 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 	}
 
 	// ... run
-	if err := os.MkdirAll(cmd.workdir, os.ModeDir|os.ModePerm); err != nil {
-		return fmt.Errorf("Unable to create working directory '%v': %v", cmd.workdir, err)
+	if err = os.MkdirAll(cmd.workdir, os.ModeDir|os.ModePerm); err != nil {
+		return
 	}
 
 	t := tunnel.NewTunnel(in, out, ctx)
 
 	f(t, ctx, cancel)
 
-	return nil
+	return
 }
 
 func (cmd *Run) makeInConn(ctx context.Context) (tunnel.Conn, error) {
@@ -290,6 +287,7 @@ func (cmd *Run) run(t *tunnel.Tunnel, ctx context.Context, cancel context.Cancel
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+
 		infof("---", "uhppoted-tunnel %v", core.VERSION)
 		if err := t.Run(interrupt); err != nil {
 			errorf("---", "%v", err)
