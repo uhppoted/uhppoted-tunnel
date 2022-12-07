@@ -2,28 +2,9 @@
 
 ## IN PROGRESS
 
-- [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/7
-      - [x] Move lockfile implementation to uhppoted-lib
-      - [x] Default to ephemeral _tmp_ folder for lockfiles
-      - [x] Use `flock` for default implementation 
-      - [x] Stress test on RPi 3B+
-      - [x] Delete flocked lockfile
-            - https://stackoverflow.com/questions/17708885/flock-removing-locked-file-without-race-condition
-            - (?) unlink
-      - [x] Remove soft lock entirely (MQTT)
-      - [x] Figure out what on earth this thinks it is doing ??????
-      - [x] Maybe invoke log.Fatalf in goroutines
-      - [x] Tunnel connector error: log error and cancel context
-      - (?) (maybe) use context + CancelFunc to release lock
-      
 - [x] ARM64 build
-      - [ ] Test on Google VM
-
-- [ ] log.Warnf+ should default to stderr
-- [ ] Windows eventlog message file
-      - https://social.msdn.microsoft.com/Forums/windowsdesktop/en-US/deaa0055-7770-4e55-a5b8-6d08b80b74af/creating-event-log-message-files
-      - FormatMessage
-         - https://go.dev/src/syscall/syscall_windows.go
+      - [x] Test on Google VM
+      - [x] Verify ARM7 on RaspberryPi 3B+
 
 ## TODO
 
