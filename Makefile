@@ -60,7 +60,11 @@ build-all: vet
 release: update-release build-all
 	find . -name ".DS_Store" -delete
 	tar --directory=dist --exclude=".DS_Store" -cvzf dist/$(DIST).tar.gz $(DIST)
-	cd dist;  zip --recurse-paths $(DIST).zip $(DIST)
+
+publish: release
+	echo "Releasing version $(VERSION)"
+	rm -f dist/development
+	gh release create "$(VERSION)" ./dist/*.tar.gz --draft --prerelease --title "$(VERSION)-beta" --notes-file release-notes.md
 
 debug: build
 	$(CMD) --debug --console --lockfile ./tmp/lockety.lock --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
