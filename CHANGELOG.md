@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [Unreleased]
+## [0.8.3](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.3) - 2022-12-16
 
 ### Added
 1. TOML file configuration (cf. https://github.com/uhppoted/uhppoted-tunnel/issues/2)
