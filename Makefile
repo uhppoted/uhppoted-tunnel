@@ -63,7 +63,7 @@ release: update-release build-all
 
 publish: release
 	echo "Releasing version $(VERSION)"
-	rm -f dist/development
+	rm -f dist/development.tar.gz
 	gh release create "$(VERSION)" ./dist/*.tar.gz --draft --prerelease --title "$(VERSION)-beta" --notes-file release-notes.md
 
 debug: build
