@@ -2,9 +2,21 @@
 
 ## IN PROGRESS
 
-- [x] ARM64 build
-      - [x] Test on Google VM
-      - [x] Verify ARM7 on RaspberryPi 3B+
+- [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/3
+      - TCP
+        - [ ] linux
+        - [ ] MacOS
+        - [x] ~~Windows~~
+
+      - TLS
+        - [ ] linux
+        - [ ] MacOS
+        - [x] ~~Windows~~
+
+      - UDP
+        - [ ] linux
+        - [ ] MacOS
+        - [x] ~~Windows~~
 
 ## TODO
 

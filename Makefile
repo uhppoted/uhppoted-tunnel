@@ -67,7 +67,8 @@ publish: release
 	gh release create "$(VERSION)" ./dist/*.tar.gz --draft --prerelease --title "$(VERSION)-beta" --notes-file release-notes.md
 
 debug: build
-	$(CMD) --debug --console --lockfile ./tmp/lockety.lock --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
+	# $(CMD) --debug --console --lockfile ./tmp/lockety.lock --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
+	$(CMD) --config "./examples/uhppoted-tunnel.toml#client-en0" --console --debug
 
 delve: build
 #   dlv exec ./bin/uhppoted-tunnel -- --debug --console

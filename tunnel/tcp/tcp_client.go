@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"syscall"
 	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
@@ -14,6 +15,7 @@ import (
 
 type tcpClient struct {
 	conn.Conn
+	hwif    string
 	addr    *net.TCPAddr
 	retry   conn.Backoff
 	timeout time.Duration
@@ -22,7 +24,7 @@ type tcpClient struct {
 	closed  chan struct{}
 }
 
-func NewTCPClient(spec string, retry conn.Backoff, ctx context.Context) (*tcpClient, error) {
+func NewTCPClient(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -36,6 +38,7 @@ func NewTCPClient(spec string, retry conn.Backoff, ctx context.Context) (*tcpCli
 		Conn: conn.Conn{
 			Tag: "TCP",
 		},
+		hwif:    hwif,
 		addr:    addr,
 		retry:   retry,
 		timeout: 5 * time.Second,
@@ -78,7 +81,17 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 	for {
 		tcp.Infof("connecting to %v", tcp.addr)
 
-		if socket, err := net.Dial("tcp", fmt.Sprintf("%v", tcp.addr)); err != nil {
+		dialer := &net.Dialer{
+			Control: func(network, address string, conn syscall.RawConn) error {
+				if tcp.hwif != "" {
+					return bindToDevice(conn, tcp.hwif)
+				} else {
+					return nil
+				}
+			},
+		}
+
+		if socket, err := dialer.Dial("tcp", fmt.Sprintf("%v", tcp.addr)); err != nil {
 			tcp.Warnf("%v", err)
 		} else if socket == nil {
 			tcp.Warnf("connect %v failed (%v)", tcp.addr, socket)

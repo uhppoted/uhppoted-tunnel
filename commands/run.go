@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -236,11 +237,27 @@ func (cmd Run) makeConn(arg, spec string, ctx context.Context) (tunnel.Conn, err
 	case strings.HasPrefix(spec, "udp/broadcast:"):
 		return udp.NewUDPBroadcast(spec[14:], cmd.udpTimeout, ctx)
 
+	case strings.HasPrefix(spec, "tcp/client::"):
+		re := regexp.MustCompile(`tcp/client::(.*?):(.*)`)
+		if match := re.FindStringSubmatch(spec); match == nil {
+			return nil, fmt.Errorf("invalid tcp/client specification (%v)", spec)
+		} else {
+			return tcp.NewTCPClient(match[1], match[2], retry, ctx)
+		}
+
 	case strings.HasPrefix(spec, "tcp/client:"):
-		return tcp.NewTCPClient(spec[11:], retry, ctx)
+		return tcp.NewTCPClient("", spec[11:], retry, ctx)
+
+	case strings.HasPrefix(spec, "tcp/server::"):
+		re := regexp.MustCompile(`tcp/server::(.*?):(.*)`)
+		if match := re.FindStringSubmatch(spec); match == nil {
+			return nil, fmt.Errorf("invalid tcp/server specification (%v)", spec)
+		} else {
+			return tcp.NewTCPServer(match[1], match[2], retry, ctx)
+		}
 
 	case strings.HasPrefix(spec, "tcp/server:"):
-		return tcp.NewTCPServer(spec[11:], retry, ctx)
+		return tcp.NewTCPServer("", spec[11:], retry, ctx)
 
 	case strings.HasPrefix(spec, "tls/client:"):
 		if ca, err := tlsCA(cmd.caCertificate); err != nil {

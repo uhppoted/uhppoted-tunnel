@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
@@ -16,6 +17,7 @@ import (
 
 type tcpServer struct {
 	conn.Conn
+	hwif        string
 	addr        *net.TCPAddr
 	retry       conn.Backoff
 	connections map[net.Conn]struct{}
@@ -24,7 +26,7 @@ type tcpServer struct {
 	sync.RWMutex
 }
 
-func NewTCPServer(spec string, retry conn.Backoff, ctx context.Context) (*tcpServer, error) {
+func NewTCPServer(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -39,6 +41,7 @@ func NewTCPServer(spec string, retry conn.Backoff, ctx context.Context) (*tcpSer
 		Conn: conn.Conn{
 			Tag: "TCP",
 		},
+		hwif:        hwif,
 		addr:        addr,
 		retry:       retry,
 		connections: map[net.Conn]struct{}{},
@@ -69,7 +72,18 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 	go func() {
 	loop:
 		for {
-			socket, err = net.Listen("tcp", fmt.Sprintf("%v", tcp.addr))
+
+			listener := net.ListenConfig{
+				Control: func(network, address string, conn syscall.RawConn) error {
+					if tcp.hwif != "" {
+						return bindToDevice(conn, tcp.hwif)
+					} else {
+						return nil
+					}
+				},
+			}
+
+			socket, err = listener.Listen(context.Background(), "tcp", fmt.Sprintf("%v", tcp.addr))
 			if err != nil {
 				tcp.Warnf("%v", err)
 			} else if socket == nil {
