@@ -76,7 +76,7 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 			listener := net.ListenConfig{
 				Control: func(network, address string, conn syscall.RawConn) error {
 					if tcp.hwif != "" {
-						return bindToDevice(conn, tcp.hwif)
+						return bindToDevice(conn, tcp.hwif, isIPv4(tcp.addr.IP))
 					} else {
 						return nil
 					}

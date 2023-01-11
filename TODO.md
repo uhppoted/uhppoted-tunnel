@@ -3,9 +3,9 @@
 ## IN PROGRESS
 
 - [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/3
-      - TCP
-        - [ ] linux
-        - [ ] MacOS
+      - [x] TCP
+        - [x] linux
+        - [x] MacOS
         - [x] ~~Windows~~
 
       - TLS

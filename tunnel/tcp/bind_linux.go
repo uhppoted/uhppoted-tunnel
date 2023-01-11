@@ -4,7 +4,7 @@ import (
 	"syscall"
 )
 
-func bindToDevice(conn syscall.RawConn, device string) error {
+func bindToDevice(conn syscall.RawConn, device string, IPv4 bool) error {
 	if device != "" {
 		var operr error
 		bind := func(fd uintptr) {

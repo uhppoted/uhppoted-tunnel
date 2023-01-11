@@ -67,8 +67,11 @@ publish: release
 	gh release create "$(VERSION)" ./dist/*.tar.gz --draft --prerelease --title "$(VERSION)-beta" --notes-file release-notes.md
 
 debug: build
-	# $(CMD) --debug --console --lockfile ./tmp/lockety.lock --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
-	$(CMD) --config "./examples/uhppoted-tunnel.toml#client-en0" --console --debug
+#	$(CMD) --config "./examples/uhppoted-tunnel.toml#client-en3" --console --debug
+#	$(CMD) --config "./examples/uhppoted-tunnel.toml#client-lo0" --console --debug
+#	$(CMD) --debug --console --in tcp/client:149.248.55.183:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
+#	$(CMD) --debug --console --in tcp/client::en3:149.248.55.183:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
+	$(CMD) --debug --console --in tcp/client::en0:149.248.55.183:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
 
 delve: build
 #   dlv exec ./bin/uhppoted-tunnel -- --debug --console
@@ -91,6 +94,12 @@ client: build
 	# $(CMD) --config "#client" --console --debug
 	# $(CMD) --config "./examples/uhppoted-tunnel.toml#client"
 	$(CMD) --config "./examples/uhppoted-tunnel.toml#client" --console --debug
+
+client-ethernet: build
+	$(CMD) --config "./examples/uhppoted-tunnel.toml#client-ethernet"
+
+client-wifi: build
+	$(CMD) --config "./examples/uhppoted-tunnel.toml#client-wifi"
 
 reverse-host: build
 	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/client:127.0.0.1:12345

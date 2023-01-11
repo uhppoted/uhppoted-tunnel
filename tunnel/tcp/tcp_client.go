@@ -28,9 +28,7 @@ func NewTCPClient(hwif string, spec string, retry conn.Backoff, ctx context.Cont
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
-	}
-
-	if addr == nil {
+	} else if addr == nil {
 		return nil, fmt.Errorf("unable to resolve TCP address '%v'", spec)
 	}
 
@@ -84,7 +82,7 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 		dialer := &net.Dialer{
 			Control: func(network, address string, conn syscall.RawConn) error {
 				if tcp.hwif != "" {
-					return bindToDevice(conn, tcp.hwif)
+					return bindToDevice(conn, tcp.hwif, isIPv4(tcp.addr.IP))
 				} else {
 					return nil
 				}
