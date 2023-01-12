@@ -1,4 +1,4 @@
-package tcp
+package conn
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 )
 
 // Ref. https://stackoverflow.com/questions/22751035/golang-distinguish-ipv4-ipv6
-func isIPv4(ip net.IP) bool {
+func IsIPv4(ip net.IP) bool {
 	if len(ip) == net.IPv4len {
 		return true
 	}

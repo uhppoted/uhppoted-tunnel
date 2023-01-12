@@ -10,6 +10,7 @@ import (
 	"net"
 	"sync"
 	"sync/atomic"
+	"syscall"
 	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
@@ -19,6 +20,7 @@ import (
 
 type tlsServer struct {
 	conn.Conn
+	hwif        string
 	addr        *net.TCPAddr
 	config      *tls.Config
 	key         string
@@ -32,7 +34,7 @@ type tlsServer struct {
 
 var ID uint32 = 0
 
-func NewTLSServer(spec string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff, ctx context.Context) (*tlsServer, error) {
+func NewTLSServer(hwif string, spec string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff, ctx context.Context) (*tlsServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -64,6 +66,7 @@ func NewTLSServer(spec string, ca *x509.CertPool, keypair tls.Certificate, requi
 		Conn: conn.Conn{
 			Tag: "TLS",
 		},
+		hwif:        hwif,
 		addr:        addr,
 		config:      &config,
 		retry:       retry,
@@ -99,12 +102,24 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 	go func() {
 	loop:
 		for {
-			socket, err = tls.Listen("tcp", fmt.Sprintf("%v", tcp.addr), tcp.config)
-			if err != nil {
+
+			listener := net.ListenConfig{
+				Control: func(network, address string, connection syscall.RawConn) error {
+					if tcp.hwif != "" {
+						return conn.BindToDevice(connection, tcp.hwif, conn.IsIPv4(tcp.addr.IP), tcp.Conn)
+					} else {
+						return nil
+					}
+				},
+			}
+
+			if sock, err := listener.Listen(context.Background(), "tcp", fmt.Sprintf("%v", tcp.addr)); err != nil {
 				tcp.Warnf("%v", err)
-			} else if socket == nil {
-				tcp.Warnf("%v", fmt.Errorf("Failed to create TCP listen socket (%v)", socket))
+			} else if sock == nil {
+				tcp.Warnf("%v", fmt.Errorf("Failed to create TCP listen socket (%v)", sock))
 			} else {
+				socket = tls.NewListener(sock, tcp.config)
+
 				tcp.retry.Reset()
 				tcp.listen(socket, router)
 			}

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"syscall"
 	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
@@ -16,6 +17,7 @@ import (
 
 type tlsClient struct {
 	conn.Conn
+	hwif    string
 	addr    *net.TCPAddr
 	config  *tls.Config
 	retry   conn.Backoff
@@ -25,7 +27,7 @@ type tlsClient struct {
 	closed  chan struct{}
 }
 
-func NewTLSClient(spec string, ca *x509.CertPool, keypair *tls.Certificate, retry conn.Backoff, ctx context.Context) (*tlsClient, error) {
+func NewTLSClient(hwif string, spec string, ca *x509.CertPool, keypair *tls.Certificate, retry conn.Backoff, ctx context.Context) (*tlsClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -53,6 +55,7 @@ func NewTLSClient(spec string, ca *x509.CertPool, keypair *tls.Certificate, retr
 		Conn: conn.Conn{
 			Tag: "TLS",
 		},
+		hwif:    hwif,
 		addr:    addr,
 		config:  &config,
 		retry:   retry,
@@ -96,7 +99,17 @@ func (tcp *tlsClient) connect(router *router.Switch) {
 	for {
 		tcp.Infof("connecting to %v", tcp.addr)
 
-		if socket, err := tls.Dial("tcp", fmt.Sprintf("%v", tcp.addr), tcp.config); err != nil {
+		dialer := &net.Dialer{
+			Control: func(network, address string, connection syscall.RawConn) error {
+				if tcp.hwif != "" {
+					return conn.BindToDevice(connection, tcp.hwif, conn.IsIPv4(tcp.addr.IP), tcp.Conn)
+				} else {
+					return nil
+				}
+			},
+		}
+
+		if socket, err := tls.DialWithDialer(dialer, "tcp", fmt.Sprintf("%v", tcp.addr), tcp.config); err != nil {
 			tcp.Warnf("%v", err)
 		} else if socket == nil {
 			tcp.Warnf("connect %v failed (%v)", tcp.addr, socket)

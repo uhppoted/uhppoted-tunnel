@@ -80,9 +80,9 @@ func (tcp *tcpClient) connect(router *router.Switch) {
 		tcp.Infof("connecting to %v", tcp.addr)
 
 		dialer := &net.Dialer{
-			Control: func(network, address string, conn syscall.RawConn) error {
+			Control: func(network, address string, connection syscall.RawConn) error {
 				if tcp.hwif != "" {
-					return bindToDevice(conn, tcp.hwif, isIPv4(tcp.addr.IP))
+					return conn.BindToDevice(connection, tcp.hwif, conn.IsIPv4(tcp.addr.IP), tcp.Conn)
 				} else {
 					return nil
 				}

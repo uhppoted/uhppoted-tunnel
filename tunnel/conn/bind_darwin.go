@@ -1,4 +1,4 @@
-package tcp
+package conn
 
 import (
 	"fmt"
@@ -10,14 +10,14 @@ const IP_BOUND_IF = 25
 const IPV6_BOUND_IF = 125
 
 // Ref. https://djangocas.dev/blog/linux/linux-SO_BINDTODEVICE-and-mac-IP_BOUND_IF-to-bind-socket-to-a-network-interface
-func bindToDevice(conn syscall.RawConn, device string, IPv4 bool) error {
+func BindToDevice(connection syscall.RawConn, device string, IPv4 bool, c Conn) error {
 	if device != "" {
-
 		if ifaces, err := net.Interfaces(); err != nil {
 			return err
 		} else {
 			for _, iface := range ifaces {
 				if iface.Name == device {
+					c.Infof("Binding to interface %v", iface.Name)
 					var operr error
 					bind := func(fd uintptr) {
 						if IPv4 {
@@ -27,7 +27,7 @@ func bindToDevice(conn syscall.RawConn, device string, IPv4 bool) error {
 						}
 					}
 
-					if err := conn.Control(bind); err != nil {
+					if err := connection.Control(bind); err != nil {
 						return err
 					} else {
 						return operr

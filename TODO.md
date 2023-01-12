@@ -7,16 +7,19 @@
         - [x] linux
         - [x] MacOS
         - [x] ~~Windows~~
-
-      - TLS
+      - [x] TLS
+        - [x] linux
+        - [x] MacOS
+        - [x] ~~Windows~~
+      - [ ] UDP
         - [ ] linux
         - [ ] MacOS
         - [x] ~~Windows~~
+      - [ ] Make configuration TOML only
+      - [ ] README
+      - [ ] Help/usage
 
-      - UDP
-        - [ ] linux
-        - [ ] MacOS
-        - [x] ~~Windows~~
+- [ ] TLS client to non-TLS host handshake doesn't disconnect
 
 ## TODO
 

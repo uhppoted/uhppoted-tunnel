@@ -259,13 +259,41 @@ func (cmd Run) makeConn(arg, spec string, ctx context.Context) (tunnel.Conn, err
 	case strings.HasPrefix(spec, "tcp/server:"):
 		return tcp.NewTCPServer("", spec[11:], retry, ctx)
 
+	case strings.HasPrefix(spec, "tls/client::"):
+		re := regexp.MustCompile(`tls/client::(.*?):(.*)`)
+		if match := re.FindStringSubmatch(spec); match == nil {
+			return nil, fmt.Errorf("invalid tls/client specification (%v)", spec)
+		} else {
+			if ca, err := tlsCA(cmd.caCertificate); err != nil {
+				return nil, err
+			} else if certificate, err := tlsClientKeyPair(cmd.certificate, cmd.key); err != nil {
+				return nil, err
+			} else {
+				return tls.NewTLSClient(match[1], match[2], ca, certificate, retry, ctx)
+			}
+		}
+
 	case strings.HasPrefix(spec, "tls/client:"):
 		if ca, err := tlsCA(cmd.caCertificate); err != nil {
 			return nil, err
 		} else if certificate, err := tlsClientKeyPair(cmd.certificate, cmd.key); err != nil {
 			return nil, err
 		} else {
-			return tls.NewTLSClient(spec[11:], ca, certificate, retry, ctx)
+			return tls.NewTLSClient("", spec[11:], ca, certificate, retry, ctx)
+		}
+
+	case strings.HasPrefix(spec, "tls/server::"):
+		re := regexp.MustCompile(`tls/server::(.*?):(.*)`)
+		if match := re.FindStringSubmatch(spec); match == nil {
+			return nil, fmt.Errorf("invalid tls/server specification (%v)", spec)
+		} else {
+			if ca, err := tlsCA(cmd.caCertificate); err != nil {
+				return nil, err
+			} else if certificate, err := tlsServerKeyPair(cmd.certificate, cmd.key); err != nil {
+				return nil, err
+			} else {
+				return tls.NewTLSServer(match[1], match[2], ca, *certificate, cmd.requireClientAuth, retry, ctx)
+			}
 		}
 
 	case strings.HasPrefix(spec, "tls/server:"):
@@ -274,7 +302,7 @@ func (cmd Run) makeConn(arg, spec string, ctx context.Context) (tunnel.Conn, err
 		} else if certificate, err := tlsServerKeyPair(cmd.certificate, cmd.key); err != nil {
 			return nil, err
 		} else {
-			return tls.NewTLSServer(spec[11:], ca, *certificate, cmd.requireClientAuth, retry, ctx)
+			return tls.NewTLSServer("", spec[11:], ca, *certificate, cmd.requireClientAuth, retry, ctx)
 		}
 
 	case strings.HasPrefix(spec, "http/"):
