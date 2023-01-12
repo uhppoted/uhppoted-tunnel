@@ -68,13 +68,13 @@ publish: release
 
 debug: build
 #	$(CMD) --config "./examples/uhppoted-tunnel.toml#client-en3" --console --debug
-#	$(CMD) --config "./examples/uhppoted-tunnel.toml#client-lo0" --console --debug
+	$(CMD) --config "./examples/uhppoted-tunnel.toml#client-lo0" --console --debug
 #	$(CMD) --debug --console --in tcp/client:149.248.55.183:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
 #	$(CMD) --debug --console --in tcp/client::en3:149.248.55.183:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
 #	$(CMD) --debug --console --in tcp/client::en0:149.248.55.183:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
 #	$(CMD) --debug --console --in tls/client:::127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
 #	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/server::lo0:127.0.0.1:12345
-	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tls/server::lo0:127.0.0.1:12345 --client-auth
+#	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tls/server::lo0:127.0.0.1:12345 --client-auth
 
 delve: build
 #   dlv exec ./bin/uhppoted-tunnel -- --debug --console
@@ -90,7 +90,8 @@ help: build
 	$(CMD) help help
 
 host: build
-	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/server:0.0.0.0:12345
+#	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/server:0.0.0.0:12345
+	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/server::lo0:127.0.0.1:12345
 
 client: build
 	# $(CMD) --debug --console --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s

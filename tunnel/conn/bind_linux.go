@@ -8,7 +8,7 @@ func BindToDevice(connection syscall.RawConn, device string, IPv4 bool, c Conn) 
 	if device != "" {
 		var operr error
 		bind := func(fd uintptr) {
-			c.Infof("Binding to interface %v", device)
+			c.Infof("binding to interface %v", device)
 			operr = syscall.BindToDevice(int(fd), device)
 		}
 

@@ -17,7 +17,7 @@ func BindToDevice(connection syscall.RawConn, device string, IPv4 bool, c Conn) 
 		} else {
 			for _, iface := range ifaces {
 				if iface.Name == device {
-					c.Infof("Binding to interface %v", iface.Name)
+					c.Infof("binding to interface %v", iface.Name)
 					var operr error
 					bind := func(fd uintptr) {
 						if IPv4 {

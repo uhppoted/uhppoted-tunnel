@@ -15,7 +15,7 @@
         - [ ] linux
         - [ ] MacOS
         - [x] ~~Windows~~
-      - [ ] Make configuration TOML only
+      - [x] Add to TOML configuration
       - [ ] README
       - [ ] Help/usage
 
