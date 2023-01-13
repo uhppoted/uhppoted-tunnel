@@ -218,11 +218,11 @@ func (cmd *Run) makeInConn(ctx context.Context) (tunnel.Conn, error) {
 	// ... set network interface
 	hwif := cmd.interfaces.in
 	spec := cmd.in
-	re := regexp.MustCompile("(tcp|tls)/(client|server)::(.+?):(.+)")
+	re := regexp.MustCompile(`((?:(?:udp)/(?:broadcast|listen))|(?:(?:tcp|tls)/(?:client|server)))::(.*?):(.*)`)
 
 	if match := re.FindStringSubmatch(cmd.in); match != nil {
-		hwif = match[3]
-		spec = fmt.Sprintf("%v/%v:%v", match[1], match[2], match[4])
+		hwif = match[2]
+		spec = fmt.Sprintf("%v:%v", match[1], match[3])
 	}
 
 	// ... construct connection
@@ -250,13 +250,14 @@ func (cmd *Run) makeOutConn(ctx context.Context) (tunnel.Conn, error) {
 	// ... set network interface
 	hwif := cmd.interfaces.out
 	spec := cmd.out
-	re := regexp.MustCompile("(tcp|tls)/(client|server)::(.+?):(.+)")
 
+	re := regexp.MustCompile(`((?:(?:udp)/(?:broadcast|listen))|(?:(?:tcp|tls)/(?:client|server)))::(.*?):(.*)`)
 	if match := re.FindStringSubmatch(cmd.out); match != nil {
-		hwif = match[3]
-		spec = fmt.Sprintf("%v/%v:%v", match[1], match[2], match[4])
+		hwif = match[2]
+		spec = fmt.Sprintf("%v:%v", match[1], match[3])
 	}
 
+	// ... construct connection
 	switch {
 	case
 		strings.HasPrefix(spec, "udp/broadcast:"),
@@ -275,10 +276,10 @@ func (cmd Run) makeConn(arg, hwif string, spec string, ctx context.Context) (tun
 	retry := conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay, ctx)
 	switch {
 	case strings.HasPrefix(spec, "udp/listen:"):
-		return udp.NewUDPListen(spec[11:], retry, ctx)
+		return udp.NewUDPListen(hwif, spec[11:], retry, ctx)
 
 	case strings.HasPrefix(spec, "udp/broadcast:"):
-		return udp.NewUDPBroadcast(spec[14:], cmd.udpTimeout, ctx)
+		return udp.NewUDPBroadcast(hwif, spec[14:], cmd.udpTimeout, ctx)
 
 	case strings.HasPrefix(spec, "tcp/client:"):
 		return tcp.NewTCPClient(hwif, spec[11:], retry, ctx)

@@ -11,15 +11,18 @@
         - [x] linux
         - [x] MacOS
         - [x] ~~Windows~~
-      - [ ] UDP
-        - [ ] linux
-        - [ ] MacOS
+      - [x] UDP
+        - [x] linux
+        - [x] MacOS
         - [x] ~~Windows~~
       - [x] Add to TOML configuration
       - [ ] README
       - [ ] Help/usage
 
-- [ ] TLS client to non-TLS host handshake doesn't disconnect
+- [ ] TLS client to non-TLS host handshake doesn't ever timeout/disconnect
+
+- [ ] 'events' connectors
+      (?) let ID 0 imply no reply expected
 
 ## TODO
 
@@ -30,8 +33,6 @@
 - [ ] Consider using IP_FREEBIND sockopt
       - https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget
 
-- [ ] 'events' connectors
-      (?) let ID 0 imply no reply expected
 - [ ] https://tls-anvil.com/docs/Quick-Start/index
 
 - [ ] Commonalize connector behaviours
@@ -39,9 +40,10 @@
 - [ ] gRPC
 - [ ] WSS
 - [ ] XMPP
+- [ ] ZMQ
 
 - (?) eBPF
-- (?) Encode packet with protocol buffers
+- (?) Encode packet with protocol buffers/MessagePack/Apache Avro
 - (?) Wrap [libevent](https://libevent.org) or use syscalls
 - (?) Routing matrix
 - (?) Replace handler functions with channels

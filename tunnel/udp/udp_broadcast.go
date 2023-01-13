@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"syscall"
 	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
@@ -14,6 +15,7 @@ import (
 
 type udpBroadcast struct {
 	conn.Conn
+	hwif    string
 	addr    *net.UDPAddr
 	timeout time.Duration
 	ctx     context.Context
@@ -21,7 +23,7 @@ type udpBroadcast struct {
 	closed  chan struct{}
 }
 
-func NewUDPBroadcast(spec string, timeout time.Duration, ctx context.Context) (*udpBroadcast, error) {
+func NewUDPBroadcast(hwif string, spec string, timeout time.Duration, ctx context.Context) (*udpBroadcast, error) {
 	addr, err := net.ResolveUDPAddr("udp", spec)
 	if err != nil {
 		return nil, err
@@ -39,6 +41,7 @@ func NewUDPBroadcast(spec string, timeout time.Duration, ctx context.Context) (*
 		Conn: conn.Conn{
 			Tag: "UDP",
 		},
+		hwif:    hwif,
 		addr:    addr,
 		timeout: timeout,
 		ctx:     ctx,
@@ -88,9 +91,19 @@ func (udp *udpBroadcast) Send(id uint32, msg []byte) {
 func (udp *udpBroadcast) send(id uint32, message []byte) {
 	udp.Dumpf(message, "broadcast (%v bytes)", len(message))
 
+	listener := net.ListenConfig{
+		Control: func(network, address string, connection syscall.RawConn) error {
+			if udp.hwif != "" {
+				return conn.BindToDevice(connection, udp.hwif, conn.IsIPv4(udp.addr.IP), udp.Conn)
+			} else {
+				return nil
+			}
+		},
+	}
+
 	if bind, err := net.ResolveUDPAddr("udp", "0.0.0.0:0"); err != nil {
 		udp.Warnf("%v", err)
-	} else if socket, err := net.ListenUDP("udp", bind); err != nil {
+	} else if socket, err := listener.ListenPacket(context.Background(), "udp4", fmt.Sprintf("%v", bind)); err != nil {
 		udp.Warnf("%v", err)
 	} else if socket == nil {
 		udp.Warnf("invalid UDP socket (%v)", socket)
@@ -105,7 +118,7 @@ func (udp *udpBroadcast) send(id uint32, message []byte) {
 			udp.Warnf("%v", err)
 		}
 
-		if N, err := socket.WriteToUDP(message, udp.addr); err != nil {
+		if N, err := socket.WriteTo(message, udp.addr); err != nil {
 			udp.Warnf("%v", err)
 		} else {
 			udp.Debugf("sent %v bytes to %v\n", N, udp.addr)
@@ -118,7 +131,7 @@ func (udp *udpBroadcast) send(id uint32, message []byte) {
 				for {
 					reply := make([]byte, 2048)
 
-					if N, remote, err := socket.ReadFromUDP(reply); err != nil && !errors.Is(err, net.ErrClosed) {
+					if N, remote, err := socket.ReadFrom(reply); err != nil && !errors.Is(err, net.ErrClosed) {
 						udp.Warnf("%v", err)
 						return
 					} else if err != nil {

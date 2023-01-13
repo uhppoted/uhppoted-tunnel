@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"syscall"
 	"time"
 
 	"github.com/uhppoted/uhppoted-tunnel/protocol"
@@ -14,13 +15,14 @@ import (
 
 type udpListen struct {
 	conn.Conn
+	hwif   string
 	addr   *net.UDPAddr
 	retry  conn.Backoff
 	ctx    context.Context
 	closed chan struct{}
 }
 
-func NewUDPListen(spec string, retry conn.Backoff, ctx context.Context) (*udpListen, error) {
+func NewUDPListen(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*udpListen, error) {
 	addr, err := net.ResolveUDPAddr("udp", spec)
 	if err != nil {
 		return nil, err
@@ -38,6 +40,7 @@ func NewUDPListen(spec string, retry conn.Backoff, ctx context.Context) (*udpLis
 		Conn: conn.Conn{
 			Tag: "UDP",
 		},
+		hwif:   hwif,
 		addr:   addr,
 		retry:  retry,
 		ctx:    ctx,
@@ -64,10 +67,20 @@ func (udp *udpListen) Run(router *router.Switch) (err error) {
 	var socket *net.UDPConn
 	var closing = false
 
+	listener := net.ListenConfig{
+		Control: func(network, address string, connection syscall.RawConn) error {
+			if udp.hwif != "" {
+				return conn.BindToDevice(connection, udp.hwif, conn.IsIPv4(udp.addr.IP), udp.Conn)
+			} else {
+				return nil
+			}
+		},
+	}
+
 	go func() {
 	loop:
 		for {
-			socket, err = net.ListenUDP("udp", udp.addr)
+			socket, err := listener.ListenPacket(context.Background(), "udp4", fmt.Sprintf("%v", udp.addr))
 			if err != nil {
 				udp.Warnf("%v", err)
 			} else if socket == nil {
@@ -96,7 +109,7 @@ func (udp *udpListen) Run(router *router.Switch) (err error) {
 func (udp *udpListen) Send(id uint32, message []byte) {
 }
 
-func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) {
+func (udp *udpListen) listen(socket net.PacketConn, router *router.Switch) {
 	udp.Infof("listening on %v", udp.addr)
 
 	defer socket.Close()
@@ -104,7 +117,7 @@ func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) {
 	for {
 		buffer := make([]byte, 2048) // NTS buffer is handed off to router
 
-		N, remote, err := socket.ReadFromUDP(buffer)
+		N, remote, err := socket.ReadFrom(buffer)
 		if err != nil && !errors.Is(err, net.ErrClosed) {
 			udp.Warnf("%v", err)
 		}
@@ -119,7 +132,7 @@ func (udp *udpListen) listen(socket *net.UDPConn, router *router.Switch) {
 		h := func(reply []byte) {
 			udp.Dumpf(reply, "reply %v  %v bytes for %v", id, len(reply), remote)
 
-			if N, err := socket.WriteToUDP(reply, remote); err != nil {
+			if N, err := socket.WriteTo(reply, remote); err != nil {
 				udp.Warnf("%v", err)
 			} else {
 				udp.Debugf("sent %v bytes to %v\n", N, remote)
