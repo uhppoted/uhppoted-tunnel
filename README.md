@@ -148,6 +148,9 @@ Command line:
                     - http/<bind address> (e.g. http/0.0.0.0:8080)
                     - https/<bind address> (e.g. https/0.0.0.0:8443)
 
+                    Under Linux and MacOS the in connector can be bound to a specific interface by prefixing the
+                    address with ::<interface> e.g. tcp/client::en3:192.168.1.100:12345
+
   --out <connector> Defines the connector that forwards received commands. Overrides the 'OUT' connector in the TOML
                     configuration if it exists. Valid 'out' connectors include: 
                     - udp/broadcast:<broadcast address> (e.g. udp/broadcast:255.255.255.255:60000)
@@ -155,6 +158,9 @@ Command line:
                     - tcp/client:<host address> (e.g. tcp/client:192.168.1.100:12345)
                     - tls/server:<bind address> (e.g. tls/server:0.0.0.0:12345)
                     - tls/client:<host address> (e.g. tls/client:192.168.1.100:12345)
+
+                    Under Linux and MacOS the out connector can be bound to a specific interface by prefixing the
+                    address with ::<interface> e.g. udp/broadcast::lo0:127.0.0.01:12345
 
   --console     Runs the UDP tunnel as a console application, logging events to the console.
   --debug       Displays verbose debugging information, in particular the communications with the 
@@ -282,11 +288,12 @@ _OUT_ connectors:
 Listens for incoming UDP packets on the _bind address_, effectively acting as a direct proxy for a remote controller.
 
 ```
---in udp/listen:<bind address>
+--in udp/listen[::<interface>]:<bind address>
 
 e.g. 
 
 --in udp/listen:0.0.0.0:60000
+--in udp/listen::en3:0.0.0.0:60000
 ```
 
 ### UDP broadcast
@@ -295,7 +302,7 @@ Sends a received packet out as a UDP message on the _broadcast address_ and forw
 effectively acting as a proxy for a remote application.
 
 ```
---out udp/broadcast:<broadcast address> [--udp-timeout <timeout>]
+--out udp/broadcast[::<interface>]:<broadcast address> [--udp-timeout <timeout>]
 
    The broadcast address is typically (but not necessarily) the UDP broadcast for the network adapter for the controllers'
    network segment. However it can be any valid IPv4 address:port combination to accomodate the requirements of the 
@@ -307,6 +314,7 @@ effectively acting as a proxy for a remote application.
 e.g. 
 
 --out udp/broadcast:255.255.255.255:60000 --udp-timeout 5s
+--out udp/broadcast::en3:255.255.255.255:60000 --udp-timeout 5s
 ```
 
 ### TCP server
@@ -315,11 +323,12 @@ The TCP server connector accepts connections from one or more TCP clients and ca
 Incoming requests will be forwarded to all connected clients.
 
 ```
---in tcp/server:<bind address>
+--in tcp/server[::<interface>]:<bind address>
 
 e.g. 
 
 --in tcp/server:0.0.0.0:12345
+--in tcp/server::en3:0.0.0.0:12345
 ```
 
 ### TCP client
@@ -328,11 +337,12 @@ The TCP client connector connects to a TCP server and can act as both an _IN_ co
 will be forwarded to the remote server.
 
 ```
---in tcp/client:<host address>
+--in tcp/client[::<interface>]:<host address>
 
 e.g. 
 
 --in tcp/host:192.168.1.100:12345
+--in tcp/host::lo0:127.0.0.1:12345
 ```
 
 ### TLS server
@@ -340,7 +350,7 @@ e.g.
 The TLS server connector is a TCP server connector that only accepts TLS secured client connections.
 
 ```
---in tls/server:<bind address> [--ca-cert <file>] [--cert <file>] [--key <file>] [--client-auth]
+--in tls/server[::<interface>]:<bind address> [--ca-cert <file>] [--cert <file>] [--key <file>] [--client-auth]
 
   --ca-cert      CA certificate used to verify client certificates (defaults to ca.cert)
   --cert         server TLS certificate in PEM format (defaults to server.cert)
@@ -350,6 +360,7 @@ The TLS server connector is a TCP server connector that only accepts TLS secured
 e.g. 
 
 --in tls/server:0.0.0.0:12345 --ca-cert tunnel.ca --cert tunnel.cert --key tunnel.key --client-auth
+--in tls/server::en3:0.0.0.0:12345 --ca-cert tunnel.ca --cert tunnel.cert --key tunnel.key --client-auth
 ```
 
 ### TLS client
@@ -357,7 +368,7 @@ e.g.
 The TLS client connector is a TCP client connector that only connects to TLS secured servers.
 
 ```
---in tls/client:<host address> [--ca-cert <file>] [--cert <file>] [--key <file>] [--client-auth]
+--in tls/client[::<interface>]:<host address> [--ca-cert <file>] [--cert <file>] [--key <file>] [--client-auth]
 
   --ca-cert      CA certificate used to verify server certificates (defaults to ca.cert)
   --cert         client TLS certificate in PEM format. Optional, only required if the TLS server 
@@ -368,6 +379,7 @@ The TLS client connector is a TCP client connector that only connects to TLS sec
 e.g. 
 
 --in tls/client:192.168.1.100:12345 --ca-cert tunnel.ca --cert client.cert --key client.key
+--in tls/client::en3:192.168.1.100:12345 --ca-cert tunnel.ca --cert client.cert --key client.key
 ```
 
 ### HTTP POST
@@ -475,4 +487,5 @@ e.g.
 
 ## Attribution
 
-1. HTTP/S connector example logo uses [image](https://www.freepik.com/free-photo/light-shine-through-round-holes-ceiling-casting-shadows_15317209.htm) designed by [Garry Killian](https://www.freepik.com/author/garrykillian) for [freepik.com](https://www.freepik.com).
+1. HTTP/S connector example logo uses [image](https://www.freepik.com/free-photo/light-shine-through-round-holes-ceiling-casting-shadows_15317209.htm) 
+designed by [Garry Killian](https://www.freepik.com/author/garrykillian) for [freepik.com](https://www.freepik.com).

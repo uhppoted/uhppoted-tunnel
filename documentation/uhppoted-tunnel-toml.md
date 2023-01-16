@@ -51,6 +51,7 @@ lockfile = ""
 max-retries = 32
 max-retry-delay = "5m"
 udp-timeout = "5s"
+interfaces = { "in" = "en3", "out" = "" }
 ...
 
 
@@ -62,6 +63,7 @@ udp-timeout = "5s"
 | ----------------- | ---------------------------------------------------------------- |------------------------------- |
 | in                | _IN_ connector that accepts external requests                    | _None_                         |
 | out               | _OUT_ connector that dispatches received requests                | _None_                         |
+| interfaces        | _IN_ and _OUT_ connector network interfaces                      | _None_                         |
 | lockfile          | lockfile used to prevent running multiple copies of the service  | _auto-generated_               |
 | max-retries       | Maximum number of times to retry failed connection.              | -1 (retry forever)             |
 | max-retry-delay   | Maximum delay between retrying failed connections                | 5m                             |
@@ -107,6 +109,7 @@ lockfile = ""
 max-retries = 32
 max-retry-delay = "5m"
 udp-timeout = "5s"
+interfaces = { "in" = "en3", "out" = "" }
 
 [host]
 in = "udp/listen:0.0.0.0:60000"
@@ -115,7 +118,7 @@ lockfile = "/tmp/uhppoted-tunnel-host.pid"
 label = "uiop"
 
 [client]
-in = "tcp/client:127.0.0.1:12345"
+in = "tcp/client::lo0:127.0.0.1:12345"
 out = "udp/broadcast:192.168.1.255:60000"
 udp-timeout = "1s"
 log-level = "info"

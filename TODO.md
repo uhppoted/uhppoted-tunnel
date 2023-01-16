@@ -2,7 +2,7 @@
 
 ## IN PROGRESS
 
-- [ ] https://github.com/uhppoted/uhppoted-tunnel/issues/3
+- [x] https://github.com/uhppoted/uhppoted-tunnel/issues/3
       - [x] TCP
         - [x] linux
         - [x] MacOS
@@ -16,8 +16,8 @@
         - [x] MacOS
         - [x] ~~Windows~~
       - [x] Add to TOML configuration
-      - [ ] README
-      - [ ] Help/usage
+      - [x] README
+      - [x] Help/usage
 
 - [ ] TLS client to non-TLS host handshake doesn't ever timeout/disconnect
 
@@ -26,6 +26,10 @@
 
 ## TODO
 
+- io_uring
+  - https://unixism.net/loti/index.html
+- Socket activation
+   - https://blog.podman.io/2023/01/systemd-socket-activation-lesson-learned/
 - (?) https://eli.thegreenplace.net/2022/ssh-port-forwarding-with-go/
 - (?) [UDP tunnelling: ssh/nc](https://superuser.com/questions/53103/udp-traffic-through-ssh-tunnel)
 - (?) [UDP tunnelling: socat](http://www.morch.com/2011/07/05/forwarding-snmp-ports-over-ssh-using-socat/)
