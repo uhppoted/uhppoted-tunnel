@@ -58,6 +58,17 @@ const MAX_RETRIES = -1
 const MAX_RETRY_DELAY = 5 * time.Minute
 const UDP_TIMEOUT = 5 * time.Second
 
+type direction int
+
+const (
+	In direction = iota + 1
+	Out
+)
+
+func (d direction) String() string {
+	return [...]string{"?", "in", "out"}[d]
+}
+
 func (cmd *Run) flags() *flag.FlagSet {
 	flagset := flag.NewFlagSet("run", flag.ExitOnError)
 
@@ -187,8 +198,9 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 		return
 	} else {
 		// NTS
-		// This will not ever be invoked on a panic because pretty much everything below it runs in a goroutine.
-		// However the 'flock' syscall establishes the lock at a process level and it seems to recover ok.
+		// This will probably not ever be invoked on a panic because pretty much everything below it runs
+		// in a goroutine. Fortunately the 'flock' syscall establishes the lock at a process level and it
+		// seems to recover ok.
 		defer func() {
 			kraken.Release()
 		}()
@@ -218,7 +230,7 @@ func (cmd *Run) makeInConn(ctx context.Context) (tunnel.Conn, error) {
 	// ... set network interface
 	hwif := cmd.interfaces.in
 	spec := cmd.in
-	re := regexp.MustCompile(`((?:(?:udp)/(?:broadcast|listen))|(?:(?:tcp|tls)/(?:client|server)))::(.*?):(.*)`)
+	re := regexp.MustCompile(`((?:(?:udp)/(?:broadcast|listen|event))|(?:(?:tcp|tls)/(?:client|server|event)))::(.*?):(.*)`)
 
 	if match := re.FindStringSubmatch(cmd.in); match != nil {
 		hwif = match[2]
@@ -229,13 +241,16 @@ func (cmd *Run) makeInConn(ctx context.Context) (tunnel.Conn, error) {
 	switch {
 	case
 		strings.HasPrefix(spec, "udp/listen:"),
+		strings.HasPrefix(spec, "udp/event:"),
 		strings.HasPrefix(spec, "tcp/client:"),
 		strings.HasPrefix(spec, "tcp/server:"),
+		strings.HasPrefix(spec, "tcp/event:"),
 		strings.HasPrefix(spec, "tls/client:"),
 		strings.HasPrefix(spec, "tls/server:"),
+		strings.HasPrefix(spec, "tls/event:"),
 		strings.HasPrefix(spec, "http/"),
 		strings.HasPrefix(spec, "https/"):
-		return cmd.makeConn("--in", hwif, spec, ctx)
+		return cmd.makeConn("--in", hwif, spec, In, ctx)
 
 	default:
 		return nil, fmt.Errorf("Invalid --in argument (%v)", cmd.in)
@@ -261,18 +276,21 @@ func (cmd *Run) makeOutConn(ctx context.Context) (tunnel.Conn, error) {
 	switch {
 	case
 		strings.HasPrefix(spec, "udp/broadcast:"),
+		strings.HasPrefix(spec, "udp/event:"),
 		strings.HasPrefix(spec, "tcp/client:"),
 		strings.HasPrefix(spec, "tcp/server:"),
+		strings.HasPrefix(spec, "tcp/event:"),
 		strings.HasPrefix(spec, "tls/client:"),
-		strings.HasPrefix(spec, "tls/server:"):
-		return cmd.makeConn("--out", hwif, spec, ctx)
+		strings.HasPrefix(spec, "tls/server:"),
+		strings.HasPrefix(spec, "tls/event:"):
+		return cmd.makeConn("--out", hwif, spec, Out, ctx)
 
 	default:
 		return nil, fmt.Errorf("Invalid --out argument (%v)", cmd.out)
 	}
 }
 
-func (cmd Run) makeConn(arg, hwif string, spec string, ctx context.Context) (tunnel.Conn, error) {
+func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, ctx context.Context) (tunnel.Conn, error) {
 	retry := conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay, ctx)
 	switch {
 	case strings.HasPrefix(spec, "udp/listen:"):
@@ -281,11 +299,29 @@ func (cmd Run) makeConn(arg, hwif string, spec string, ctx context.Context) (tun
 	case strings.HasPrefix(spec, "udp/broadcast:"):
 		return udp.NewUDPBroadcast(hwif, spec[14:], cmd.udpTimeout, ctx)
 
+	case strings.HasPrefix(spec, "udp/event:"):
+		if dir == In {
+			return udp.NewUDPEventIn(hwif, spec[10:], retry, ctx)
+		} else if dir == Out {
+			return udp.NewUDPEventOut(hwif, spec[10:], ctx)
+		} else {
+			return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
+		}
+
 	case strings.HasPrefix(spec, "tcp/client:"):
 		return tcp.NewTCPClient(hwif, spec[11:], retry, ctx)
 
 	case strings.HasPrefix(spec, "tcp/server:"):
 		return tcp.NewTCPServer(hwif, spec[11:], retry, ctx)
+
+	case strings.HasPrefix(spec, "tcp/event:"):
+		if dir == In {
+			return tcp.NewTCPEventIn(hwif, spec[10:], retry, ctx)
+		} else if dir == Out {
+			return tcp.NewTCPEventOut(hwif, spec[10:], retry, ctx)
+		} else {
+			return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
+		}
 
 	case strings.HasPrefix(spec, "tls/client:"):
 		if ca, err := tlsCA(cmd.caCertificate); err != nil {
@@ -303,6 +339,27 @@ func (cmd Run) makeConn(arg, hwif string, spec string, ctx context.Context) (tun
 			return nil, err
 		} else {
 			return tls.NewTLSServer(hwif, spec[11:], ca, *certificate, cmd.requireClientAuth, retry, ctx)
+		}
+
+	case strings.HasPrefix(spec, "tls/event:"):
+		if dir == In {
+			if ca, err := tlsCA(cmd.caCertificate); err != nil {
+				return nil, err
+			} else if certificate, err := tlsServerKeyPair(cmd.certificate, cmd.key); err != nil {
+				return nil, err
+			} else {
+				return tls.NewTLSEventIn(hwif, spec[10:], ca, *certificate, cmd.requireClientAuth, retry, ctx)
+			}
+		} else if dir == Out {
+			if ca, err := tlsCA(cmd.caCertificate); err != nil {
+				return nil, err
+			} else if certificate, err := tlsClientKeyPair(cmd.certificate, cmd.key); err != nil {
+				return nil, err
+			} else {
+				return tls.NewTLSEventOut(hwif, spec[10:], ca, certificate, retry, ctx)
+			}
+		} else {
+			return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
 		}
 
 	case strings.HasPrefix(spec, "http/"):

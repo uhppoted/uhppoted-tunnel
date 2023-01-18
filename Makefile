@@ -119,6 +119,14 @@ tls-host: build
 tls-client: build
 	$(CMD) --debug --console --in tls/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
 
+event-client: build
+	# $(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tcp/event:127.0.0.1:12345
+	$(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tls/event:127.0.0.1:12345
+
+event-host: build
+	# $(CMD) --debug --console --in tcp/event:0.0.0.0:12345 --out udp/event:192.168.1.255:60005 --udp-timeout 1s
+	$(CMD) --debug --console --in tls/event:0.0.0.0:12345 --out udp/event:192.168.1.255:60005 --udp-timeout 1s
+
 http: build
 	npx eslint --fix ./examples/html/javascript/*.js
 	$(CMD) --debug --console --in http/0.0.0.0:8082 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s --html ./examples/html
