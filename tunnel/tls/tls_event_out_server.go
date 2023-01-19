@@ -18,7 +18,7 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 )
 
-type tlsEventIn struct {
+type tlsEventOutServer struct {
 	conn.Conn
 	hwif        string
 	addr        *net.TCPAddr
@@ -32,7 +32,7 @@ type tlsEventIn struct {
 	sync.RWMutex
 }
 
-func NewTLSEventIn(hwif string, spec string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff, ctx context.Context) (*tlsEventIn, error) {
+func NewTLSEventOutServer(hwif string, spec string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff, ctx context.Context) (*tlsEventOutServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -60,7 +60,7 @@ func NewTLSEventIn(hwif string, spec string, ca *x509.CertPool, keypair tls.Cert
 		config.ClientAuth = tls.RequireAndVerifyClientCert
 	}
 
-	tcp := tlsEventIn{
+	tcp := tlsEventOutServer{
 		Conn: conn.Conn{
 			Tag: "TLS",
 		},
@@ -77,7 +77,7 @@ func NewTLSEventIn(hwif string, spec string, ca *x509.CertPool, keypair tls.Cert
 	return &tcp, nil
 }
 
-func (tcp *tlsEventIn) Close() {
+func (tcp *tlsEventOutServer) Close() {
 	tcp.Infof("closing")
 
 	for _, f := range tcp.pending {
@@ -94,7 +94,7 @@ func (tcp *tlsEventIn) Close() {
 	}
 }
 
-func (tcp *tlsEventIn) Run(router *router.Switch) (err error) {
+func (tcp *tlsEventOutServer) Run(router *router.Switch) (err error) {
 	var socket net.Listener
 
 	go func() {
@@ -141,10 +141,15 @@ func (tcp *tlsEventIn) Run(router *router.Switch) (err error) {
 	return nil
 }
 
-func (tcp *tlsEventIn) Send(id uint32, message []byte) {
+func (tcp *tlsEventOutServer) Send(id uint32, message []byte) {
+	for c, _ := range tcp.connections {
+		go func(conn net.Conn) {
+			tcp.send(conn, id, message)
+		}(c)
+	}
 }
 
-func (tcp *tlsEventIn) listen(socket net.Listener, router *router.Switch) {
+func (tcp *tlsEventOutServer) listen(socket net.Listener, router *router.Switch) {
 	tcp.Infof("listening on %v", socket.Addr())
 
 	defer socket.Close()
@@ -195,7 +200,7 @@ func (tcp *tlsEventIn) listen(socket net.Listener, router *router.Switch) {
 	}
 }
 
-func (tcp *tlsEventIn) handshake(socket *tls.Conn) error {
+func (tcp *tlsEventOutServer) handshake(socket *tls.Conn) error {
 	id := atomic.AddUint32(&ID, 1)
 	state := socket.ConnectionState()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -221,13 +226,17 @@ func (tcp *tlsEventIn) handshake(socket *tls.Conn) error {
 	return nil
 }
 
-func (tcp *tlsEventIn) received(buffer []byte, router *router.Switch, socket net.Conn) {
-	tcp.Dumpf(buffer, "received %v bytes from %v", len(buffer), socket.RemoteAddr())
+func (tcp *tlsEventOutServer) received(buffer []byte, router *router.Switch, socket net.Conn) {
+}
 
-	for len(buffer) > 0 {
-		id, msg, remaining := protocol.Depacketize(buffer)
-		buffer = remaining
+func (tcp *tlsEventOutServer) send(conn net.Conn, id uint32, message []byte) {
+	packet := protocol.Packetize(id, message)
 
-		router.Received(id, msg, nil)
+	if N, err := conn.Write(packet); err != nil {
+		tcp.Warnf("msg %v  error sending message to %v (%v)", id, conn.RemoteAddr(), err)
+	} else if N != len(packet) {
+		tcp.Warnf("msg %v  sent %v of %v bytes to %v", id, N, len(message), conn.RemoteAddr())
+	} else {
+		tcp.Infof("msg %v sent %v bytes to %v", id, len(message), conn.RemoteAddr())
 	}
 }

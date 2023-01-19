@@ -120,12 +120,20 @@ tls-client: build
 	$(CMD) --debug --console --in tls/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
 
 event-client: build
-	# $(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tcp/event:127.0.0.1:12345
-	$(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tls/event:127.0.0.1:12345
+	# $(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tcp/event/client:127.0.0.1:12345
+	$(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tls/event/client:127.0.0.1:12345
 
 event-host: build
-	# $(CMD) --debug --console --in tcp/event:0.0.0.0:12345 --out udp/event:192.168.1.255:60005 --udp-timeout 1s
-	$(CMD) --debug --console --in tls/event:0.0.0.0:12345 --out udp/event:192.168.1.255:60005 --udp-timeout 1s
+	# $(CMD) --debug --console --in tcp/event/server:0.0.0.0:12345 --out udp/event:192.168.1.255:60005
+	$(CMD) --debug --console --in tls/event/server:0.0.0.0:12345 --out udp/event:192.168.1.255:60005
+
+reverse-event-client: build
+	# $(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tcp/event/server:0.0.0.0:12345
+	$(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tls/event/server:0.0.0.0:12345
+
+reverse-event-host: build
+	# $(CMD) --debug --console --in tcp/event/client:127.0.0.1:12345 --out udp/event:192.168.1.255:60005
+	$(CMD) --debug --console --in tls/event/client:127.0.0.1:12345 --out udp/event:192.168.1.255:60005
 
 http: build
 	npx eslint --fix ./examples/html/javascript/*.js

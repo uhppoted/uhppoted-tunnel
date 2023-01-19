@@ -5,8 +5,7 @@
 ### Added
 1. Support for binding to a specific network interface (Linux and MacOS only). 
    Ref. [Pi Configuration as secure wireless tunnel](https://github.com/uhppoted/uhppoted-tunnel/issues/3)
-2. _event_ connectors, which optimize the UDP, TCP and TLS connectors to not expect a reply when relaying 
-   controller events.
+2. UDP, TCP and TLS _event_ connectors for relaying events.
 
 
 ## [0.8.3](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.3) - 2022-12-16

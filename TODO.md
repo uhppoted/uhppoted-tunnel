@@ -9,7 +9,9 @@
       - [x] TCP event/in
       - [x] TLS event/out
       - [x] TLS event/in
-      - [ ] Reverse tunnel
+      - [x] Reverse tunnel
+      - [ ] Clean up in/out connector semantics
+      - [ ] Restructure tunnel connectors so that you are composable/constructable
       - [ ] README
 
 - [ ] TLS client to non-TLS host handshake doesn't ever timeout/disconnect
@@ -52,8 +54,10 @@
 (uhppote-cli) ERROR: invalid message length - expected:64, got:0
 ```
 
+
 ## TODO
 
+- [ ] integration tests
 - io_uring
   - https://unixism.net/loti/index.html
 - Socket activation

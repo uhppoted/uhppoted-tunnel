@@ -1,9 +1,7 @@
-package tls
+package tcp
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
 	"errors"
 	"fmt"
 	"net"
@@ -15,11 +13,10 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 )
 
-type tlsEventOut struct {
+type tcpEventOutClient struct {
 	conn.Conn
 	hwif    string
 	addr    *net.TCPAddr
-	config  *tls.Config
 	retry   conn.Backoff
 	timeout time.Duration
 	ch      chan protocol.Message
@@ -27,7 +24,7 @@ type tlsEventOut struct {
 	closed  chan struct{}
 }
 
-func NewTLSEventOut(hwif string, spec string, ca *x509.CertPool, keypair *tls.Certificate, retry conn.Backoff, ctx context.Context) (*tlsEventOut, error) {
+func NewTCPEventOutClient(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpEventOutClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -35,29 +32,12 @@ func NewTLSEventOut(hwif string, spec string, ca *x509.CertPool, keypair *tls.Ce
 		return nil, fmt.Errorf("unable to resolve TCP address '%v'", spec)
 	}
 
-	config := tls.Config{
-		RootCAs: ca,
-		CipherSuites: []uint16{
-			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-		},
-		PreferServerCipherSuites: true,
-		MinVersion:               tls.VersionTLS12,
-	}
-
-	if keypair != nil {
-		config.Certificates = []tls.Certificate{*keypair}
-	}
-
-	in := tlsEventOut{
+	in := tcpEventOutClient{
 		Conn: conn.Conn{
-			Tag: "TLS",
+			Tag: "TCP",
 		},
 		hwif:    hwif,
 		addr:    addr,
-		config:  &config,
 		retry:   retry,
 		timeout: 5 * time.Second,
 		ch:      make(chan protocol.Message, 16),
@@ -68,7 +48,7 @@ func NewTLSEventOut(hwif string, spec string, ca *x509.CertPool, keypair *tls.Ce
 	return &in, nil
 }
 
-func (tcp *tlsEventOut) Close() {
+func (tcp *tcpEventOutClient) Close() {
 	tcp.Infof("closing")
 
 	timeout := time.NewTimer(5 * time.Second)
@@ -81,21 +61,21 @@ func (tcp *tlsEventOut) Close() {
 	}
 }
 
-func (tcp *tlsEventOut) Run(router *router.Switch) error {
+func (tcp *tcpEventOutClient) Run(router *router.Switch) error {
 	tcp.connect(router)
 	tcp.closed <- struct{}{}
 
 	return nil
 }
 
-func (tcp *tlsEventOut) Send(id uint32, msg []byte) {
+func (tcp *tcpEventOutClient) Send(id uint32, msg []byte) {
 	select {
 	case tcp.ch <- protocol.Message{ID: id, Message: msg}:
 	default:
 	}
 }
 
-func (tcp *tlsEventOut) connect(router *router.Switch) {
+func (tcp *tcpEventOutClient) connect(router *router.Switch) {
 	for {
 		tcp.Infof("connecting to %v", tcp.addr)
 
@@ -109,7 +89,7 @@ func (tcp *tlsEventOut) connect(router *router.Switch) {
 			},
 		}
 
-		if socket, err := tls.DialWithDialer(dialer, "tcp", fmt.Sprintf("%v", tcp.addr), tcp.config); err != nil {
+		if socket, err := dialer.Dial("tcp", fmt.Sprintf("%v", tcp.addr)); err != nil {
 			tcp.Warnf("%v", err)
 		} else if socket == nil {
 			tcp.Warnf("connect %v failed (%v)", tcp.addr, socket)
@@ -134,7 +114,7 @@ func (tcp *tlsEventOut) connect(router *router.Switch) {
 				}
 			}()
 
-			if err := tcp.listen(socket, router); err != nil && !errors.Is(err, net.ErrClosed) {
+			if err := tcp.listen(socket); err != nil && !errors.Is(err, net.ErrClosed) {
 				tcp.Warnf("%v", err)
 			}
 
@@ -147,7 +127,7 @@ func (tcp *tlsEventOut) connect(router *router.Switch) {
 	}
 }
 
-func (tcp *tlsEventOut) listen(socket net.Conn, router *router.Switch) error {
+func (tcp *tcpEventOutClient) listen(socket net.Conn) error {
 	tcp.Infof("connected  to %v", socket.RemoteAddr())
 
 	defer socket.Close()
@@ -160,7 +140,7 @@ func (tcp *tlsEventOut) listen(socket net.Conn, router *router.Switch) error {
 	}
 }
 
-func (tcp *tlsEventOut) send(conn net.Conn, id uint32, msg []byte) []byte {
+func (tcp *tcpEventOutClient) send(conn net.Conn, id uint32, msg []byte) []byte {
 	packet := protocol.Packetize(id, msg)
 
 	if N, err := conn.Write(packet); err != nil {

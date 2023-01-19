@@ -26,7 +26,7 @@ type tcpEventIn struct {
 	sync.RWMutex
 }
 
-func NewTCPEventIn(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpEventIn, error) {
+func NewTCPEventInServer(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpEventIn, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
