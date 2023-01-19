@@ -74,6 +74,8 @@ func NewTLSServer(hwif string, spec string, ca *x509.CertPool, keypair tls.Certi
 		closed:      make(chan struct{}),
 	}
 
+	tcp.Infof("connector::tls-server")
+
 	return &tcp, nil
 }
 

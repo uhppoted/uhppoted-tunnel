@@ -35,7 +35,7 @@ func NewUDPEventOut(hwif string, spec string, ctx context.Context) (*udpEventOut
 		return nil, fmt.Errorf("UDP requires a non-zero port")
 	}
 
-	out := udpEventOut{
+	udp := udpEventOut{
 		Conn: conn.Conn{
 			Tag: "UDP",
 		},
@@ -46,7 +46,9 @@ func NewUDPEventOut(hwif string, spec string, ctx context.Context) (*udpEventOut
 		closed: make(chan struct{}),
 	}
 
-	return &out, nil
+	udp.Infof("connector::udp-event-out")
+
+	return &udp, nil
 }
 
 func (udp *udpEventOut) Close() {

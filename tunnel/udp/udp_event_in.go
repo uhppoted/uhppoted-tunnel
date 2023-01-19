@@ -47,6 +47,8 @@ func NewUDPEventIn(hwif string, spec string, retry conn.Backoff, ctx context.Con
 		closed: make(chan struct{}),
 	}
 
+	udp.Infof("connector::udp-event-in")
+
 	return &udp, nil
 }
 

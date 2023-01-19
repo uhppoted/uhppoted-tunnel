@@ -65,6 +65,8 @@ func NewTLSClient(hwif string, spec string, ca *x509.CertPool, keypair *tls.Cert
 		closed:  make(chan struct{}),
 	}
 
+	in.Infof("connector::tls-client")
+
 	return &in, nil
 }
 

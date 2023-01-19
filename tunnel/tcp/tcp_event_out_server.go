@@ -37,7 +37,7 @@ func NewTCPEventOutServer(hwif string, spec string, retry conn.Backoff, ctx cont
 		return nil, fmt.Errorf("TCP host requires a non-zero port")
 	}
 
-	out := tcpEventOutServer{
+	tcp := tcpEventOutServer{
 		Conn: conn.Conn{
 			Tag: "TCP",
 		},
@@ -49,7 +49,9 @@ func NewTCPEventOutServer(hwif string, spec string, retry conn.Backoff, ctx cont
 		closed:      make(chan struct{}),
 	}
 
-	return &out, nil
+	tcp.Infof("connector::tcp-event-out-client")
+
+	return &tcp, nil
 }
 
 func (tcp *tcpEventOutServer) Close() {

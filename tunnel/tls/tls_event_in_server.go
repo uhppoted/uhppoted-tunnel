@@ -74,6 +74,8 @@ func NewTLSEventInServer(hwif string, spec string, ca *x509.CertPool, keypair tl
 		closed:      make(chan struct{}),
 	}
 
+	tcp.Infof("connector::tls-event-in-server")
+
 	return &tcp, nil
 }
 

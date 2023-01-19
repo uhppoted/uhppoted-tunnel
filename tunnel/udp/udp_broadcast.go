@@ -37,7 +37,7 @@ func NewUDPBroadcast(hwif string, spec string, timeout time.Duration, ctx contex
 		return nil, fmt.Errorf("UDP requires a non-zero port")
 	}
 
-	out := udpBroadcast{
+	udp := udpBroadcast{
 		Conn: conn.Conn{
 			Tag: "UDP",
 		},
@@ -49,7 +49,9 @@ func NewUDPBroadcast(hwif string, spec string, timeout time.Duration, ctx contex
 		closed:  make(chan struct{}),
 	}
 
-	return &out, nil
+	udp.Infof("connector::udp-broadcast")
+
+	return &udp, nil
 }
 
 func (udp *udpBroadcast) Close() {

@@ -47,6 +47,8 @@ func NewUDPListen(hwif string, spec string, retry conn.Backoff, ctx context.Cont
 		closed: make(chan struct{}),
 	}
 
+	udp.Infof("connector::udp-listen")
+
 	return &udp, nil
 }
 

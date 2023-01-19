@@ -37,7 +37,7 @@ func NewTCPEventInServer(hwif string, spec string, retry conn.Backoff, ctx conte
 		return nil, fmt.Errorf("TCP host requires a non-zero port")
 	}
 
-	out := tcpEventIn{
+	tcp := tcpEventIn{
 		Conn: conn.Conn{
 			Tag: "TCP",
 		},
@@ -49,7 +49,9 @@ func NewTCPEventInServer(hwif string, spec string, retry conn.Backoff, ctx conte
 		closed:      make(chan struct{}),
 	}
 
-	return &out, nil
+	tcp.Infof("connector::tcp-event-in-server")
+
+	return &tcp, nil
 }
 
 func (tcp *tcpEventIn) Close() {

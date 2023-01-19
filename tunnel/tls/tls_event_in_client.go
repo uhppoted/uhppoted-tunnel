@@ -51,7 +51,7 @@ func NewTLSEventInClient(hwif string, spec string, ca *x509.CertPool, keypair *t
 		config.Certificates = []tls.Certificate{*keypair}
 	}
 
-	in := tlsEventInClient{
+	tcp := tlsEventInClient{
 		Conn: conn.Conn{
 			Tag: "TLS",
 		},
@@ -65,7 +65,9 @@ func NewTLSEventInClient(hwif string, spec string, ca *x509.CertPool, keypair *t
 		closed:  make(chan struct{}),
 	}
 
-	return &in, nil
+	tcp.Infof("connector::tls-event-in-client")
+
+	return &tcp, nil
 }
 
 func (tcp *tlsEventInClient) Close() {

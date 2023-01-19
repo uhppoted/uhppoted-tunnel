@@ -51,7 +51,7 @@ func NewTLSEventOutClient(hwif string, spec string, ca *x509.CertPool, keypair *
 		config.Certificates = []tls.Certificate{*keypair}
 	}
 
-	in := tlsEventOutClient{
+	tcp := tlsEventOutClient{
 		Conn: conn.Conn{
 			Tag: "TLS",
 		},
@@ -65,7 +65,9 @@ func NewTLSEventOutClient(hwif string, spec string, ca *x509.CertPool, keypair *
 		closed:  make(chan struct{}),
 	}
 
-	return &in, nil
+	tcp.Infof("connector::tls-event-out-client")
+
+	return &tcp, nil
 }
 
 func (tcp *tlsEventOutClient) Close() {

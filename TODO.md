@@ -10,8 +10,9 @@
       - [x] TLS event/out
       - [x] TLS event/in
       - [x] Reverse tunnel
-      - [ ] Clean up in/out connector semantics
-      - [ ] Restructure tunnel connectors so that you are composable/constructable
+      - [x] Clean up in/out connector semantics
+      - [ ] Restructure tcp client/server to look like event connectors
+      - [ ] Restructure connectors to be constructable
       - [ ] README
 
 - [ ] TLS client to non-TLS host handshake doesn't ever timeout/disconnect

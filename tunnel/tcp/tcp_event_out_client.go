@@ -32,7 +32,7 @@ func NewTCPEventOutClient(hwif string, spec string, retry conn.Backoff, ctx cont
 		return nil, fmt.Errorf("unable to resolve TCP address '%v'", spec)
 	}
 
-	in := tcpEventOutClient{
+	tcp := tcpEventOutClient{
 		Conn: conn.Conn{
 			Tag: "TCP",
 		},
@@ -45,7 +45,9 @@ func NewTCPEventOutClient(hwif string, spec string, retry conn.Backoff, ctx cont
 		closed:  make(chan struct{}),
 	}
 
-	return &in, nil
+	tcp.Infof("connector::tcp-event-out-client")
+
+	return &tcp, nil
 }
 
 func (tcp *tcpEventOutClient) Close() {

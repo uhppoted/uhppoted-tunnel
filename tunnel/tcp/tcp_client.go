@@ -45,6 +45,8 @@ func NewTCPClient(hwif string, spec string, retry conn.Backoff, ctx context.Cont
 		closed:  make(chan struct{}),
 	}
 
+	in.Infof("connector::tcp-client")
+
 	return &in, nil
 }
 

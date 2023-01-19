@@ -32,7 +32,7 @@ func NewTCPEventInClient(hwif string, spec string, retry conn.Backoff, ctx conte
 		return nil, fmt.Errorf("unable to resolve TCP address '%v'", spec)
 	}
 
-	in := tcpEventInClient{
+	tcp := tcpEventInClient{
 		Conn: conn.Conn{
 			Tag: "TCP",
 		},
@@ -45,7 +45,9 @@ func NewTCPEventInClient(hwif string, spec string, retry conn.Backoff, ctx conte
 		closed:  make(chan struct{}),
 	}
 
-	return &in, nil
+	tcp.Infof("connector::tcp-event-in-client")
+
+	return &tcp, nil
 }
 
 func (tcp *tcpEventInClient) Close() {

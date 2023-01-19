@@ -37,7 +37,7 @@ func NewTCPServer(hwif string, spec string, retry conn.Backoff, ctx context.Cont
 		return nil, fmt.Errorf("TCP host requires a non-zero port")
 	}
 
-	out := tcpServer{
+	tcp := tcpServer{
 		Conn: conn.Conn{
 			Tag: "TCP",
 		},
@@ -49,7 +49,9 @@ func NewTCPServer(hwif string, spec string, retry conn.Backoff, ctx context.Cont
 		closed:      make(chan struct{}),
 	}
 
-	return &out, nil
+	tcp.Infof("connector::tcp-server")
+
+	return &tcp, nil
 }
 
 func (tcp *tcpServer) Close() {
