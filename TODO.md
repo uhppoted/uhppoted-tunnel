@@ -14,6 +14,10 @@
       - [x] README
       - [x] Restructure tcp client/server to look like event connectors
       - [ ] Restructure connectors to be constructable
+            - [x] TCP event/client
+            - [ ] TCP event/server
+            - [ ] TLS event/client
+            - [ ] TLS event/server
 
 - [ ] TLS client to non-TLS host handshake doesn't ever timeout/disconnect
       - (?) Maybe do the same handshake as the server
