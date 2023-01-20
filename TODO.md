@@ -12,7 +12,7 @@
       - [x] Reverse tunnel
       - [x] Clean up in/out connector semantics
       - [x] README
-      - [ ] Restructure tcp client/server to look like event connectors
+      - [x] Restructure tcp client/server to look like event connectors
       - [ ] Restructure connectors to be constructable
 
 - [ ] TLS client to non-TLS host handshake doesn't ever timeout/disconnect

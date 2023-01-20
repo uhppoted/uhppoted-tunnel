@@ -27,7 +27,27 @@ type tlsClient struct {
 	closed  chan struct{}
 }
 
-func NewTLSClient(hwif string, spec string, ca *x509.CertPool, keypair *tls.Certificate, retry conn.Backoff, ctx context.Context) (*tlsClient, error) {
+func NewTLSInClient(hwif string, spec string, ca *x509.CertPool, keypair *tls.Certificate, retry conn.Backoff, ctx context.Context) (*tlsClient, error) {
+	client, err := makeTLSClient(hwif, spec, ca, keypair, retry, ctx)
+
+	if err == nil {
+		client.Infof("connector::tls-client-in")
+	}
+
+	return client, err
+}
+
+func NewTLSOutClient(hwif string, spec string, ca *x509.CertPool, keypair *tls.Certificate, retry conn.Backoff, ctx context.Context) (*tlsClient, error) {
+	client, err := makeTLSClient(hwif, spec, ca, keypair, retry, ctx)
+
+	if err == nil {
+		client.Infof("connector::tls-client-out")
+	}
+
+	return client, err
+}
+
+func makeTLSClient(hwif string, spec string, ca *x509.CertPool, keypair *tls.Certificate, retry conn.Backoff, ctx context.Context) (*tlsClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -64,8 +84,6 @@ func NewTLSClient(hwif string, spec string, ca *x509.CertPool, keypair *tls.Cert
 		ctx:     ctx,
 		closed:  make(chan struct{}),
 	}
-
-	in.Infof("connector::tls-client")
 
 	return &in, nil
 }

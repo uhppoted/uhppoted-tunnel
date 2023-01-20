@@ -3,21 +3,21 @@
 // that can be found in the LICENSE file.
 
 /*
-Package uhppote-tunnel implements a relay/switch for the UDP packets that 
+Package uhppote-tunnel implements a relay/switch for the UDP packets that
 control the UHPPOTE TCP/IP Wiegand-26 access controllers.
 
-The tunnel connectors are primarily designed to allow the access controllers 
+The tunnel connectors are primarily designed to allow the access controllers
 to be managed remotely via a TCP pipe secured with mutually authenticated TLS,
 but can be used for e.g:
 
 - an HTTP CLI client
-- event collation 
+- event collation
 - event fanout
 
 # Connectors
 
 The package includes the following connectors:
-  
+
   - udp/listen: receives and relays UDP commands from a management application and return the replies.
   - udp/broadcast: broadcasts UDP commands to the access controllers and relays the replies.
   - udp/event: relays access controller events

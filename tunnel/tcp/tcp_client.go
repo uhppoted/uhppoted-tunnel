@@ -24,7 +24,27 @@ type tcpClient struct {
 	closed  chan struct{}
 }
 
-func NewTCPClient(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpClient, error) {
+func NewTCPInClient(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpClient, error) {
+	client, err := makeTCPClient(hwif, spec, retry, ctx)
+
+	if err == nil {
+		client.Infof("connector::tcp-client-in")
+	}
+
+	return client, err
+}
+
+func NewTCPOutClient(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpClient, error) {
+	client, err := makeTCPClient(hwif, spec, retry, ctx)
+
+	if err == nil {
+		client.Infof("connector::tcp-client-out")
+	}
+
+	return client, err
+}
+
+func makeTCPClient(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpClient, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 	if err != nil {
 		return nil, err
@@ -44,8 +64,6 @@ func NewTCPClient(hwif string, spec string, retry conn.Backoff, ctx context.Cont
 		ctx:     ctx,
 		closed:  make(chan struct{}),
 	}
-
-	in.Infof("connector::tcp-client")
 
 	return &in, nil
 }

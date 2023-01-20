@@ -26,7 +26,27 @@ type tcpServer struct {
 	sync.RWMutex
 }
 
-func NewTCPServer(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpServer, error) {
+func NewTCPInServer(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpServer, error) {
+	server, err := makeTCPServer(hwif, spec, retry, ctx)
+
+	if err == nil {
+		server.Infof("connector::tcp-server-in")
+	}
+
+	return server, err
+}
+
+func NewTCPOutServer(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpServer, error) {
+	server, err := makeTCPServer(hwif, spec, retry, ctx)
+
+	if err == nil {
+		server.Infof("connector::tcp-server-out")
+	}
+
+	return server, err
+}
+
+func makeTCPServer(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -48,8 +68,6 @@ func NewTCPServer(hwif string, spec string, retry conn.Backoff, ctx context.Cont
 		ctx:         ctx,
 		closed:      make(chan struct{}),
 	}
-
-	tcp.Infof("connector::tcp-server")
 
 	return &tcp, nil
 }

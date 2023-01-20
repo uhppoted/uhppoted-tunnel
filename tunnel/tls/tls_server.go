@@ -32,7 +32,27 @@ type tlsServer struct {
 	sync.RWMutex
 }
 
-func NewTLSServer(hwif string, spec string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff, ctx context.Context) (*tlsServer, error) {
+func NewTLSInServer(hwif string, spec string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff, ctx context.Context) (*tlsServer, error) {
+	server, err := makeTLSServer(hwif, spec, ca, keypair, requireClientCertificate, retry, ctx)
+
+	if err == nil {
+		server.Infof("connector::tls-server-in")
+	}
+
+	return server, err
+}
+
+func NewTLSOutServer(hwif string, spec string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff, ctx context.Context) (*tlsServer, error) {
+	server, err := makeTLSServer(hwif, spec, ca, keypair, requireClientCertificate, retry, ctx)
+
+	if err == nil {
+		server.Infof("connector::tls-server-out")
+	}
+
+	return server, err
+}
+
+func makeTLSServer(hwif string, spec string, ca *x509.CertPool, keypair tls.Certificate, requireClientCertificate bool, retry conn.Backoff, ctx context.Context) (*tlsServer, error) {
 	addr, err := net.ResolveTCPAddr("tcp", spec)
 
 	if err != nil {
@@ -73,8 +93,6 @@ func NewTLSServer(hwif string, spec string, ca *x509.CertPool, keypair tls.Certi
 		ctx:         ctx,
 		closed:      make(chan struct{}),
 	}
-
-	tcp.Infof("connector::tls-server")
 
 	return &tcp, nil
 }

@@ -93,13 +93,13 @@ help: build
 
 host: build
 #	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/server:0.0.0.0:12345
-	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/server::lo0:127.0.0.1:12345
+	$(CMD) --debug --console --in udp/listen:0.0.0.0:60005 --out tcp/server::lo0:127.0.0.1:12345
 
 client: build
-	# $(CMD) --debug --console --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
+	$(CMD) --debug --console --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
 	# $(CMD) --config "#client" --console --debug
 	# $(CMD) --config "./examples/uhppoted-tunnel.toml#client"
-	$(CMD) --config "./examples/uhppoted-tunnel.toml#client" --console --debug
+	# $(CMD) --config "./examples/uhppoted-tunnel.toml#client" --console --debug
 
 client-ethernet: build
 	$(CMD) --config "./examples/uhppoted-tunnel.toml#client-ethernet"
@@ -108,16 +108,16 @@ client-wifi: build
 	$(CMD) --config "./examples/uhppoted-tunnel.toml#client-wifi"
 
 reverse-host: build
-	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/client:127.0.0.1:12345
+	$(CMD) --debug --console --in udp/listen:0.0.0.0:60005 --out tcp/client:127.0.0.1:12345
 
 reverse-client: build
-	$(CMD) --debug --console --in tcp/server:0.0.0.0:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
+	$(CMD) --debug --console --in tcp/server:0.0.0.0:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
 
 tls-host: build
-	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tls/server:0.0.0.0:12345 --client-auth
+	$(CMD) --debug --console --in udp/listen:0.0.0.0:60005 --out tls/server:0.0.0.0:12345 --client-auth
 
 tls-client: build
-	$(CMD) --debug --console --in tls/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
+	$(CMD) --debug --console --in tls/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
 
 event-client: build
 	$(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tcp/client:127.0.0.1:12345

@@ -302,30 +302,41 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 		return udp.NewUDPBroadcast(hwif, spec[14:], cmd.udpTimeout, ctx)
 
 	case strings.HasPrefix(spec, "udp/event:"):
-		if dir == In {
+		switch {
+		case dir == In:
 			return udp.NewUDPEventIn(hwif, spec[10:], retry, ctx)
-		} else if dir == Out {
+		case dir == Out:
 			return udp.NewUDPEventOut(hwif, spec[10:], ctx)
-		} else {
+		default:
 			return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
 		}
 
 	case strings.HasPrefix(spec, "tcp/client:"):
-		if events && dir == In {
+		switch {
+		case events && dir == In:
 			return tcp.NewTCPEventInClient(hwif, spec[11:], retry, ctx)
-		} else if events && dir == Out {
+		case events && dir == Out:
 			return tcp.NewTCPEventOutClient(hwif, spec[11:], retry, ctx)
-		} else {
-			return tcp.NewTCPClient(hwif, spec[11:], retry, ctx)
+		case dir == In:
+			return tcp.NewTCPInClient(hwif, spec[11:], retry, ctx)
+		case dir == Out:
+			return tcp.NewTCPOutClient(hwif, spec[11:], retry, ctx)
+		default:
+			return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
 		}
 
 	case strings.HasPrefix(spec, "tcp/server:"):
-		if events && dir == In {
+		switch {
+		case events && dir == In:
 			return tcp.NewTCPEventInServer(hwif, spec[11:], retry, ctx)
-		} else if events && dir == Out {
+		case events && dir == Out:
 			return tcp.NewTCPEventOutServer(hwif, spec[11:], retry, ctx)
-		} else {
-			return tcp.NewTCPServer(hwif, spec[11:], retry, ctx)
+		case dir == In:
+			return tcp.NewTCPInServer(hwif, spec[11:], retry, ctx)
+		case dir == Out:
+			return tcp.NewTCPOutServer(hwif, spec[11:], retry, ctx)
+		default:
+			return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
 		}
 
 	case strings.HasPrefix(spec, "tls/client:"):
@@ -333,12 +344,19 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 			return nil, err
 		} else if certificate, err := tlsClientKeyPair(cmd.certificate, cmd.key); err != nil {
 			return nil, err
-		} else if events && dir == In {
-			return tls.NewTLSEventInClient(hwif, spec[11:], ca, certificate, retry, ctx)
-		} else if events && dir == Out {
-			return tls.NewTLSEventOutClient(hwif, spec[11:], ca, certificate, retry, ctx)
 		} else {
-			return tls.NewTLSClient(hwif, spec[11:], ca, certificate, retry, ctx)
+			switch {
+			case events && dir == In:
+				return tls.NewTLSEventInClient(hwif, spec[11:], ca, certificate, retry, ctx)
+			case events && dir == Out:
+				return tls.NewTLSEventOutClient(hwif, spec[11:], ca, certificate, retry, ctx)
+			case dir == In:
+				return tls.NewTLSInClient(hwif, spec[11:], ca, certificate, retry, ctx)
+			case dir == Out:
+				return tls.NewTLSOutClient(hwif, spec[11:], ca, certificate, retry, ctx)
+			default:
+				return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
+			}
 		}
 
 	case strings.HasPrefix(spec, "tls/server:"):
@@ -346,12 +364,19 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 			return nil, err
 		} else if certificate, err := tlsServerKeyPair(cmd.certificate, cmd.key); err != nil {
 			return nil, err
-		} else if events && dir == In {
-			return tls.NewTLSEventInServer(hwif, spec[11:], ca, *certificate, cmd.requireClientAuth, retry, ctx)
-		} else if events && dir == Out {
-			return tls.NewTLSEventOutServer(hwif, spec[11:], ca, *certificate, cmd.requireClientAuth, retry, ctx)
 		} else {
-			return tls.NewTLSServer(hwif, spec[11:], ca, *certificate, cmd.requireClientAuth, retry, ctx)
+			switch {
+			case events && dir == In:
+				return tls.NewTLSEventInServer(hwif, spec[11:], ca, *certificate, cmd.requireClientAuth, retry, ctx)
+			case events && dir == Out:
+				return tls.NewTLSEventOutServer(hwif, spec[11:], ca, *certificate, cmd.requireClientAuth, retry, ctx)
+			case dir == In:
+				return tls.NewTLSInServer(hwif, spec[11:], ca, *certificate, cmd.requireClientAuth, retry, ctx)
+			case dir == Out:
+				return tls.NewTLSOutServer(hwif, spec[11:], ca, *certificate, cmd.requireClientAuth, retry, ctx)
+			default:
+				return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
+			}
 		}
 
 	case strings.HasPrefix(spec, "http/"):
