@@ -82,6 +82,9 @@ delve: build
 #   dlv exec ./bin/uhppoted-tunnel -- --debug --console
 	dlv test github.com/uhppoted/uhppoted-tunnel -- run Test*
 
+godoc:
+	godoc -http=:80	-index_interval=60s
+
 version: build
 	$(CMD) version
 

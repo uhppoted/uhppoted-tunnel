@@ -10,9 +10,9 @@ The tunnel connectors are primarily designed to allow the access controllers
 to be managed remotely via a TCP pipe secured with mutually authenticated TLS,
 but can be used for e.g:
 
-- an HTTP CLI client
-- event collation
-- event fanout
+  - an HTTP CLI client
+  - event collation
+  - event fanout
 
 # Connectors
 
