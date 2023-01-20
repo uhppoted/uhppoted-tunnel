@@ -141,6 +141,7 @@ Command line:
   --in <connector>  Defines the connector that accepts incoming commands. Overrides the 'IN' connector in the TOML
                     configuration if it exists. Valid 'in' connectors include: 
                     - udp/listen:<bind address> (e.g. udp/listen:0.0.0.0:60000)
+                    - udp/event:<bind address> (e.g. udp/listen:0.0.0.0:60000)
                     - tcp/server:<bind address> (e.g. tcp/server:0.0.0.0:12345)
                     - tcp/client:<host address> (e.g. tcp/client:192.168.1.100:12345)
                     - tls/server:<bind address> (e.g. tls/server:0.0.0.0:12345)
@@ -154,6 +155,7 @@ Command line:
   --out <connector> Defines the connector that forwards received commands. Overrides the 'OUT' connector in the TOML
                     configuration if it exists. Valid 'out' connectors include: 
                     - udp/broadcast:<broadcast address> (e.g. udp/broadcast:255.255.255.255:60000)
+                    - udp/event:<broadcast address> (e.g. udp/broadcast:255.255.255.255:60000)
                     - tcp/server:<bind address> (e.g. tcp/server:0.0.0.0:12345)
                     - tcp/client:<host address> (e.g. tcp/client:192.168.1.100:12345)
                     - tls/server:<bind address> (e.g. tls/server:0.0.0.0:12345)
@@ -196,6 +198,11 @@ Command line:
 In general, tunnels operate in pairs - one on the _host_, listening for commands from e.g. the _AccessControl_ application
 or _uhppote-cli_ and the other on the _client_ local to the controller, which sends the commands to the controller(s)
 and returns the replies to the _host_. It is however, possible to chain multiple tunnels to bridge across several machines.
+
+The _event_ connectors are a specialization of the UDP _listen_ and _broadcast_ connectors in that events are relayed in a
+a single direction only, without expectation of a reply. It's quite possible to use the _listen_ and _broadcast_ connectors
+to relay events but the specialized connectors are slightly optimized for the use case and have also been put in place to 
+support future enhancements that may srely on the specialized connectors.
 
 ### `daemonize`
 
