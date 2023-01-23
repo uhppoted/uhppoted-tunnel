@@ -2,7 +2,7 @@
 
 ## IN PROGRESS
 
-- [ ] 'events' connectors
+- [x] 'events' connectors
       - [x] UDP event/in
       - [x] UDP event/out
       - [x] TCP event/out
@@ -13,11 +13,12 @@
       - [x] Clean up in/out connector semantics
       - [x] README
       - [x] Restructure tcp client/server to look like event connectors
-      - [ ] Restructure connectors to be constructable
+      - [x] Restructure connectors to be constructable
             - [x] TCP event/client
-            - [ ] TCP event/server
-            - [ ] TLS event/client
-            - [ ] TLS event/server
+            - [x] TCP event/server
+            - [x] TLS event/client
+            - [x] TLS event/server
+            - tls-event-out-client :: Send
 
 - [ ] TLS client to non-TLS host handshake doesn't ever timeout/disconnect
       - (?) Maybe do the same handshake as the server

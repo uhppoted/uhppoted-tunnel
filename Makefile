@@ -124,11 +124,16 @@ tls-client: build
 
 event-client: build
 	$(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tcp/client:127.0.0.1:12345
-	# $(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tls/client:127.0.0.1:12345
 
 event-host: build
 	$(CMD) --debug --console --in tcp/server:0.0.0.0:12345 --out udp/event:192.168.1.255:60005
 	# $(CMD) --debug --console --in tls/server:0.0.0.0:12345 --out udp/event:192.168.1.255:60005
+
+tls-event-client: build
+	$(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tls/client:127.0.0.1:12345
+
+tls-event-host: build
+	$(CMD) --debug --console --in tls/server:0.0.0.0:12345 --out udp/event:192.168.1.255:60005
 
 reverse-event-client: build
 	$(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tcp/server:0.0.0.0:12345
@@ -137,6 +142,12 @@ reverse-event-client: build
 reverse-event-host: build
 	$(CMD) --debug --console --in tcp/client:127.0.0.1:12345 --out udp/event:192.168.1.255:60005
 	# $(CMD) --debug --console --in tls/client:127.0.0.1:12345 --out udp/event:192.168.1.255:60005
+
+tls-reverse-event-client: build
+	$(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tls/server:0.0.0.0:12345
+
+tls-reverse-event-host: build
+	$(CMD) --debug --console --in tls/client:127.0.0.1:12345 --out udp/event:192.168.1.255:60005
 
 http: build
 	npx eslint --fix ./examples/html/javascript/*.js
