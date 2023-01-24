@@ -14,11 +14,12 @@ import (
 
 type udpEventOut struct {
 	conn.Conn
-	hwif   string
-	addr   *net.UDPAddr
-	ctx    context.Context
-	ch     chan protocol.Message
-	closed chan struct{}
+	hwif    string
+	addr    *net.UDPAddr
+	timeout time.Duration
+	ctx     context.Context
+	ch      chan protocol.Message
+	closed  chan struct{}
 }
 
 func NewUDPEventOut(hwif string, spec string, ctx context.Context) (*udpEventOut, error) {
@@ -39,11 +40,12 @@ func NewUDPEventOut(hwif string, spec string, ctx context.Context) (*udpEventOut
 		Conn: conn.Conn{
 			Tag: "UDP",
 		},
-		hwif:   hwif,
-		addr:   addr,
-		ctx:    ctx,
-		ch:     make(chan protocol.Message),
-		closed: make(chan struct{}),
+		hwif:    hwif,
+		addr:    addr,
+		timeout: 5 * time.Second,
+		ctx:     ctx,
+		ch:      make(chan protocol.Message),
+		closed:  make(chan struct{}),
 	}
 
 	udp.Infof("connector::udp-event-out")
@@ -91,6 +93,7 @@ func (udp *udpEventOut) send(id uint32, message []byte) {
 	udp.Dumpf(message, "event/out (%v bytes)", len(message))
 
 	dialer := &net.Dialer{
+		Timeout: udp.timeout,
 		Control: func(network, address string, connection syscall.RawConn) error {
 			if udp.hwif != "" {
 				return conn.BindToDevice(connection, udp.hwif, conn.IsIPv4(udp.addr.IP), udp.Conn)

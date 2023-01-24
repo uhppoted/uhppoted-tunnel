@@ -2,37 +2,7 @@
 
 ## IN PROGRESS
 
-- [x] Erroneously relaying 0 length packets (e.g. when a TLS client tries to connect to a TCP server)
-```
-./bin/uhppoted-tunnel --debug --console --in tcp/event:0.0.0.0:12345 --out udp/event:192.168.1.255:60005 --udp-timeout 1s
-...
-...
-2023/01/18 12:06:55 DEBUG  TCP    received 215 bytes from 127.0.0.1:50568
-                                  00000000  16 03 01 00 d2 01 00 00  ce 03 03 0f 71 11 4f 96
-                                  00000010  91 98 88 ea 4e 40 43 fe  32 c1 1f a2 a3 53 9b dd
-                                  00000020  22 7a 5d 1e 89 68 08 e2  22 88 35 20 19 dc 07 92
-                                  00000030  f6 e0 a2 a1 52 5b 23 f6  97 db b4 28 0b 96 0b 95
-                                  00000040  ca bb ef 72 11 48 7c 64  0e dc 20 98 00 0e c0 2bd.. ....+|
-                                  00000050  c0 2f c0 2c c0 30 13 01  13 02 13 03 01 00 00 77
-                                  00000060  00 05 00 05 01 00 00 00  00 00 0a 00 0a 00 08 00
-                                  00000070  1d 00 17 00 18 00 19 00  0b 00 02 01 00 00 0d 00
-                                  00000080  1a 00 18 08 04 04 03 08  07 08 05 08 06 04 01 05
-                                  00000090  01 06 01 05 03 06 03 02  01 02 03 ff 01 00 01 00
-                                  000000a0  00 12 00 00 00 2b 00 05  04 03 04 03 03 00 33 00
-                                  000000b0  26 00 24 00 1d 00 20 db  0f 95 dd e4 87 0a 5c fa
-                                  000000c0  6f 1f 64 20 30 19 9b f7  88 40 f9 d9 47 14 c8 45
-                                  000000d0  8c 04 7a 51 e2 60 26
-                                  
-2023/01/18 12:06:55 WARN          invalid packet - expected 5641 bytes, got 215 bytes
-2023/01/18 12:06:55 DEBUG  UDP    event/out (0 bytes)
-                                  
-2023/01/18 12:06:55 DEBUG  UDP    sent 0 bytes to 192.168.1.255:60005
- ...
- ...
-(uhppote-cli) ERROR: invalid message length - expected:64, got:0
-```
-
-- [ ] TLS client to non-TLS host handshake doesn't ever timeout/disconnect
+- [x] TLS client to non-TLS host handshake doesn't ever timeout/disconnect
       - (?) Maybe do the same handshake as the server
 ```
 ./bin/uhppoted-tunnel --debug --console --in udp/event:0.0.0.0:60001 --out tls/client:127.0.0.1:12345

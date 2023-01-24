@@ -59,6 +59,7 @@ func (tcp *tcpEventClient) connect(router *router.Switch) {
 		tcp.Infof("connecting to %v", tcp.addr)
 
 		dialer := &net.Dialer{
+			Timeout: tcp.timeout,
 			Control: func(network, address string, connection syscall.RawConn) error {
 				if tcp.hwif != "" {
 					return conn.BindToDevice(connection, tcp.hwif, conn.IsIPv4(tcp.addr.IP), tcp.Conn)
