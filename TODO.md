@@ -2,35 +2,7 @@
 
 ## IN PROGRESS
 
-- [x] 'events' connectors
-      - [x] UDP event/in
-      - [x] UDP event/out
-      - [x] TCP event/out
-      - [x] TCP event/in
-      - [x] TLS event/out
-      - [x] TLS event/in
-      - [x] Reverse tunnel
-      - [x] Clean up in/out connector semantics
-      - [x] README
-      - [x] Restructure tcp client/server to look like event connectors
-      - [x] Restructure connectors to be constructable
-            - [x] TCP event/client
-            - [x] TCP event/server
-            - [x] TLS event/client
-            - [x] TLS event/server
-            - tls-event-out-client :: Send
-
-- [ ] TLS client to non-TLS host handshake doesn't ever timeout/disconnect
-      - (?) Maybe do the same handshake as the server
-
-- [ ] Error on close
-```
-2023/01/18 11:22:55 INFO   ROUTER closing
-2023/01/18 11:22:55 FATAL         runtime error: invalid memory address or nil pointer dereference
-```
-
-- [ ] Maybe don't send 0 length packets ?
-      - Happens e.g. when a TLS client tries to connect to a TCP server
+- [x] Erroneously relaying 0 length packets (e.g. when a TLS client tries to connect to a TCP server)
 ```
 ./bin/uhppoted-tunnel --debug --console --in tcp/event:0.0.0.0:12345 --out udp/event:192.168.1.255:60005 --udp-timeout 1s
 ...
@@ -59,6 +31,20 @@
  ...
 (uhppote-cli) ERROR: invalid message length - expected:64, got:0
 ```
+
+- [ ] TLS client to non-TLS host handshake doesn't ever timeout/disconnect
+      - (?) Maybe do the same handshake as the server
+```
+./bin/uhppoted-tunnel --debug --console --in udp/event:0.0.0.0:60001 --out tls/client:127.0.0.1:12345
+./bin/uhppoted-tunnel --debug --console --in tcp/server:0.0.0.0:12345 --out udp/event:192.168.1.255:60005
+```
+
+- [ ] Error on close
+```
+2023/01/18 11:22:55 INFO   ROUTER closing
+2023/01/18 11:22:55 FATAL         runtime error: invalid memory address or nil pointer dereference
+```
+
 
 
 ## TODO

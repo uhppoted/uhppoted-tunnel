@@ -65,22 +65,24 @@ func NewSwitch(f func(uint32, []byte)) Switch {
 }
 
 func (s *Switch) Received(id uint32, message []byte, h func([]byte)) {
-	hf := router.get(id)
+	if message != nil {
+		hf := router.get(id)
 
-	switch {
-	case hf != nil:
-		go func() {
-			hf(message)
-		}()
+		switch {
+		case hf != nil:
+			go func() {
+				hf(message)
+			}()
 
-	default:
-		if h != nil {
-			router.add(id, h)
+		default:
+			if h != nil {
+				router.add(id, h)
+			}
+
+			go func() {
+				s.relay(id, message)
+			}()
 		}
-
-		go func() {
-			s.relay(id, message)
-		}()
 	}
 }
 
