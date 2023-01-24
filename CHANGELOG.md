@@ -7,6 +7,10 @@
    Ref. [Pi Configuration as secure wireless tunnel](https://github.com/uhppoted/uhppoted-tunnel/issues/3)
 2. UDP, TCP and TLS _event_ connectors for relaying events.
 
+### Updated
+1. Fixed timeout in TCP and TLS clients
+2. Fixed 'fatal' error on closed
+
 
 ## [0.8.3](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.3) - 2022-12-16
 

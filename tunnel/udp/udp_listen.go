@@ -15,11 +15,12 @@ import (
 
 type udpListen struct {
 	conn.Conn
-	hwif   string
-	addr   *net.UDPAddr
-	retry  conn.Backoff
-	ctx    context.Context
-	closed chan struct{}
+	hwif    string
+	addr    *net.UDPAddr
+	retry   conn.Backoff
+	ctx     context.Context
+	sockets map[net.PacketConn]struct{}
+	closed  chan struct{}
 }
 
 func NewUDPListen(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*udpListen, error) {
@@ -40,11 +41,12 @@ func NewUDPListen(hwif string, spec string, retry conn.Backoff, ctx context.Cont
 		Conn: conn.Conn{
 			Tag: "UDP",
 		},
-		hwif:   hwif,
-		addr:   addr,
-		retry:  retry,
-		ctx:    ctx,
-		closed: make(chan struct{}),
+		hwif:    hwif,
+		addr:    addr,
+		retry:   retry,
+		ctx:     ctx,
+		sockets: map[net.PacketConn]struct{}{},
+		closed:  make(chan struct{}),
 	}
 
 	udp.Infof("connector::udp-listen")
@@ -56,6 +58,11 @@ func (udp *udpListen) Close() {
 	udp.Infof("closing")
 
 	timeout := time.NewTimer(5 * time.Second)
+
+	for k, _ := range udp.sockets {
+		k.Close()
+	}
+
 	select {
 	case <-udp.closed:
 		udp.Infof("closed")
@@ -66,7 +73,6 @@ func (udp *udpListen) Close() {
 }
 
 func (udp *udpListen) Run(router *router.Switch) (err error) {
-	var socket *net.UDPConn
 	var closing = false
 
 	listener := net.ListenConfig{
@@ -88,9 +94,12 @@ func (udp *udpListen) Run(router *router.Switch) (err error) {
 			} else if socket == nil {
 				udp.Warnf("Failed to create UDP listen socket (%v)", socket)
 			} else {
+				udp.sockets[socket] = struct{}{}
 				udp.retry.Reset()
 				udp.listen(socket, router)
 			}
+
+			delete(udp.sockets, socket)
 
 			if closing || !udp.retry.Wait(udp.Tag) {
 				break loop
@@ -103,7 +112,6 @@ func (udp *udpListen) Run(router *router.Switch) (err error) {
 	<-udp.ctx.Done()
 
 	closing = true
-	socket.Close()
 
 	return nil
 }

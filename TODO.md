@@ -2,19 +2,11 @@
 
 ## IN PROGRESS
 
-- [x] TLS client to non-TLS host handshake doesn't ever timeout/disconnect
-      - (?) Maybe do the same handshake as the server
-```
-./bin/uhppoted-tunnel --debug --console --in udp/event:0.0.0.0:60001 --out tls/client:127.0.0.1:12345
-./bin/uhppoted-tunnel --debug --console --in tcp/server:0.0.0.0:12345 --out udp/event:192.168.1.255:60005
-```
-
-- [ ] Error on close
+- [x] Error on close
 ```
 2023/01/18 11:22:55 INFO   ROUTER closing
 2023/01/18 11:22:55 FATAL         runtime error: invalid memory address or nil pointer dereference
 ```
-
 
 
 ## TODO
