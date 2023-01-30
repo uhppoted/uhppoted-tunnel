@@ -6,6 +6,7 @@
 1. Support for binding to a specific network interface (Linux and MacOS only). 
    Ref. [Pi Configuration as secure wireless tunnel](https://github.com/uhppoted/uhppoted-tunnel/issues/3)
 2. UDP, TCP and TLS _event_ connectors for relaying events.
+3. `doc.go` package overview documentation.
 
 ### Updated
 1. Fixed timeout in TCP and TLS clients

@@ -2,13 +2,6 @@
 
 ## IN PROGRESS
 
-- [x] Error on close
-```
-2023/01/18 11:22:55 INFO   ROUTER closing
-2023/01/18 11:22:55 FATAL         runtime error: invalid memory address or nil pointer dereference
-```
-
-
 ## TODO
 
 - [ ] integration tests
