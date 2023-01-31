@@ -53,6 +53,8 @@
             <li onclick="onSelect(event)" data-cmd="add-task">add-task</li>
             <li onclick="onSelect(event)" data-cmd="refresh-tasklist">refresh-tasklist</li>
             <li onclick="onSelect(event)" data-cmd="clear-tasklist">clear-tasklist</li>
+            <li class="spacer"></li>
+            <li onclick="onSelect(event)" data-cmd="set-pc-control">set-pc-control</li>
           </ul>
         </div>
 
@@ -209,6 +211,13 @@
             
             <label class="parameter-label">more cards</label>
             <input class="parameter-value" type="number" min="0" max="255" placeholder="number of cards" data-tag="task.more-cards" />
+          </div>
+
+          <div class="section control">
+            <label for="pc-control" class="parameter">
+              PC control
+              <input id="pc-control" type="checkbox" data-tag="pc-control" checked />
+            </label>
           </div>
 
         </div>

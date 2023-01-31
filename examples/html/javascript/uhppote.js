@@ -250,3 +250,12 @@ export function ClearTasklist (deviceId) {
       return reply ? decode.ClearTasklistResponse(reply) : null
     })
 }
+
+export function SetPcControl (deviceId, enable) {
+  const request = encode.SetPcControlRequest(deviceId, enable)
+
+  return udp.send(request)
+    .then(reply => {
+      return reply ? decode.SetPcControlResponse(reply) : null
+    })
+}

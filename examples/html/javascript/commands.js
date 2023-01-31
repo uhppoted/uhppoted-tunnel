@@ -282,6 +282,13 @@ export function clearTaskList (controller) {
   return uhppote.ClearTasklist(controller)
 }
 
+export function setPCControl (controller, enabled) {
+  controller = arg(controller)
+  enabled = arg(enabled)
+
+  return uhppote.SetPcControl(controller, enabled)
+}
+
 function arg (tag) {
   let e = document.querySelector(`input[data-tag="${tag}"]`)
 

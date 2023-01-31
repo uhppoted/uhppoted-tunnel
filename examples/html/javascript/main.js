@@ -76,7 +76,8 @@ export const COMMANDS = new Map([
       'task.more-cards']
   }],
   ['refresh-tasklist', { fn: commands.refreshTaskList, args: ['controller'] }],
-  ['clear-tasklist', { fn: commands.clearTaskList, args: ['controller'] }]
+  ['clear-tasklist', { fn: commands.clearTaskList, args: ['controller'] }],
+  ['set-pc-control', { fn: commands.setPCControl, args: ['controller', 'pc-control'] }]
 ])
 
 export function exec (cmd) {
