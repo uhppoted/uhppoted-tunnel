@@ -119,7 +119,7 @@ export function getCardByIndex (controller, index) {
   })
 }
 
-export function putCard (controller, card, start, end, door1, door2, door3, door4) {
+export function putCard (controller, card, start, end, door1, door2, door3, door4, PIN) {
   controller = arg(controller)
   card = arg(card)
   start = arg(start)
@@ -128,8 +128,9 @@ export function putCard (controller, card, start, end, door1, door2, door3, door
   door2 = arg(door2)
   door3 = arg(door3)
   door4 = arg(door4)
+  PIN = arg(PIN)
 
-  return uhppote.PutCard(controller, card, start, end, door1, door2, door3, door4)
+  return uhppote.PutCard(controller, card, start, end, door1, door2, door3, door4, PIN)
 }
 
 export function deleteCard (controller, card) {
@@ -286,7 +287,7 @@ export function setPCControl (controller, enabled) {
   controller = arg(controller)
   enabled = arg(enabled)
 
-  return uhppote.SetPcControl(controller, enabled)
+  return uhppote.SetPCControl(controller, enabled)
 }
 
 function arg (tag) {

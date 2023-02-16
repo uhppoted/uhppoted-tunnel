@@ -7,6 +7,7 @@
    Ref. [Pi Configuration as secure wireless tunnel](https://github.com/uhppoted/uhppoted-tunnel/issues/3)
 2. UDP, TCP and TLS _event_ connectors for relaying events.
 3. `doc.go` package overview documentation.
+4. Added card PIN field to HTTP connector example.
 
 ### Updated
 1. Fixed timeout in TCP and TLS clients

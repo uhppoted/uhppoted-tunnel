@@ -134,8 +134,8 @@ export function GetCardByIndex (deviceId, cardIndex) {
     })
 }
 
-export function PutCard (deviceId, cardNumber, startDate, endDate, door1, door2, door3, door4) {
-  const request = encode.PutCardRequest(deviceId, cardNumber, startDate, endDate, door1, door2, door3, door4)
+export function PutCard (deviceId, cardNumber, startDate, endDate, door1, door2, door3, door4, PIN) {
+  const request = encode.PutCardRequest(deviceId, cardNumber, startDate, endDate, door1, door2, door3, door4, PIN)
 
   return udp.send(request)
     .then(reply => {

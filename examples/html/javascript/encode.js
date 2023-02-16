@@ -169,7 +169,7 @@ export function GetCardByIndexRequest (deviceId, cardIndex) {
   return request
 }
 
-export function PutCardRequest (deviceId, cardNumber, startDate, endDate, door1, door2, door3, door4) {
+export function PutCardRequest (deviceId, cardNumber, startDate, endDate, door1, door2, door3, door4, PIN) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
@@ -184,6 +184,7 @@ export function PutCardRequest (deviceId, cardNumber, startDate, endDate, door1,
   packUint8(door2, view, 21)
   packUint8(door3, view, 22)
   packUint8(door4, view, 23)
+  packPin(PIN, view, 24)
 
   return request
 }
@@ -472,6 +473,12 @@ function packHHmm (v, packet, offset) {
     packet.setUint8(offset + 0, bytes[0])
     packet.setUint8(offset + 1, bytes[1])
   }
+}
+
+function packPin (v, packet, offset) {
+  packet.setUint8(offset + 0, (v >> 0) & 0x00ff)
+  packet.setUint8(offset + 1, (v >> 8) & 0x00ff)
+  packet.setUint8(offset + 2, (v >> 16) & 0x00ff)
 }
 
 function bcd2bin (bcd) {

@@ -12,6 +12,7 @@
 - (?) https://eli.thegreenplace.net/2022/ssh-port-forwarding-with-go/
 - (?) [UDP tunnelling: ssh/nc](https://superuser.com/questions/53103/udp-traffic-through-ssh-tunnel)
 - (?) [UDP tunnelling: socat](http://www.morch.com/2011/07/05/forwarding-snmp-ports-over-ssh-using-socat/)
+- https://blog.openziti.io/introducing-zrok
 
 - [ ] Consider using IP_FREEBIND sockopt
       - https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget

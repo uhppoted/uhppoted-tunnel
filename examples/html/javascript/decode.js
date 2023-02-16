@@ -286,7 +286,8 @@ export function GetCardResponse (packet) {
     door1: unpackUint8(view, 20),
     door2: unpackUint8(view, 21),
     door3: unpackUint8(view, 22),
-    door4: unpackUint8(view, 23)
+    door4: unpackUint8(view, 23),
+    PIN: unpackPin(view, 24)
   }
 }
 
@@ -315,7 +316,8 @@ export function GetCardByIndexResponse (packet) {
     door1: unpackUint8(view, 20),
     door2: unpackUint8(view, 21),
     door3: unpackUint8(view, 22),
-    door4: unpackUint8(view, 23)
+    door4: unpackUint8(view, 23),
+    PIN: unpackPin(view, 24)
   }
 }
 
@@ -754,6 +756,18 @@ function unpackHHmm (packet, offset) {
   const time = bcd(bytes)
 
   return parseHHmm(time)
+}
+
+function unpackPin (packet, offset) {
+  let v = 0
+
+  v |= packet.getUint8(offset + 2) & 0x00ff
+  v <<= 8
+  v |= packet.getUint8(offset + 1) & 0x00ff
+  v <<= 8
+  v |= packet.getUint8(offset + 0) & 0x00ff
+
+  return v
 }
 
 function bcd (bytes) {
