@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [Unreleased]
+## [0.8.4](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.4) - 2023-03-15
 
 ### Added
 1. Support for binding to a specific network interface (Linux and MacOS only). 

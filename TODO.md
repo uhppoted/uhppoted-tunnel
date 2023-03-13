@@ -4,6 +4,10 @@
 
 ## TODO
 
+- (?) https://tailscale.dev/blog/embedded-funnel
+- (?) https://shadowsocks.org
+- (?) https://core.telegram.org
+
 - [ ] integration tests
 - io_uring
   - https://unixism.net/loti/index.html
@@ -13,6 +17,7 @@
 - (?) [UDP tunnelling: ssh/nc](https://superuser.com/questions/53103/udp-traffic-through-ssh-tunnel)
 - (?) [UDP tunnelling: socat](http://www.morch.com/2011/07/05/forwarding-snmp-ports-over-ssh-using-socat/)
 - https://blog.openziti.io/introducing-zrok
+- https://blog.rom1v.com/2017/03/introducing-gnirehtet/
 
 - [ ] Consider using IP_FREEBIND sockopt
       - https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget
@@ -25,6 +30,8 @@
 - [ ] WSS
 - [ ] XMPP
 - [ ] ZMQ
+- [ ] [Tailscale](https://tailscale.dev/blog/embedded-funnel)
+- [ ] [nostr](https://github.com/nostr-protocol/nostr)
 
 - (?) eBPF
 - (?) Encode packet with protocol buffers/MessagePack/Apache Avro
