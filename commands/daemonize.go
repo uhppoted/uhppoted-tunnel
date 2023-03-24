@@ -54,7 +54,7 @@ func (cmd *Daemonize) validate() (string, error) {
 	// ... verify IN connector
 	switch {
 	case in == "":
-		return label, fmt.Errorf("A valid IN connector is required")
+		return label, fmt.Errorf("a valid IN connector is required")
 
 	case
 		strings.HasPrefix(in, "udp/listen:"),
@@ -67,13 +67,13 @@ func (cmd *Daemonize) validate() (string, error) {
 	// OK
 
 	default:
-		return label, fmt.Errorf("Invalid IN connector (%v)", in)
+		return label, fmt.Errorf("invalid IN connector (%v)", in)
 	}
 
 	// ... verify OUT connector
 	switch {
 	case out == "":
-		return label, fmt.Errorf("A valid OUT connector is required")
+		return label, fmt.Errorf("a valid OUT connector is required")
 
 	case
 		strings.HasPrefix(out, "udp/broadcast:"),
@@ -84,7 +84,7 @@ func (cmd *Daemonize) validate() (string, error) {
 	// OK
 
 	default:
-		return label, fmt.Errorf("Invalid OUT connector (%v)", out)
+		return label, fmt.Errorf("invalid OUT connector (%v)", out)
 	}
 
 	// ... check label

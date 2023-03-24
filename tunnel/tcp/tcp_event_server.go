@@ -75,7 +75,7 @@ func (tcp *tcpEventServer) Run(router *router.Switch) (err error) {
 			}
 		}
 
-		for k, _ := range tcp.connections {
+		for k := range tcp.connections {
 			k.Close()
 		}
 

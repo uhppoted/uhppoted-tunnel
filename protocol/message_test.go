@@ -96,7 +96,7 @@ func TestDepacketizeWithMultipleMessages(t *testing.T) {
 		t.Errorf("Incorrect packet\n   expected:%#v\n   got:     %#v", expected[0].Message, msg)
 	}
 
-	id, msg, buffer = Depacketize(buffer)
+	id, msg, _ = Depacketize(buffer)
 
 	if id != expected[1].ID {
 		t.Errorf("depacketize - incorrect ID, expected:%v, got:%v", expected[1].ID, id)

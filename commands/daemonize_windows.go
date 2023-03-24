@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"golang.org/x/sys/windows/svc/eventlog"
 	"golang.org/x/sys/windows/svc/mgr"
@@ -39,12 +38,6 @@ type Daemonize struct {
 	out         string
 	label       string
 }
-
-var replacer = strings.NewReplacer(
-	"\r\n", "\r\n",
-	"\r", "\r\n",
-	"\n", "\r\n",
-)
 
 func (cmd *Daemonize) Name() string {
 	return "daemonize"

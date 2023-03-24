@@ -124,7 +124,7 @@ func (h *httpd) Run(router *router.Switch) error {
 				h.Warnf("%v", err)
 			}
 
-			if dt := time.Now().Sub(start); dt > 30*time.Second {
+			if dt := time.Since(start); dt > 30*time.Second {
 				h.retry.Reset()
 			}
 
@@ -211,7 +211,7 @@ func (h *httpd) broadcast(w http.ResponseWriter, r *http.Request, router *router
 		}
 
 	default:
-		h.Warnf("%v", fmt.Errorf("Invalid request content-type (%v)", contentType))
+		h.Warnf("%v", fmt.Errorf("invalid request content-type (%v)", contentType))
 		http.Error(w, fmt.Sprintf("Invalid request content-type (%v)", contentType), http.StatusBadRequest)
 		return
 	}
@@ -300,7 +300,7 @@ func (h *httpd) send(w http.ResponseWriter, r *http.Request, router *router.Swit
 		}
 
 	default:
-		h.Warnf("%v", fmt.Errorf("Invalid request content-type (%v)", contentType))
+		h.Warnf("%v", fmt.Errorf("invalid request content-type (%v)", contentType))
 		http.Error(w, fmt.Sprintf("Invalid request content-type (%v)", contentType), http.StatusBadRequest)
 		return
 	}

@@ -68,18 +68,6 @@ func infof(tag string, format string, args ...any) {
 	log.Infof(f, args...)
 }
 
-func warnf(tag, format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", tag, format)
-
-	log.Warnf(f, args...)
-}
-
-func errorf(tag string, format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", tag, format)
-
-	log.Errorf(f, args...)
-}
-
 func fatalf(tag string, format string, args ...any) {
 	f := fmt.Sprintf("%-6v %v", tag, format)
 

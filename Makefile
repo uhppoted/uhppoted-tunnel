@@ -2,6 +2,7 @@ DIST   ?= development
 DEBUG  ?= --debug
 CMD     = ./bin/uhppoted-tunnel
 
+.DEFAULT_GOAL := test
 .PHONY: sass
 .PHONY: debug
 .PHONY: reset
@@ -33,11 +34,13 @@ build: format
 test: build
 	go test ./...
 
-vet: test
+vet: 
 	go vet ./...
 
-lint: vet
-	golint ./...
+lint: 
+	env GOOS=darwin  GOARCH=amd64 staticcheck ./...
+	env GOOS=linux   GOARCH=amd64 staticcheck ./...
+	env GOOS=windows GOARCH=amd64 staticcheck ./...
 
 benchmark: build
 	go test -count 5 -bench=.  ./system/events
@@ -45,7 +48,10 @@ benchmark: build
 coverage: build
 	go test -cover ./...
 
-build-all: vet
+vuln:
+	govulncheck ./...
+
+build-all: test vet lint
 	mkdir -p dist/$(DIST)/windows
 	mkdir -p dist/$(DIST)/darwin
 	mkdir -p dist/$(DIST)/linux

@@ -23,7 +23,6 @@ type tlsServer struct {
 	hwif        string
 	addr        *net.TCPAddr
 	config      *tls.Config
-	key         string
 	retry       conn.Backoff
 	connections map[net.Conn]struct{}
 	pending     map[uint32]context.CancelFunc
@@ -134,7 +133,7 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 			if sock, err := listener.Listen(context.Background(), "tcp", fmt.Sprintf("%v", tcp.addr)); err != nil {
 				tcp.Warnf("%v", err)
 			} else if sock == nil {
-				tcp.Warnf("%v", fmt.Errorf("Failed to create TCP listen socket (%v)", sock))
+				tcp.Warnf("%v", fmt.Errorf("failed to create TCP listen socket (%v)", sock))
 			} else {
 				socket = tls.NewListener(sock, tcp.config)
 
@@ -147,7 +146,7 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 			}
 		}
 
-		for k, _ := range tcp.connections {
+		for k := range tcp.connections {
 			k.Close()
 		}
 
@@ -162,7 +161,7 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 }
 
 func (tcp *tlsServer) Send(id uint32, message []byte) {
-	for c, _ := range tcp.connections {
+	for c := range tcp.connections {
 		go func(conn net.Conn) {
 			tcp.send(conn, id, message)
 		}(c)

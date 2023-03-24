@@ -107,10 +107,10 @@ func (cmd *Undaemonize) systemd() error {
 		fmt.Printf("   > %s\n", out)
 	}
 	if err != nil {
-		return fmt.Errorf("ERROR: Failed to stop '%s' (%v)\n", cmd.service, err)
+		return fmt.Errorf("failed to stop '%s' (%v)", cmd.service, err)
 	}
 
-	fmt.Printf("   ... removing '%s'\n", path)
+	fmt.Printf("   ... removing '%v'\n", path)
 	err = os.Remove(path)
 	if err != nil {
 		return err

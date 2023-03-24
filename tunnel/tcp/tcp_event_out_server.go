@@ -47,7 +47,7 @@ func NewTCPEventOutServer(hwif string, spec string, retry conn.Backoff, ctx cont
 }
 
 func (tcp *tcpEventOutServer) Send(id uint32, message []byte) {
-	for c, _ := range tcp.connections {
+	for c := range tcp.connections {
 		go func(conn net.Conn) {
 			tcp.send(conn, id, message)
 		}(c)

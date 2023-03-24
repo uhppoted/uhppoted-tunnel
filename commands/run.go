@@ -28,7 +28,8 @@ import (
 )
 
 type Run struct {
-	conf       string
+	conf string
+	//lint:ignore U1000 Used in the Windows variant for ServiceManager and simpler at this stage to not have multiple Run struct variants
 	label      string
 	in         string
 	out        string
@@ -254,7 +255,7 @@ func (cmd *Run) makeInConn(ctx context.Context) (tunnel.Conn, error) {
 		return cmd.makeConn("--in", hwif, spec, In, events, ctx)
 
 	default:
-		return nil, fmt.Errorf("Invalid --in argument (%v)", cmd.in)
+		return nil, fmt.Errorf("invalid --in argument (%v)", cmd.in)
 	}
 }
 
@@ -288,7 +289,7 @@ func (cmd *Run) makeOutConn(ctx context.Context) (tunnel.Conn, error) {
 		return cmd.makeConn("--out", hwif, spec, Out, events, ctx)
 
 	default:
-		return nil, fmt.Errorf("Invalid --out argument (%v)", cmd.out)
+		return nil, fmt.Errorf("invalid --out argument (%v)", cmd.out)
 	}
 }
 
@@ -308,7 +309,7 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 		case dir == Out:
 			return udp.NewUDPEventOut(hwif, spec[10:], ctx)
 		default:
-			return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
+			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
 		}
 
 	case strings.HasPrefix(spec, "tcp/client:"):
@@ -322,7 +323,7 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 		case dir == Out:
 			return tcp.NewTCPOutClient(hwif, spec[11:], retry, ctx)
 		default:
-			return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
+			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
 		}
 
 	case strings.HasPrefix(spec, "tcp/server:"):
@@ -336,7 +337,7 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 		case dir == Out:
 			return tcp.NewTCPOutServer(hwif, spec[11:], retry, ctx)
 		default:
-			return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
+			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
 		}
 
 	case strings.HasPrefix(spec, "tls/client:"):
@@ -355,7 +356,7 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 			case dir == Out:
 				return tls.NewTLSOutClient(hwif, spec[11:], ca, certificate, retry, ctx)
 			default:
-				return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
+				return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
 			}
 		}
 
@@ -375,7 +376,7 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 			case dir == Out:
 				return tls.NewTLSOutServer(hwif, spec[11:], ca, *certificate, cmd.requireClientAuth, retry, ctx)
 			default:
-				return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
+				return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
 			}
 		}
 
@@ -393,7 +394,7 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 		}
 
 	default:
-		return nil, fmt.Errorf("Invalid %v argument (%v)", arg, spec)
+		return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
 	}
 }
 

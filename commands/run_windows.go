@@ -49,7 +49,6 @@ var RUN = Run{
 
 type service struct {
 	name   string
-	conf   config.Config
 	cmd    *Run
 	tunnel *tunnel.Tunnel
 	ctx    context.Context
@@ -164,28 +163,25 @@ func (s *service) Execute(args []string, r <-chan svc.ChangeRequest, status chan
 	status <- svc.Status{State: svc.Running, Accepts: commands}
 
 loop:
-	for {
-		select {
-		case c := <-r:
-			log.Printf("%s service - select: %v  %v\n", s.name, c.Cmd, c.CurrentStatus)
-			switch c.Cmd {
-			case svc.Interrogate:
-				log.Printf("%s service - svc.Interrogate %v\n", s.name, c.CurrentStatus)
-				status <- c.CurrentStatus
+	for c := range r {
+		log.Printf("%s service - select: %v  %v\n", s.name, c.Cmd, c.CurrentStatus)
+		switch c.Cmd {
+		case svc.Interrogate:
+			log.Printf("%s service - svc.Interrogate %v\n", s.name, c.CurrentStatus)
+			status <- c.CurrentStatus
 
-			case svc.Stop:
-				interrupt <- syscall.SIGINT
-				log.Printf("%s service- svc.Stop\n", s.name)
-				break loop
+		case svc.Stop:
+			interrupt <- syscall.SIGINT
+			log.Printf("%s service- svc.Stop\n", s.name)
+			break loop
 
-			case svc.Shutdown:
-				interrupt <- syscall.SIGTERM
-				log.Printf("%s service - svc.Shutdown\n", s.name)
-				break loop
+		case svc.Shutdown:
+			interrupt <- syscall.SIGTERM
+			log.Printf("%s service - svc.Shutdown\n", s.name)
+			break loop
 
-			default:
-				log.Printf("%s service - svc.????? (%v)\n", s.name, c.Cmd)
-			}
+		default:
+			log.Printf("%s service - svc.????? (%v)\n", s.name, c.Cmd)
 		}
 	}
 

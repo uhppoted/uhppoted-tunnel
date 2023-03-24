@@ -43,8 +43,6 @@ var DAEMONIZE = Daemonize{
 	etc:     "/usr/local/etc/com.github.uhppoted/tunnel",
 }
 
-var replacer *strings.Replacer
-
 type Daemonize struct {
 	plist   string
 	conf    string
@@ -317,7 +315,7 @@ func (cmd *Daemonize) firewall(i info) error {
 	out, err := command.CombinedOutput()
 	fmt.Printf("   > %s", out)
 	if err != nil {
-		return fmt.Errorf("Failed to retrieve application firewall global state (%v)", err)
+		return fmt.Errorf("failed to retrieve application firewall global state (%v)", err)
 	}
 
 	if strings.Contains(string(out), "State = 1") {
@@ -325,28 +323,28 @@ func (cmd *Daemonize) firewall(i info) error {
 		out, err = command.CombinedOutput()
 		fmt.Printf("   > %s", out)
 		if err != nil {
-			return fmt.Errorf("Failed to disable the application firewall (%v)", err)
+			return fmt.Errorf("failed to disable the application firewall (%v)", err)
 		}
 
 		command = exec.Command("/usr/libexec/ApplicationFirewall/socketfilterfw", "--add", path)
 		out, err = command.CombinedOutput()
 		fmt.Printf("   > %s", out)
 		if err != nil {
-			return fmt.Errorf("Failed to add 'uhppoted-tunnel' to the application firewall (%v)", err)
+			return fmt.Errorf("failed to add 'uhppoted-tunnel' to the application firewall (%v)", err)
 		}
 
 		command = exec.Command("/usr/libexec/ApplicationFirewall/socketfilterfw", "--unblockapp", path)
 		out, err = command.CombinedOutput()
 		fmt.Printf("   > %s", out)
 		if err != nil {
-			return fmt.Errorf("Failed to unblock 'uhppoted-tunnel' on the application firewall (%v)", err)
+			return fmt.Errorf("failed to unblock 'uhppoted-tunnel' on the application firewall (%v)", err)
 		}
 
 		command = exec.Command("/usr/libexec/ApplicationFirewall/socketfilterfw", "--setglobalstate", "on")
 		out, err = command.CombinedOutput()
 		fmt.Printf("   > %s", out)
 		if err != nil {
-			return fmt.Errorf("Failed to re-enable the application firewall (%v)", err)
+			return fmt.Errorf("failed to re-enable the application firewall (%v)", err)
 		}
 
 		fmt.Println()

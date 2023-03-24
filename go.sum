@@ -10,10 +10,10 @@ github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSS
 github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.8.0 h1:pSgiaMZlXftHpm5L7V1+rVB+AZJydKsMxsQBIJw4PKk=
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
-github.com/uhppoted/uhppote-core v0.8.4 h1:9bJgTej2xIGhYayLH7ZVHgxrmNyRVouUcd9diKEExHw=
-github.com/uhppoted/uhppote-core v0.8.4/go.mod h1:q3xZZc7GMkCfpVnKNmdoZQDjvMHfPvH79VNai7HDH3s=
-github.com/uhppoted/uhppoted-lib v0.8.4 h1:rAt5kf1o8YAcnNZUW6V/uSm+9CNYzQy6xL7ASggebB8=
-github.com/uhppoted/uhppoted-lib v0.8.4/go.mod h1:oRVlZi/mBm6+2VUiYvkIHejuIA9MGE2Rob+293dAESk=
+github.com/uhppoted/uhppote-core v0.8.5-0.20230323171731-26d6b35fc663 h1:uQg149umetub2/TdvBM/mqpJ9L5ptzvThCflWBUVQOQ=
+github.com/uhppoted/uhppote-core v0.8.5-0.20230323171731-26d6b35fc663/go.mod h1:q3xZZc7GMkCfpVnKNmdoZQDjvMHfPvH79VNai7HDH3s=
+github.com/uhppoted/uhppoted-lib v0.8.5-0.20230323173011-5c3342984117 h1:vMbM9QOAoETIgyiEIuDFXfoWSbg00pjgjtHtKYKRlpk=
+github.com/uhppoted/uhppoted-lib v0.8.5-0.20230323173011-5c3342984117/go.mod h1:PKx2myFWQv/1f3/7rJ4hhLh7PxhKytMvyV9j8SZScw0=
 golang.org/x/sys v0.6.0 h1:MVltZSvRTcU2ljQOhs94SXPftV6DCNnZViHeQps87pQ=
 golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

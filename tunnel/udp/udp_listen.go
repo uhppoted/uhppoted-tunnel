@@ -59,7 +59,7 @@ func (udp *udpListen) Close() {
 
 	timeout := time.NewTimer(5 * time.Second)
 
-	for k, _ := range udp.sockets {
+	for k := range udp.sockets {
 		k.Close()
 	}
 

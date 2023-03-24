@@ -93,7 +93,7 @@ func (h *https) Run(router *router.Switch) error {
 				h.Warnf("%v", err)
 			}
 
-			if dt := time.Now().Sub(start); dt > 30*time.Second {
+			if dt := time.Since(start); dt > 30*time.Second {
 				h.retry.Reset()
 			}
 

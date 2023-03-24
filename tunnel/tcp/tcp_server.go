@@ -118,7 +118,7 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 			}
 		}
 
-		for k, _ := range tcp.connections {
+		for k := range tcp.connections {
 			k.Close()
 		}
 
@@ -134,7 +134,7 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 }
 
 func (tcp *tcpServer) Send(id uint32, message []byte) {
-	for c, _ := range tcp.connections {
+	for c := range tcp.connections {
 		go func(conn net.Conn) {
 			tcp.send(conn, id, message)
 		}(c)
