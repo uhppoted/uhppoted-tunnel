@@ -2,11 +2,14 @@
 
 ## IN PROGRESS
 
+- [ ] Tailscale
+      - https://tailscale.dev/blog/embedded-funnel
+      - https://tailscale.com/kb/1244/tsnet/
+
+
 ## TODO
 
-- (?) https://tailscale.dev/blog/embedded-funnel
 - (?) https://shadowsocks.org
-- (?) https://core.telegram.org
 
 - [ ] integration tests
 - io_uring
@@ -30,7 +33,6 @@
 - [ ] WSS
 - [ ] XMPP
 - [ ] ZMQ
-- [ ] [Tailscale](https://tailscale.dev/blog/embedded-funnel)
 - [ ] [nostr](https://github.com/nostr-protocol/nostr)
 
 - (?) eBPF
