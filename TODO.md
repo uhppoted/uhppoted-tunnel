@@ -3,9 +3,8 @@
 ## IN PROGRESS
 
 - [ ] Tailscale
-      - https://tailscale.dev/blog/embedded-funnel
       - https://tailscale.com/kb/1244/tsnet/
-
+      - https://tailscale.dev/blog/embedded-funnel
 
 ## TODO
 

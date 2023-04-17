@@ -22,6 +22,7 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/http"
+	"github.com/uhppoted/uhppoted-tunnel/tunnel/tailscale"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/tcp"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/tls"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/udp"
@@ -250,6 +251,7 @@ func (cmd *Run) makeInConn(ctx context.Context) (tunnel.Conn, error) {
 		strings.HasPrefix(spec, "tcp/server:"),
 		strings.HasPrefix(spec, "tls/client:"),
 		strings.HasPrefix(spec, "tls/server:"),
+		strings.HasPrefix(spec, "tailscale/server:"),
 		strings.HasPrefix(spec, "http/"),
 		strings.HasPrefix(spec, "https/"):
 		return cmd.makeConn("--in", hwif, spec, In, events, ctx)
@@ -391,6 +393,15 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 		} else {
 			fmt.Printf("%v\n%v\n%v\n%v\n", cmd.caCertificate, cmd.certificate, cmd.key, cmd.requireClientAuth)
 			return http.NewHTTPS(spec[6:], cmd.html, ca, *certificate, cmd.requireClientAuth, retry, ctx)
+		}
+
+	case strings.HasPrefix(spec, "tailscale/server:"):
+		switch {
+		case dir == In:
+			return tailscale.NewTailscaleInServer(hwif, spec[17:], retry, ctx)
+
+		default:
+			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
 		}
 
 	default:

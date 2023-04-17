@@ -164,6 +164,9 @@ https: build
 	npx eslint --fix ./examples/html/javascript/*.js
 	$(CMD) --debug --console --in https/0.0.0.0:8443 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s --html ./examples/html
 
+tailscale-server: build
+	$(CMD) --debug --console --in tailscale/server:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
+
 daemonize: build
 	sudo $(CMD) daemonize --in  udp/listen:0.0.0.0:60000  --out tcp/server:0.0.0.0:12345
 	# sudo $(CMD) daemonize --in  udp/listen:0.0.0.0:60000  --out tcp/server:0.0.0.0:12345          --label qwerty
