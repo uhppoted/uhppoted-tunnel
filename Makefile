@@ -74,16 +74,7 @@ publish: release
 	gh release create "$(VERSION)" "./dist/uhppoted-tunnel_$(VERSION).tar.gz" "./dist/uhppoted-tunnel_$(VERSION).zip" --draft --prerelease --title "$(VERSION)-beta" --notes-file release-notes.md
 
 debug: build
-#	$(CMD) --config "./examples/uhppoted-tunnel.toml#client-en3" --console --debug
-#	$(CMD) --config "./examples/uhppoted-tunnel.toml#client-lo0" --console --debug
-#	$(CMD) --debug --console --in tcp/client:149.248.55.183:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
-#	$(CMD) --debug --console --in tcp/client::en3:149.248.55.183:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
-#	$(CMD) --debug --console --in tcp/client::en0:149.248.55.183:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
-#	$(CMD) --debug --console --in tls/client:::127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
-#	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/server::lo0:127.0.0.1:12345
-#	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tls/server::lo0:127.0.0.1:12345 --client-auth
-#	$(CMD) --debug --console --in tcp/client:155.138.144.189:12345 --out udp/broadcast::en3:192.168.1.255:60000 --udp-timeout 1s
-	$(CMD) --debug --console --in udp/listen::en3:0.0.0.0:60000 --out tcp/client:155.138.144.189:12345
+	$(CMD) --debug --console --in tailscale/server:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
 
 delve: build
 #   dlv exec ./bin/uhppoted-tunnel -- --debug --console
@@ -164,8 +155,11 @@ https: build
 	npx eslint --fix ./examples/html/javascript/*.js
 	$(CMD) --debug --console --in https/0.0.0.0:8443 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s --html ./examples/html
 
+tailscale-client: build
+	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tailscale/client:0.0.0.0:12345
+
 tailscale-server: build
-	$(CMD) --debug --console --in tailscale/server:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
+	$(CMD) --debug --console --in tailscale/server:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
 
 daemonize: build
 	sudo $(CMD) daemonize --in  udp/listen:0.0.0.0:60000  --out tcp/server:0.0.0.0:12345

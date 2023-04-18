@@ -2,9 +2,24 @@
 
 ## IN PROGRESS
 
+- (??) DERP
+       - https://pkg.go.dev/tailscale.com@v1.38.4/derp
+
 - [ ] Tailscale
+      - [ ] authkey
+      - [ ] hostname
+      - [ ] workdir
+      - [ ] addr
+      - [ ] log format
+      - [ ] --tailscale-log
+      - [ ] keep-alive
+      - [ ] plugin
+
       - https://tailscale.com/kb/1244/tsnet/
       - https://tailscale.dev/blog/embedded-funnel
+      - https://github.com/tailscale/tailscale/issues/1552
+
+- [ ] Overtraffic monitor (for e.g. when you've misconfigured your UDP broadcast to send to your own listener)
 
 ## TODO
 

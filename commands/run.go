@@ -287,7 +287,8 @@ func (cmd *Run) makeOutConn(ctx context.Context) (tunnel.Conn, error) {
 		strings.HasPrefix(spec, "tcp/client:"),
 		strings.HasPrefix(spec, "tcp/server:"),
 		strings.HasPrefix(spec, "tls/client:"),
-		strings.HasPrefix(spec, "tls/server:"):
+		strings.HasPrefix(spec, "tls/server:"),
+		strings.HasPrefix(spec, "tailscale/client:"):
 		return cmd.makeConn("--out", hwif, spec, Out, events, ctx)
 
 	default:
@@ -399,6 +400,15 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 		switch {
 		case dir == In:
 			return tailscale.NewTailscaleInServer(hwif, spec[17:], retry, ctx)
+
+		default:
+			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
+		}
+
+	case strings.HasPrefix(spec, "tailscale/client:"):
+		switch {
+		case dir == Out:
+			return tailscale.NewTailscaleOutClient(hwif, spec[17:], retry, ctx)
 
 		default:
 			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)

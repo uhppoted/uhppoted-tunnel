@@ -4,13 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	// "html"
 	"io"
 	"net"
 	"sync"
 	// "syscall"
-	"net/http"
-	"strings"
+	// "net/http"
+	// "strings"
 	"time"
 
 	"tailscale.com/tsnet"
@@ -90,89 +89,120 @@ func (ts *tailscaleServer) Close() {
 	}
 }
 
+// s := new(tsnet.Server)
+//
+// s.Hostname = "uhppoted"
+//
+// defer s.Close()
+//
+// ln, err := s.Listen("tcp", ":80")
+// if err != nil {
+// 	ts.Fatalf("%v", err)
+// }
+// defer ln.Close()
+//
+// // lc, err := s.LocalClient()
+// // if err != nil {
+// // 	ts.Fatalf("%v", err)
+// // }
+//
+// ts.Fatalf("%v", http.Serve(ln, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 	fmt.Fprintln(w, "Hi there! Welcome to the tailnet!")
+// 	// who, err := lc.WhoIs(r.Context(), r.RemoteAddr)
+// 	// if err != nil {
+// 	// 	http.Error(w, err.Error(), 500)
+// 	// 	return
+// 	// }
+// 	// fmt.Fprintf(w, "<html><body><h1>Hello, tailnet!</h1>\n")
+// 	// fmt.Fprintf(w, "<p>You are <b>%s</b> from <b>%s</b> (%s)</p>",
+// 	// 	html.EscapeString(who.UserProfile.LoginName),
+// 	// 	html.EscapeString(firstLabel(who.Node.ComputedName)),
+// 	// 	r.RemoteAddr)
+// })))
+
 func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
-	s := new(tsnet.Server)
+	var socket net.Listener
+	var closing = false
 
-	s.Hostname = "uhppoted"
-
-	defer s.Close()
-
-	ln, err := s.Listen("tcp", ":80")
-	if err != nil {
-		ts.Fatalf("%v", err)
+	server := &tsnet.Server{
+		Logf: func(string, ...any) {},
+		Dir:  "../runtime/uhppoted-tunnel/tailscale/server",
 	}
-	defer ln.Close()
 
-	// lc, err := s.LocalClient()
-	// if err != nil {
-	// 	ts.Fatalf("%v", err)
-	// }
+	server.Hostname = "uhppoted"
+	server.Dir = "../runtime/uhppoted-tunnel/tailscale/server"
 
-	ts.Fatalf("%v", http.Serve(ln, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Hi there! Welcome to the tailnet!")
-		// who, err := lc.WhoIs(r.Context(), r.RemoteAddr)
-		// if err != nil {
-		// 	http.Error(w, err.Error(), 500)
-		// 	return
-		// }
-		// fmt.Fprintf(w, "<html><body><h1>Hello, tailnet!</h1>\n")
-		// fmt.Fprintf(w, "<p>You are <b>%s</b> from <b>%s</b> (%s)</p>",
-		// 	html.EscapeString(who.UserProfile.LoginName),
-		// 	html.EscapeString(firstLabel(who.Node.ComputedName)),
-		// 	r.RemoteAddr)
-	})))
+	defer server.Close()
 
-	// var socket net.Listener
-	// var closing = false
-	//
-	// go func() {
-	// loop:
-	// 	for {
-	//
-	// 		listener := net.ListenConfig{
-	// 			Control: func(network, address string, connection syscall.RawConn) error {
-	// 				if ts.hwif != "" {
-	// 					return conn.BindToDevice(connection, ts.hwif, conn.IsIPv4(ts.addr.IP), ts.Conn)
-	// 				} else {
-	// 					return nil
-	// 				}
-	// 			},
-	// 		}
-	//
-	// 		socket, err = listener.Listen(context.Background(), "tcp", fmt.Sprintf("%v", ts.addr))
-	// 		if err != nil {
-	// 			ts.Warnf("%v", err)
-	// 		} else if socket == nil {
-	// 			ts.Warnf("%v", fmt.Errorf("failed to create tailscale listen socket (%v)", socket))
-	// 		} else {
-	// 			ts.retry.Reset()
-	// 			ts.listen(socket, router)
-	// 		}
-	//
-	// 		if closing || !ts.retry.Wait(ts.Tag) {
-	// 			break loop
-	// 		}
-	// 	}
-	//
-	// 	for k := range ts.connections {
-	// 		k.Close()
-	// 	}
-	//
-	// 	ts.closed <- struct{}{}
-	// }()
-	//
-	// <-ts.ctx.Done()
-	//
-	// closing = true
-	// socket.Close()
+	go func() {
+	loop:
+		for {
+
+			// listener := net.ListenConfig{
+			// 	Control: func(network, address string, connection syscall.RawConn) error {
+			// 		if ts.hwif != "" {
+			// 			return conn.BindToDevice(connection, ts.hwif, conn.IsIPv4(ts.addr.IP), ts.Conn)
+			// 		} else {
+			// 			return nil
+			// 		}
+			// 	},
+			// }
+			//
+			// 		socket, err = listener.Listen(context.Background(), "tcp", fmt.Sprintf("%v", ts.addr))
+
+			socket, err := server.Listen("tcp", ":12345")
+			if err != nil {
+				ts.Warnf("%v", err)
+			} else if socket == nil {
+				ts.Warnf("%v", fmt.Errorf("failed to create tailscale listen socket (%v)", socket))
+			} else {
+				ts.retry.Reset()
+				ts.listen(socket, router)
+			}
+
+			if closing || !ts.retry.Wait(ts.Tag) {
+				break loop
+			}
+		}
+
+		for k := range ts.connections {
+			k.Close()
+		}
+
+		ts.closed <- struct{}{}
+	}()
+
+	<-ts.ctx.Done()
+
+	closing = true
+	socket.Close()
 
 	return nil
 }
 
-func firstLabel(s string) string {
-	s, _, _ = strings.Cut(s, ".")
-	return s
-}
+// 	// lc, err := s.LocalClient()
+// 	// if err != nil {
+// 	// 	ts.Fatalf("%v", err)
+// 	// }
+//
+// 	ts.Fatalf("%v", http.Serve(ln, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		fmt.Fprintln(w, "Hi there! Welcome to the tailnet!")
+// 		// who, err := lc.WhoIs(r.Context(), r.RemoteAddr)
+// 		// if err != nil {
+// 		// 	http.Error(w, err.Error(), 500)
+// 		// 	return
+// 		// }
+// 		// fmt.Fprintf(w, "<html><body><h1>Hello, tailnet!</h1>\n")
+// 		// fmt.Fprintf(w, "<p>You are <b>%s</b> from <b>%s</b> (%s)</p>",
+// 		// 	html.EscapeString(who.UserProfile.LoginName),
+// 		// 	html.EscapeString(firstLabel(who.Node.ComputedName)),
+// 		// 	r.RemoteAddr)
+// 	})))
+//
+// func firstLabel(s string) string {
+// 	s, _, _ = strings.Cut(s, ".")
+// 	return s
+// }
 
 func (ts *tailscaleServer) Send(id uint32, message []byte) {
 	for c := range ts.connections {
@@ -191,23 +221,21 @@ func (ts *tailscaleServer) listen(socket net.Listener, router *router.Switch) {
 		client, err := socket.Accept()
 		if err != nil && !errors.Is(err, net.ErrClosed) {
 			ts.Errorf("%v %v", err, errors.Is(err, net.ErrClosed))
-		}
-
-		if err != nil {
+		} else if err != nil {
 			return
 		}
 
 		ts.Infof("incoming connection (%v)", client.RemoteAddr())
 
-		if socket, ok := client.(*net.TCPConn); !ok {
-			ts.Warnf("invalid TCP socket (%v)", socket)
+		if socket, ok := client.(net.Conn); !ok {
+			ts.Warnf("invalid tailscale socket (%v)", socket)
 			client.Close()
 		} else {
 			ts.Lock()
 			ts.connections[socket] = struct{}{}
 			ts.Unlock()
 
-			go func(socket *net.TCPConn) {
+			go func(socket net.Conn) {
 				for {
 					buffer := make([]byte, 2048) // buffer is handed off to router
 					if N, err := socket.Read(buffer); err != nil {
@@ -220,6 +248,8 @@ func (ts *tailscaleServer) listen(socket net.Listener, router *router.Switch) {
 					} else {
 						ts.received(buffer[:N], router, socket)
 					}
+
+					time.Sleep(5000)
 				}
 
 				ts.Lock()
@@ -236,6 +266,8 @@ func (ts *tailscaleServer) received(buffer []byte, router *router.Switch, socket
 	for len(buffer) > 0 {
 		id, msg, remaining := protocol.Depacketize(buffer)
 		buffer = remaining
+
+		fmt.Printf("%v %v %v\n", id, msg, remaining)
 
 		router.Received(id, msg, func(message []byte) {
 			ts.send(socket, id, message)
