@@ -6,13 +6,11 @@
        - https://pkg.go.dev/tailscale.com@v1.38.4/derp
 
 - [ ] Tailscale
-      - [ ] authkey
-      - [ ] hostname
+      - [x] addr
       - [ ] workdir
-      - [ ] addr
+      - [ ] authkey
       - [ ] log format
       - [ ] --tailscale-log
-      - [ ] keep-alive
       - [ ] plugin
       - [ ] README
       - [ ] CHANGELOG
@@ -21,7 +19,11 @@
       - https://tailscale.dev/blog/embedded-funnel
       - https://github.com/tailscale/tailscale/issues/1552
 
-- [ ] Overtraffic monitor (for e.g. when you've misconfigured your UDP broadcast to send to your own listener)
+- [ ] Rate limit (for e.g. when you've misconfigured your UDP broadcast to send to your own listener)
+- [ ] Error on CTRL-C
+```
+2023/04/19 10:07:03 FATAL         runtime error: invalid memory address or nil pointer dereference
+```
 
 ## TODO
 

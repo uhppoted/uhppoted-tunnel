@@ -19,6 +19,7 @@ type tailscaleClient struct {
 	conn.Conn
 	hwif    string
 	addr    string
+	port    uint16
 	retry   conn.Backoff
 	timeout time.Duration
 	ch      chan protocol.Message
@@ -47,19 +48,20 @@ func NewTailscaleOutClient(hwif string, spec string, retry conn.Backoff, ctx con
 }
 
 func makeTailscaleClient(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleClient, error) {
-	// addr, err := net.ResolveTCPAddr("tcp", spec)
-	// if err != nil {
-	//     return nil, err
-	// } else if addr == nil {
-	//     return nil, fmt.Errorf("unable to resolve TCP address '%v'", spec)
-	// }
+	addr, port, err := resolveTailscaleAddr(spec)
+	if err != nil {
+		return nil, err
+	} else if addr == "" {
+		return nil, fmt.Errorf("unable to resolve tailscale address '%v'", spec)
+	}
 
 	in := tailscaleClient{
 		Conn: conn.Conn{
 			Tag: "tailscale",
 		},
 		hwif:    hwif,
-		addr:    "uhppoted:12345",
+		addr:    addr,
+		port:    port,
 		retry:   retry,
 		timeout: 5 * time.Second,
 		ch:      make(chan protocol.Message, 16),
@@ -105,27 +107,14 @@ func (ts *tailscaleClient) connect(router *router.Switch) {
 
 	server.Hostname = "uhppoted-client"
 	server.Dir = "../runtime/uhppoted-tunnel/tailscale/client"
+	server.Ephemeral = true
 
 	defer server.Close()
-	println("woot")
 
 	for {
-		ts.Infof("connecting to %v", ts.addr)
+		ts.Infof("connecting to %v:%v", ts.addr, ts.port)
 
-		// 	dialer := &net.Dialer{
-		// 		Timeout: ts.timeout,
-		// 		Control: func(network, address string, connection syscall.RawConn) error {
-		// 			if ts.hwif != "" {
-		// 				return conn.BindToDevice(connection, ts.hwif, conn.IsIPv4(ts.addr.IP), ts.Conn)
-		// 			} else {
-		// 				return nil
-		// 			}
-		// 		},
-		// 	}
-		//
-		// 	if socket, err := dialer.Dial("tcp", fmt.Sprintf("%v", ts.addr)); err != nil {
-
-		if socket, err := server.Dial(context.Background(), "tcp", fmt.Sprintf("%v", ts.addr)); err != nil {
+		if socket, err := server.Dial(context.Background(), "tcp", fmt.Sprintf("%v:%v", ts.addr, ts.port)); err != nil {
 			ts.Warnf("%v", err)
 		} else if socket == nil {
 			ts.Warnf("connect %v failed (%v)", ts.addr, socket)

@@ -7,8 +7,6 @@ import (
 	"io"
 	"net"
 	"sync"
-	// "syscall"
-	// "net/http"
 	// "strings"
 	"time"
 
@@ -22,7 +20,8 @@ import (
 type tailscaleServer struct {
 	conn.Conn
 	hwif        string
-	addr        *net.TCPAddr
+	addr        string
+	port        uint16
 	retry       conn.Backoff
 	connections map[net.Conn]struct{}
 	ctx         context.Context
@@ -51,14 +50,11 @@ func NewTailscaleInServer(hwif string, spec string, retry conn.Backoff, ctx cont
 // }
 
 func makeTailscaleServer(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleServer, error) {
-	addr, err := net.ResolveTCPAddr("tcp", spec)
-
+	addr, port, err := resolveTailscaleAddr(spec)
 	if err != nil {
 		return nil, err
-	} else if addr == nil {
-		return nil, fmt.Errorf("unable to resolve tailscale address '%v'", spec)
-	} else if addr.Port == 0 {
-		return nil, fmt.Errorf("tailscale host requires a non-zero port")
+	} else if port == 0 {
+		return nil, fmt.Errorf("tailscale server requires a non-zero port")
 	}
 
 	ts := tailscaleServer{
@@ -67,6 +63,7 @@ func makeTailscaleServer(hwif string, spec string, retry conn.Backoff, ctx conte
 		},
 		hwif:        hwif,
 		addr:        addr,
+		port:        port,
 		retry:       retry,
 		connections: map[net.Conn]struct{}{},
 		ctx:         ctx,
@@ -89,37 +86,6 @@ func (ts *tailscaleServer) Close() {
 	}
 }
 
-// s := new(tsnet.Server)
-//
-// s.Hostname = "uhppoted"
-//
-// defer s.Close()
-//
-// ln, err := s.Listen("tcp", ":80")
-// if err != nil {
-// 	ts.Fatalf("%v", err)
-// }
-// defer ln.Close()
-//
-// // lc, err := s.LocalClient()
-// // if err != nil {
-// // 	ts.Fatalf("%v", err)
-// // }
-//
-// ts.Fatalf("%v", http.Serve(ln, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 	fmt.Fprintln(w, "Hi there! Welcome to the tailnet!")
-// 	// who, err := lc.WhoIs(r.Context(), r.RemoteAddr)
-// 	// if err != nil {
-// 	// 	http.Error(w, err.Error(), 500)
-// 	// 	return
-// 	// }
-// 	// fmt.Fprintf(w, "<html><body><h1>Hello, tailnet!</h1>\n")
-// 	// fmt.Fprintf(w, "<p>You are <b>%s</b> from <b>%s</b> (%s)</p>",
-// 	// 	html.EscapeString(who.UserProfile.LoginName),
-// 	// 	html.EscapeString(firstLabel(who.Node.ComputedName)),
-// 	// 	r.RemoteAddr)
-// })))
-
 func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 	var socket net.Listener
 	var closing = false
@@ -137,20 +103,7 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 	go func() {
 	loop:
 		for {
-
-			// listener := net.ListenConfig{
-			// 	Control: func(network, address string, connection syscall.RawConn) error {
-			// 		if ts.hwif != "" {
-			// 			return conn.BindToDevice(connection, ts.hwif, conn.IsIPv4(ts.addr.IP), ts.Conn)
-			// 		} else {
-			// 			return nil
-			// 		}
-			// 	},
-			// }
-			//
-			// 		socket, err = listener.Listen(context.Background(), "tcp", fmt.Sprintf("%v", ts.addr))
-
-			socket, err := server.Listen("tcp", ":12345")
+			socket, err := server.Listen("tcp", fmt.Sprintf(":%v", ts.port))
 			if err != nil {
 				ts.Warnf("%v", err)
 			} else if socket == nil {
@@ -179,30 +132,6 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 
 	return nil
 }
-
-// 	// lc, err := s.LocalClient()
-// 	// if err != nil {
-// 	// 	ts.Fatalf("%v", err)
-// 	// }
-//
-// 	ts.Fatalf("%v", http.Serve(ln, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		fmt.Fprintln(w, "Hi there! Welcome to the tailnet!")
-// 		// who, err := lc.WhoIs(r.Context(), r.RemoteAddr)
-// 		// if err != nil {
-// 		// 	http.Error(w, err.Error(), 500)
-// 		// 	return
-// 		// }
-// 		// fmt.Fprintf(w, "<html><body><h1>Hello, tailnet!</h1>\n")
-// 		// fmt.Fprintf(w, "<p>You are <b>%s</b> from <b>%s</b> (%s)</p>",
-// 		// 	html.EscapeString(who.UserProfile.LoginName),
-// 		// 	html.EscapeString(firstLabel(who.Node.ComputedName)),
-// 		// 	r.RemoteAddr)
-// 	})))
-//
-// func firstLabel(s string) string {
-// 	s, _, _ = strings.Cut(s, ".")
-// 	return s
-// }
 
 func (ts *tailscaleServer) Send(id uint32, message []byte) {
 	for c := range ts.connections {
