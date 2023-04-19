@@ -7,12 +7,16 @@
 
 - [ ] Tailscale
       - [x] addr
-      - [ ] workdir
+      - [x] workdir
+      - [ ] client hostname
       - [ ] authkey
       - [ ] log format
       - [ ] --tailscale-log
       - [ ] plugin
       - [ ] README
+            - [ ] note :keep alive is expected to be an application thing because if the server is 
+                  down for a long time an internal keep-alive could backoff to the maximum limit
+                  and then the next request could take a long time. 
       - [ ] CHANGELOG
 
       - https://tailscale.com/kb/1244/tsnet/

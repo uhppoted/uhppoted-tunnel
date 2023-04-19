@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"path/filepath"
 	"sync"
-	// "strings"
 	"time"
 
 	"tailscale.com/tsnet"
@@ -19,7 +19,7 @@ import (
 
 type tailscaleServer struct {
 	conn.Conn
-	hwif        string
+	dir         string
 	addr        string
 	port        uint16
 	retry       conn.Backoff
@@ -29,11 +29,12 @@ type tailscaleServer struct {
 	sync.RWMutex
 }
 
-func NewTailscaleInServer(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleServer, error) {
-	server, err := makeTailscaleServer(hwif, spec, retry, ctx)
+func NewTailscaleInServer(workdir string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleServer, error) {
+	server, err := makeTailscaleServer(workdir, spec, retry, ctx)
 
 	if err == nil {
 		server.Infof("connector::tailscale-server-in")
+		server.Infof("using work directory %v", server.dir)
 	}
 
 	return server, err
@@ -49,7 +50,7 @@ func NewTailscaleInServer(hwif string, spec string, retry conn.Backoff, ctx cont
 //     return server, err
 // }
 
-func makeTailscaleServer(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleServer, error) {
+func makeTailscaleServer(workdir string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleServer, error) {
 	addr, port, err := resolveTailscaleAddr(spec)
 	if err != nil {
 		return nil, err
@@ -61,7 +62,7 @@ func makeTailscaleServer(hwif string, spec string, retry conn.Backoff, ctx conte
 		Conn: conn.Conn{
 			Tag: "tailscale",
 		},
-		hwif:        hwif,
+		dir:         filepath.Join(workdir, "tailscale", addr, "server"),
 		addr:        addr,
 		port:        port,
 		retry:       retry,
@@ -91,12 +92,11 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 	var closing = false
 
 	server := &tsnet.Server{
-		Logf: func(string, ...any) {},
-		Dir:  "../runtime/uhppoted-tunnel/tailscale/server",
+		Logf:      func(string, ...any) {},
+		Hostname:  ts.addr,
+		Dir:       ts.dir,
+		Ephemeral: false,
 	}
-
-	server.Hostname = "uhppoted"
-	server.Dir = "../runtime/uhppoted-tunnel/tailscale/server"
 
 	defer server.Close()
 

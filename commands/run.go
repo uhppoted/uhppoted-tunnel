@@ -88,6 +88,7 @@ func (cmd *Run) flags() *flag.FlagSet {
 	flagset.BoolVar(&cmd.requireClientAuth, "client-auth", cmd.requireClientAuth, "Requires client authentication for TLS")
 
 	flagset.StringVar(&cmd.html, "html", cmd.html, "HTML folder for HTTP/HTTPS connectors")
+	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "work folder (for e.g. tailscale state)")
 	flagset.StringVar(&cmd.logLevel, "log-level", cmd.logLevel, "Sets the log level (debug, info, warn or error)")
 	flagset.BoolVar(&cmd.console, "console", cmd.console, "Runs as a console application rather than a service")
 	flagset.BoolVar(&cmd.debug, "debug", cmd.debug, "Enables detailed debugging logs")
@@ -399,7 +400,7 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 	case strings.HasPrefix(spec, "tailscale/server:"):
 		switch {
 		case dir == In:
-			return tailscale.NewTailscaleInServer(hwif, spec[17:], retry, ctx)
+			return tailscale.NewTailscaleInServer(cmd.workdir, spec[17:], retry, ctx)
 
 		default:
 			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
@@ -408,7 +409,7 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 	case strings.HasPrefix(spec, "tailscale/client:"):
 		switch {
 		case dir == Out:
-			return tailscale.NewTailscaleOutClient(hwif, spec[17:], retry, ctx)
+			return tailscale.NewTailscaleOutClient(cmd.workdir, spec[17:], retry, ctx)
 
 		default:
 			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)

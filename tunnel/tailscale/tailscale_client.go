@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	// "syscall"
+	"path/filepath"
 	"time"
 
 	"tailscale.com/tsnet"
@@ -17,7 +17,7 @@ import (
 
 type tailscaleClient struct {
 	conn.Conn
-	hwif    string
+	dir     string
 	addr    string
 	port    uint16
 	retry   conn.Backoff
@@ -37,17 +37,18 @@ type tailscaleClient struct {
 //     return client, err
 // }
 
-func NewTailscaleOutClient(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleClient, error) {
-	client, err := makeTailscaleClient(hwif, spec, retry, ctx)
+func NewTailscaleOutClient(workdir string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleClient, error) {
+	client, err := makeTailscaleClient(workdir, spec, retry, ctx)
 
 	if err == nil {
 		client.Infof("connector::tailscale-client-out")
+		client.Infof("using work directory %v", client.dir)
 	}
 
 	return client, err
 }
 
-func makeTailscaleClient(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleClient, error) {
+func makeTailscaleClient(workdir string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleClient, error) {
 	addr, port, err := resolveTailscaleAddr(spec)
 	if err != nil {
 		return nil, err
@@ -59,7 +60,7 @@ func makeTailscaleClient(hwif string, spec string, retry conn.Backoff, ctx conte
 		Conn: conn.Conn{
 			Tag: "tailscale",
 		},
-		hwif:    hwif,
+		dir:     filepath.Join(workdir, "tailscale", addr, "client"),
 		addr:    addr,
 		port:    port,
 		retry:   retry,
@@ -101,13 +102,11 @@ func (ts *tailscaleClient) Send(id uint32, msg []byte) {
 
 func (ts *tailscaleClient) connect(router *router.Switch) {
 	server := &tsnet.Server{
-		Logf: func(string, ...any) {},
-		Dir:  "../runtime/uhppoted-tunnel/tailscale/client",
+		Logf:      func(string, ...any) {},
+		Hostname:  "uhppoted-client",
+		Dir:       ts.dir,
+		Ephemeral: false,
 	}
-
-	server.Hostname = "uhppoted-client"
-	server.Dir = "../runtime/uhppoted-tunnel/tailscale/client"
-	server.Ephemeral = true
 
 	defer server.Close()
 
