@@ -14,6 +14,8 @@
       - [ ] --tailscale-log
       - [ ] keep-alive
       - [ ] plugin
+      - [ ] README
+      - [ ] CHANGELOG
 
       - https://tailscale.com/kb/1244/tsnet/
       - https://tailscale.dev/blog/embedded-funnel
