@@ -271,7 +271,7 @@ func (cmd *Run) makeOutConn(ctx context.Context) (tunnel.Conn, error) {
 	hwif := cmd.interfaces.out
 	spec := cmd.out
 
-	re := regexp.MustCompile(`((?:(?:udp)/(?:broadcast|listen|event))|(?:(?:tcp|tls)/(?:client|server)))::(.*?):(.*)`)
+	re := regexp.MustCompile(`((?:(?:udp)/(?:broadcast|listen|event))|(?:(?:tcp|tls|tailscale)/(?:client|server)))::(.*?):(.*)`)
 	if match := re.FindStringSubmatch(cmd.out); match != nil {
 		hwif = match[2]
 		spec = fmt.Sprintf("%v:%v", match[1], match[3])
@@ -400,7 +400,7 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 	case strings.HasPrefix(spec, "tailscale/server:"):
 		switch {
 		case dir == In:
-			return tailscale.NewTailscaleInServer(cmd.workdir, spec[17:], retry, ctx)
+			return tailscale.NewTailscaleInServer(cmd.workdir, hwif, spec[17:], retry, ctx)
 
 		default:
 			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
@@ -409,7 +409,7 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 	case strings.HasPrefix(spec, "tailscale/client:"):
 		switch {
 		case dir == Out:
-			return tailscale.NewTailscaleOutClient(cmd.workdir, spec[17:], retry, ctx)
+			return tailscale.NewTailscaleOutClient(cmd.workdir, hwif, spec[17:], retry, ctx)
 
 		default:
 			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)

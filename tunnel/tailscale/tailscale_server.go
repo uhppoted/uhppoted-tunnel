@@ -20,6 +20,7 @@ import (
 type tailscaleServer struct {
 	conn.Conn
 	dir         string
+	hostname    string
 	addr        string
 	port        uint16
 	retry       conn.Backoff
@@ -29,12 +30,12 @@ type tailscaleServer struct {
 	sync.RWMutex
 }
 
-func NewTailscaleInServer(workdir string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleServer, error) {
-	server, err := makeTailscaleServer(workdir, spec, retry, ctx)
+func NewTailscaleInServer(workdir string, hostname string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleServer, error) {
+	server, err := makeTailscaleServer(workdir, hostname, spec, retry, ctx)
 
 	if err == nil {
-		server.Infof("connector::tailscale-server-in")
-		server.Infof("using work directory %v", server.dir)
+		server.Infof("connector::tailscale-server-in  %v", server.hostname)
+		server.Infof("connector::tailscale-server-in  %v", server.dir)
 	}
 
 	return server, err
@@ -50,7 +51,7 @@ func NewTailscaleInServer(workdir string, spec string, retry conn.Backoff, ctx c
 //     return server, err
 // }
 
-func makeTailscaleServer(workdir string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleServer, error) {
+func makeTailscaleServer(workdir string, hostname string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleServer, error) {
 	addr, port, err := resolveTailscaleAddr(spec)
 	if err != nil {
 		return nil, err
@@ -58,11 +59,27 @@ func makeTailscaleServer(workdir string, spec string, retry conn.Backoff, ctx co
 		return nil, fmt.Errorf("tailscale server requires a non-zero port")
 	}
 
+	var dir string
+	var name string
+
+	if hostname == "" {
+		name = fmt.Sprintf("%v", addr)
+	} else {
+		name = hostname
+	}
+
+	if hostname == "" {
+		dir = filepath.Join(workdir, "tailscale", addr, "server")
+	} else {
+		dir = filepath.Join(workdir, "tailscale", hostname)
+	}
+
 	ts := tailscaleServer{
 		Conn: conn.Conn{
 			Tag: "tailscale",
 		},
-		dir:         filepath.Join(workdir, "tailscale", addr, "server"),
+		dir:         dir,
+		hostname:    name,
 		addr:        addr,
 		port:        port,
 		retry:       retry,
@@ -93,7 +110,7 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 
 	server := &tsnet.Server{
 		Logf:      func(string, ...any) {},
-		Hostname:  ts.addr,
+		Hostname:  ts.hostname,
 		Dir:       ts.dir,
 		Ephemeral: false,
 	}

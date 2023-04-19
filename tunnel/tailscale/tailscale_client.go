@@ -17,14 +17,15 @@ import (
 
 type tailscaleClient struct {
 	conn.Conn
-	dir     string
-	addr    string
-	port    uint16
-	retry   conn.Backoff
-	timeout time.Duration
-	ch      chan protocol.Message
-	ctx     context.Context
-	closed  chan struct{}
+	dir      string
+	hostname string
+	addr     string
+	port     uint16
+	retry    conn.Backoff
+	timeout  time.Duration
+	ch       chan protocol.Message
+	ctx      context.Context
+	closed   chan struct{}
 }
 
 // func NewTCPInClient(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpClient, error) {
@@ -37,18 +38,18 @@ type tailscaleClient struct {
 //     return client, err
 // }
 
-func NewTailscaleOutClient(workdir string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleClient, error) {
-	client, err := makeTailscaleClient(workdir, spec, retry, ctx)
+func NewTailscaleOutClient(workdir string, hostname string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleClient, error) {
+	client, err := makeTailscaleClient(workdir, hostname, spec, retry, ctx)
 
 	if err == nil {
-		client.Infof("connector::tailscale-client-out")
-		client.Infof("using work directory %v", client.dir)
+		client.Infof("connector::tailscale-client-out  %v", client.hostname)
+		client.Infof("connector::tailscale-client-out  %v", client.dir)
 	}
 
 	return client, err
 }
 
-func makeTailscaleClient(workdir string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleClient, error) {
+func makeTailscaleClient(workdir string, hostname, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleClient, error) {
 	addr, port, err := resolveTailscaleAddr(spec)
 	if err != nil {
 		return nil, err
@@ -56,18 +57,34 @@ func makeTailscaleClient(workdir string, spec string, retry conn.Backoff, ctx co
 		return nil, fmt.Errorf("unable to resolve tailscale address '%v'", spec)
 	}
 
+	var dir string
+	var name string
+
+	if hostname == "" {
+		name = fmt.Sprintf("%v.client", addr)
+	} else {
+		name = hostname
+	}
+
+	if hostname == "" {
+		dir = filepath.Join(workdir, "tailscale", addr, "client")
+	} else {
+		dir = filepath.Join(workdir, "tailscale", hostname)
+	}
+
 	in := tailscaleClient{
 		Conn: conn.Conn{
 			Tag: "tailscale",
 		},
-		dir:     filepath.Join(workdir, "tailscale", addr, "client"),
-		addr:    addr,
-		port:    port,
-		retry:   retry,
-		timeout: 5 * time.Second,
-		ch:      make(chan protocol.Message, 16),
-		ctx:     ctx,
-		closed:  make(chan struct{}),
+		dir:      dir,
+		hostname: name,
+		addr:     addr,
+		port:     port,
+		retry:    retry,
+		timeout:  5 * time.Second,
+		ch:       make(chan protocol.Message, 16),
+		ctx:      ctx,
+		closed:   make(chan struct{}),
 	}
 
 	return &in, nil
@@ -103,7 +120,7 @@ func (ts *tailscaleClient) Send(id uint32, msg []byte) {
 func (ts *tailscaleClient) connect(router *router.Switch) {
 	server := &tsnet.Server{
 		Logf:      func(string, ...any) {},
-		Hostname:  "uhppoted-client",
+		Hostname:  ts.hostname,
 		Dir:       ts.dir,
 		Ephemeral: false,
 	}

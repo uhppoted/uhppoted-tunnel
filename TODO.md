@@ -5,16 +5,18 @@
 - (??) DERP
        - https://pkg.go.dev/tailscale.com@v1.38.4/derp
 
+- [ ] Rate limit (for e.g. when you've misconfigured your UDP broadcast to send to your own listener)
+
 - [ ] Tailscale
       - [x] addr
       - [x] workdir
-      - [ ] client hostname
+      - [x] hostname
       - [ ] authkey
       - [ ] log format
       - [ ] --tailscale-log
       - [ ] plugin
       - [ ] README
-            - [ ] note :keep alive is expected to be an application thing because if the server is 
+            - [ ] NOTE: Keep alive is expected to be an application thing because if the server is 
                   down for a long time an internal keep-alive could backoff to the maximum limit
                   and then the next request could take a long time. 
       - [ ] CHANGELOG
@@ -23,7 +25,6 @@
       - https://tailscale.dev/blog/embedded-funnel
       - https://github.com/tailscale/tailscale/issues/1552
 
-- [ ] Rate limit (for e.g. when you've misconfigured your UDP broadcast to send to your own listener)
 - [ ] Error on CTRL-C
 ```
 2023/04/19 10:07:03 FATAL         runtime error: invalid memory address or nil pointer dereference
