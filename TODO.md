@@ -12,8 +12,8 @@
       - [x] workdir
       - [x] hostname
       - [x] log format
-      - [ ] --tailscale-log
-      - [ ] authkey
+      - [x] tsnet logging 
+      - [ ] authorisation
       - [ ] plugin
       - [ ] README
             - [ ] NOTE: Keep alive is expected to be an application thing because if the server is 

@@ -24,14 +24,15 @@ type tailscaleServer struct {
 	addr        string
 	port        uint16
 	retry       conn.Backoff
+	logging     string
 	connections map[net.Conn]struct{}
 	ctx         context.Context
 	closed      chan struct{}
 	sync.RWMutex
 }
 
-func NewTailscaleInServer(workdir string, hostname string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleServer, error) {
-	server, err := makeTailscaleServer(workdir, hostname, spec, retry, ctx)
+func NewTailscaleInServer(workdir string, hostname string, spec string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleServer, error) {
+	server, err := makeTailscaleServer(workdir, hostname, spec, retry, logging, ctx)
 
 	if err == nil {
 		server.Infof("connector::tailscale-server-in  %v", server.hostname)
@@ -51,7 +52,7 @@ func NewTailscaleInServer(workdir string, hostname string, spec string, retry co
 //     return server, err
 // }
 
-func makeTailscaleServer(workdir string, hostname string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleServer, error) {
+func makeTailscaleServer(workdir string, hostname string, spec string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleServer, error) {
 	addr, port, err := resolveTailscaleAddr(spec)
 	if err != nil {
 		return nil, err
@@ -83,6 +84,7 @@ func makeTailscaleServer(workdir string, hostname string, spec string, retry con
 		addr:        addr,
 		port:        port,
 		retry:       retry,
+		logging:     logging,
 		connections: map[net.Conn]struct{}{},
 		ctx:         ctx,
 		closed:      make(chan struct{}),
@@ -108,8 +110,14 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 	var socket net.Listener
 	var closing = false
 
+	logf := func(f string, args ...any) {
+		if ts.logging != "" && ts.logging != "no-log" {
+			ts.Debugf(f, args...)
+		}
+	}
+
 	server := &tsnet.Server{
-		Logf:      func(string, ...any) {},
+		Logf:      logf,
 		Hostname:  ts.hostname,
 		Dir:       ts.dir,
 		Ephemeral: false,

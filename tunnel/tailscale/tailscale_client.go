@@ -22,6 +22,7 @@ type tailscaleClient struct {
 	addr     string
 	port     uint16
 	retry    conn.Backoff
+	logging  string
 	timeout  time.Duration
 	ch       chan protocol.Message
 	ctx      context.Context
@@ -38,8 +39,8 @@ type tailscaleClient struct {
 //     return client, err
 // }
 
-func NewTailscaleOutClient(workdir string, hostname string, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleClient, error) {
-	client, err := makeTailscaleClient(workdir, hostname, spec, retry, ctx)
+func NewTailscaleOutClient(workdir string, hostname string, spec string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleClient, error) {
+	client, err := makeTailscaleClient(workdir, hostname, spec, retry, logging, ctx)
 
 	if err == nil {
 		client.Infof("connector::tailscale-client-out  %v", client.hostname)
@@ -49,7 +50,7 @@ func NewTailscaleOutClient(workdir string, hostname string, spec string, retry c
 	return client, err
 }
 
-func makeTailscaleClient(workdir string, hostname, spec string, retry conn.Backoff, ctx context.Context) (*tailscaleClient, error) {
+func makeTailscaleClient(workdir string, hostname, spec string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleClient, error) {
 	addr, port, err := resolveTailscaleAddr(spec)
 	if err != nil {
 		return nil, err
@@ -81,6 +82,7 @@ func makeTailscaleClient(workdir string, hostname, spec string, retry conn.Backo
 		addr:     addr,
 		port:     port,
 		retry:    retry,
+		logging:  logging,
 		timeout:  5 * time.Second,
 		ch:       make(chan protocol.Message, 16),
 		ctx:      ctx,
@@ -118,8 +120,14 @@ func (ts *tailscaleClient) Send(id uint32, msg []byte) {
 }
 
 func (ts *tailscaleClient) connect(router *router.Switch) {
+	logf := func(f string, args ...any) {
+		if ts.logging != "" && ts.logging != "no-log" {
+			ts.Debugf(f, args...)
+		}
+	}
+
 	server := &tsnet.Server{
-		Logf:      func(string, ...any) {},
+		Logf:      logf,
 		Hostname:  ts.hostname,
 		Dir:       ts.dir,
 		Ephemeral: false,

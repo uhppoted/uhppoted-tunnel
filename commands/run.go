@@ -400,7 +400,11 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 	case strings.HasPrefix(spec, "tailscale/server:"):
 		switch {
 		case dir == In:
-			return tailscale.NewTailscaleInServer(cmd.workdir, hwif, spec[17:], retry, ctx)
+			if match := regexp.MustCompile("(.*?),(.*)").FindStringSubmatch(spec[17:]); len(match) > 2 {
+				return tailscale.NewTailscaleInServer(cmd.workdir, hwif, spec[17:], retry, match[2], ctx)
+			} else {
+				return tailscale.NewTailscaleInServer(cmd.workdir, hwif, spec[17:], retry, "", ctx)
+			}
 
 		default:
 			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
@@ -409,7 +413,11 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 	case strings.HasPrefix(spec, "tailscale/client:"):
 		switch {
 		case dir == Out:
-			return tailscale.NewTailscaleOutClient(cmd.workdir, hwif, spec[17:], retry, ctx)
+			if match := regexp.MustCompile("(.*?),(.*)").FindStringSubmatch(spec[17:]); len(match) > 2 {
+				return tailscale.NewTailscaleOutClient(cmd.workdir, hwif, spec[17:], retry, match[2], ctx)
+			} else {
+				return tailscale.NewTailscaleOutClient(cmd.workdir, hwif, spec[17:], retry, "", ctx)
+			}
 
 		default:
 			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
