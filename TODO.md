@@ -11,9 +11,9 @@
       - [x] addr
       - [x] workdir
       - [x] hostname
-      - [ ] authkey
-      - [ ] log format
+      - [x] log format
       - [ ] --tailscale-log
+      - [ ] authkey
       - [ ] plugin
       - [ ] README
             - [ ] NOTE: Keep alive is expected to be an application thing because if the server is 

@@ -17,31 +17,31 @@ func (c Conn) Dumpf(message []byte, format string, args ...any) {
 }
 
 func (c Conn) Debugf(format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", c.Tag, format)
+	f := fmt.Sprintf("%-10v %v", c.Tag, format)
 
 	log.Debugf(f, args...)
 }
 
 func (c Conn) Infof(format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", c.Tag, format)
+	f := fmt.Sprintf("%-10v %v", c.Tag, format)
 
 	log.Infof(f, args...)
 }
 
 func (c Conn) Warnf(format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", c.Tag, format)
+	f := fmt.Sprintf("%-10v %v", c.Tag, format)
 
 	log.Warnf(f, args...)
 }
 
 func (c Conn) Errorf(format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", c.Tag, format)
+	f := fmt.Sprintf("%-10v %v", c.Tag, format)
 
 	log.Errorf(f, args...)
 }
 
 func (c Conn) Fatalf(format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", c.Tag, format)
+	f := fmt.Sprintf("%-10v %v", c.Tag, format)
 
 	log.Fatalf(f, args...)
 }

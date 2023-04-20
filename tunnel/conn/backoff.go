@@ -57,19 +57,19 @@ func (b *Backoff) Wait(tag string) bool {
 }
 
 func debugf(tag, format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", tag, format)
+	f := fmt.Sprintf("%-10v %v", tag, format)
 
 	log.Debugf(f, args...)
 }
 
 func infof(tag string, format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", tag, format)
+	f := fmt.Sprintf("%-10v %v", tag, format)
 
 	log.Infof(f, args...)
 }
 
 func fatalf(tag string, format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", tag, format)
+	f := fmt.Sprintf("%-10v %v", tag, format)
 
 	log.Fatalf(f, args...)
 }

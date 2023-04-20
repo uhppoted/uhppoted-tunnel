@@ -138,13 +138,13 @@ func Close() {
 }
 
 func debugf(tag string, format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", tag, format)
+	f := fmt.Sprintf("%-10v %v", tag, format)
 
 	log.Debugf(f, args...)
 }
 
 func infof(tag, format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", tag, format)
+	f := fmt.Sprintf("%-10v %v", tag, format)
 
 	log.Infof(f, args...)
 }

@@ -101,19 +101,19 @@ func (t *Tunnel) Run(interrupt chan os.Signal) (err error) {
 }
 
 func infof(tag string, format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", tag, format)
+	f := fmt.Sprintf("%-10v %v", tag, format)
 
 	log.Infof(f, args...)
 }
 
 func errorf(tag string, format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", tag, format)
+	f := fmt.Sprintf("%-10v %v", tag, format)
 
 	log.Errorf(f, args...)
 }
 
 func fatalf(format string, args ...any) {
-	f := fmt.Sprintf("%-6v %v", "", format)
+	f := fmt.Sprintf("%-10v %v", "", format)
 
 	log.Fatalf(f, args...)
 }
