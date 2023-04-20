@@ -14,8 +14,14 @@
       - [x] log format
       - [x] tsnet logging 
       - [ ] authorisation
+            - [ ] ENV key
+            - [x] manual
+            - [ ] --authkey
+            - [ ] Oauth2
+            
       - [ ] plugin
       - [ ] README
+            - [ ] ...;debug for tailscale logging
             - [ ] NOTE: Keep alive is expected to be an application thing because if the server is 
                   down for a long time an internal keep-alive could backoff to the maximum limit
                   and then the next request could take a long time. 

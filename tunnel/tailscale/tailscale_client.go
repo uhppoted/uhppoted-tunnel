@@ -106,10 +106,13 @@ func (ts *tailscaleClient) Close() {
 }
 
 func (ts *tailscaleClient) Run(router *router.Switch) error {
-	ts.connect(router)
-	ts.closed <- struct{}{}
+	if err := ts.connect(router); err != nil {
+		return err
+	} else {
+		ts.closed <- struct{}{}
 
-	return nil
+		return nil
+	}
 }
 
 func (ts *tailscaleClient) Send(id uint32, msg []byte) {
@@ -119,9 +122,9 @@ func (ts *tailscaleClient) Send(id uint32, msg []byte) {
 	}
 }
 
-func (ts *tailscaleClient) connect(router *router.Switch) {
+func (ts *tailscaleClient) connect(router *router.Switch) error {
 	logf := func(f string, args ...any) {
-		if ts.logging != "" && ts.logging != "no-log" {
+		if ts.logging == "debug" {
 			ts.Debugf(f, args...)
 		}
 	}
@@ -135,7 +138,34 @@ func (ts *tailscaleClient) connect(router *router.Switch) {
 
 	defer server.Close()
 
+	if err := server.Start(); err != nil {
+		return err
+	}
+
 	for {
+		// ... bring server up
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+		if status, err := server.Up(ctx); err != nil {
+			ts.Warnf("%v", err)
+		} else {
+			cancel()
+			ts.Debugf("state  %v", status.BackendState)
+		}
+
+		// ... manual authorisation if required
+		if lc, err := server.LocalClient(); err != nil {
+			ts.Warnf("%v", err)
+		} else if status, err := lc.Status(ts.ctx); err != nil {
+			ts.Warnf("%v", err)
+		} else {
+			ts.Infof("status %v", status.BackendState)
+			if status.BackendState == "NeedsLogin" && status.AuthURL != "" {
+				ts.Errorf("node authorisation required - please authorise node at URL %v", status.AuthURL)
+			}
+		}
+
+		// ... 'k, we're good to go
 		ts.Infof("connecting to %v:%v", ts.addr, ts.port)
 
 		if socket, err := server.Dial(context.Background(), "tcp", fmt.Sprintf("%v:%v", ts.addr, ts.port)); err != nil {
@@ -176,7 +206,7 @@ func (ts *tailscaleClient) connect(router *router.Switch) {
 		}
 
 		if !ts.retry.Wait(ts.Tag) {
-			return
+			return nil
 		}
 	}
 }

@@ -111,7 +111,7 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 	var closing = false
 
 	logf := func(f string, args ...any) {
-		if ts.logging != "" && ts.logging != "no-log" {
+		if ts.logging == "debug" {
 			ts.Debugf(f, args...)
 		}
 	}
@@ -125,9 +125,36 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 
 	defer server.Close()
 
+	if err := server.Start(); err != nil {
+		return err
+	}
+
 	go func() {
 	loop:
 		for {
+			// ... bring server up
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
+			if status, err := server.Up(ctx); err != nil {
+				ts.Warnf("%v", err)
+			} else {
+				cancel()
+				ts.Debugf("state  %v", status.BackendState)
+			}
+
+			// ... manual authorisation if required
+			if lc, err := server.LocalClient(); err != nil {
+				ts.Warnf("%v", err)
+			} else if status, err := lc.Status(ts.ctx); err != nil {
+				ts.Warnf("%v", err)
+			} else {
+				ts.Infof("status %v", status.BackendState)
+				if status.BackendState == "NeedsLogin" && status.AuthURL != "" {
+					ts.Errorf("node authorisation required - please authorise node at URL %v", status.AuthURL)
+				}
+			}
+
+			// ... 'k, we're good to go
 			socket, err := server.Listen("tcp", fmt.Sprintf(":%v", ts.port))
 			if err != nil {
 				ts.Warnf("%v", err)
