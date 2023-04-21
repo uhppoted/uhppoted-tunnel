@@ -75,6 +75,24 @@ cert = "client.cert"
 key = "client.key"
 udp-timeout = "1s"
 
+[tailscale-server]
+in = "tailscale/server:uhppoted:12345"
+out = "udp/broadcast:192.168.1.255:60005"
+authorisation = "authkey:tskey-auth-key-goes-here"
+udp-timeout = "1s"
+workdir = "../runtime/uhppoted-tunnel"
+console = true
+debug = true
+
+[tailscale-client]
+in = "udp/listen:0.0.0.0:60000"
+out = "tailscale/client::qwerty:uhppoted:12345,nolog"
+authorisation = "authkey:tskey-auth-key-goes-here"
+udp-timeout = "1s"
+workdir = "../runtime/uhppoted-tunnel"
+console = true
+debug = true
+
 [http]
 in = "http/0.0.0.0:8082"
 out = "udp/broadcast:192.168.1.255:60000"

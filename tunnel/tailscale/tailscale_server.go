@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -23,6 +24,7 @@ type tailscaleServer struct {
 	hostname    string
 	addr        string
 	port        uint16
+	auth        string
 	retry       conn.Backoff
 	logging     string
 	connections map[net.Conn]struct{}
@@ -31,8 +33,8 @@ type tailscaleServer struct {
 	sync.RWMutex
 }
 
-func NewTailscaleInServer(workdir string, hostname string, spec string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleServer, error) {
-	server, err := makeTailscaleServer(workdir, hostname, spec, retry, logging, ctx)
+func NewTailscaleInServer(workdir string, hostname string, spec string, auth string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleServer, error) {
+	server, err := makeTailscaleServer(workdir, hostname, spec, auth, retry, logging, ctx)
 
 	if err == nil {
 		server.Infof("connector::tailscale-server-in  %v", server.hostname)
@@ -52,7 +54,7 @@ func NewTailscaleInServer(workdir string, hostname string, spec string, retry co
 //     return server, err
 // }
 
-func makeTailscaleServer(workdir string, hostname string, spec string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleServer, error) {
+func makeTailscaleServer(workdir string, hostname string, spec string, auth string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleServer, error) {
 	addr, port, err := resolveTailscaleAddr(spec)
 	if err != nil {
 		return nil, err
@@ -83,6 +85,7 @@ func makeTailscaleServer(workdir string, hostname string, spec string, retry con
 		hostname:    name,
 		addr:        addr,
 		port:        port,
+		auth:        auth,
 		retry:       retry,
 		logging:     logging,
 		connections: map[net.Conn]struct{}{},
@@ -110,6 +113,14 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 	var socket net.Listener
 	var closing = false
 
+	// ... get authkey
+	authKey := ""
+	switch {
+	case strings.HasPrefix(ts.auth, "authkey:"):
+		authKey = strings.TrimSpace(ts.auth[8:])
+	}
+
+	// ... initialise server
 	logf := func(f string, args ...any) {
 		if ts.logging == "debug" {
 			ts.Debugf(f, args...)
@@ -119,6 +130,7 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 	server := &tsnet.Server{
 		Logf:      logf,
 		Hostname:  ts.hostname,
+		AuthKey:   authKey,
 		Dir:       ts.dir,
 		Ephemeral: false,
 	}
@@ -247,8 +259,6 @@ func (ts *tailscaleServer) received(buffer []byte, router *router.Switch, socket
 	for len(buffer) > 0 {
 		id, msg, remaining := protocol.Depacketize(buffer)
 		buffer = remaining
-
-		fmt.Printf("%v %v %v\n", id, msg, remaining)
 
 		router.Received(id, msg, func(message []byte) {
 			ts.send(socket, id, message)

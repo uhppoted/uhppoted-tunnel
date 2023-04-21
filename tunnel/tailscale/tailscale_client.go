@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"tailscale.com/tsnet"
@@ -21,6 +22,7 @@ type tailscaleClient struct {
 	hostname string
 	addr     string
 	port     uint16
+	auth     string
 	retry    conn.Backoff
 	logging  string
 	timeout  time.Duration
@@ -39,8 +41,8 @@ type tailscaleClient struct {
 //     return client, err
 // }
 
-func NewTailscaleOutClient(workdir string, hostname string, spec string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleClient, error) {
-	client, err := makeTailscaleClient(workdir, hostname, spec, retry, logging, ctx)
+func NewTailscaleOutClient(workdir string, hostname string, spec string, auth string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleClient, error) {
+	client, err := makeTailscaleClient(workdir, hostname, spec, auth, retry, logging, ctx)
 
 	if err == nil {
 		client.Infof("connector::tailscale-client-out  %v", client.hostname)
@@ -50,7 +52,7 @@ func NewTailscaleOutClient(workdir string, hostname string, spec string, retry c
 	return client, err
 }
 
-func makeTailscaleClient(workdir string, hostname, spec string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleClient, error) {
+func makeTailscaleClient(workdir string, hostname, spec string, auth string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleClient, error) {
 	addr, port, err := resolveTailscaleAddr(spec)
 	if err != nil {
 		return nil, err
@@ -81,6 +83,7 @@ func makeTailscaleClient(workdir string, hostname, spec string, retry conn.Backo
 		hostname: name,
 		addr:     addr,
 		port:     port,
+		auth:     auth,
 		retry:    retry,
 		logging:  logging,
 		timeout:  5 * time.Second,
@@ -123,6 +126,14 @@ func (ts *tailscaleClient) Send(id uint32, msg []byte) {
 }
 
 func (ts *tailscaleClient) connect(router *router.Switch) error {
+	// ... get authkey
+	authKey := ""
+	switch {
+	case strings.HasPrefix(ts.auth, "authkey:"):
+		authKey = strings.TrimSpace(ts.auth[8:])
+	}
+
+	// ... initialise server
 	logf := func(f string, args ...any) {
 		if ts.logging == "debug" {
 			ts.Debugf(f, args...)
@@ -132,6 +143,7 @@ func (ts *tailscaleClient) connect(router *router.Switch) error {
 	server := &tsnet.Server{
 		Logf:      logf,
 		Hostname:  ts.hostname,
+		AuthKey:   authKey,
 		Dir:       ts.dir,
 		Ephemeral: false,
 	}

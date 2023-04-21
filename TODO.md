@@ -14,13 +14,16 @@
       - [x] log format
       - [x] tsnet logging 
       - [ ] authorisation
-            - [ ] ENV key
+            - [x] TS_AUTHKEY
             - [x] manual
-            - [ ] --authkey
-            - [ ] Oauth2
-            
+            - [ ] TOML
+                  - [x] authkey:
+                  - [ ] ENV:
+                  - [ ] OAuth2
+
       - [ ] plugin
       - [ ] README
+            - [ ] TS_AUTHKEY
             - [ ] ...;debug for tailscale logging
             - [ ] NOTE: Keep alive is expected to be an application thing because if the server is 
                   down for a long time an internal keep-alive could backoff to the maximum limit

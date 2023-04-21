@@ -30,7 +30,7 @@ import (
 
 type Run struct {
 	conf string
-	//lint:ignore U1000 Used in the Windows variant for ServiceManager and simpler at this stage to not have multiple Run struct variants
+	//lint:ignore U1000 Used in the Windows build variant for ServiceManager
 	label      string
 	in         string
 	out        string
@@ -45,6 +45,7 @@ type Run struct {
 	certificate       string
 	key               string
 	requireClientAuth bool
+	auth              string
 	html              string
 	lockfile          config.Lockfile
 	logFile           string
@@ -165,6 +166,12 @@ func (cmd *Run) ParseCmd(args ...string) error {
 						cmd.interfaces.out = s
 					}
 				}
+			}
+		}
+
+		if p, ok := config["authorisation"]; ok {
+			if q, ok := p.(string); ok {
+				cmd.auth = q
 			}
 		}
 	}
@@ -401,9 +408,9 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 		switch {
 		case dir == In:
 			if match := regexp.MustCompile("(.*?),(.*)").FindStringSubmatch(spec[17:]); len(match) > 2 {
-				return tailscale.NewTailscaleInServer(cmd.workdir, hwif, spec[17:], retry, match[2], ctx)
+				return tailscale.NewTailscaleInServer(cmd.workdir, hwif, spec[17:], cmd.auth, retry, match[2], ctx)
 			} else {
-				return tailscale.NewTailscaleInServer(cmd.workdir, hwif, spec[17:], retry, "", ctx)
+				return tailscale.NewTailscaleInServer(cmd.workdir, hwif, spec[17:], cmd.auth, retry, "", ctx)
 			}
 
 		default:
@@ -414,9 +421,9 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 		switch {
 		case dir == Out:
 			if match := regexp.MustCompile("(.*?),(.*)").FindStringSubmatch(spec[17:]); len(match) > 2 {
-				return tailscale.NewTailscaleOutClient(cmd.workdir, hwif, spec[17:], retry, match[2], ctx)
+				return tailscale.NewTailscaleOutClient(cmd.workdir, hwif, spec[17:], cmd.auth, retry, match[2], ctx)
 			} else {
-				return tailscale.NewTailscaleOutClient(cmd.workdir, hwif, spec[17:], retry, "", ctx)
+				return tailscale.NewTailscaleOutClient(cmd.workdir, hwif, spec[17:], cmd.auth, retry, "", ctx)
 			}
 
 		default:

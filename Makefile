@@ -156,10 +156,12 @@ https: build
 	$(CMD) --debug --console --in https/0.0.0.0:8443 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s --html ./examples/html
 
 tailscale-client: build
-	$(CMD) --debug --console --workdir ../runtime/uhppoted-tunnel --in udp/listen:0.0.0.0:60000 --out tailscale/client::qwerty:uhppoted:12345,nolog
+#	$(CMD) --debug --console --workdir ../runtime/uhppoted-tunnel --in udp/listen:0.0.0.0:60000 --out tailscale/client::qwerty:uhppoted:12345,nolog
+	$(CMD) --config "../runtime/uhppoted-tunnel/uhppoted-tunnel.toml#tailscale-client"
 
 tailscale-server: build
-	$(CMD) --debug --console --workdir ../runtime/uhppoted-tunnel --in tailscale/server:uhppoted:12345,nolog --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
+#	$(CMD) --debug --console --workdir ../runtime/uhppoted-tunnel --in tailscale/server:uhppoted:12345,nolog --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
+	$(CMD) --config "../runtime/uhppoted-tunnel/uhppoted-tunnel.toml#tailscale-server"
 
 daemonize: build
 	sudo $(CMD) daemonize --in  udp/listen:0.0.0.0:60000  --out tcp/server:0.0.0.0:12345
