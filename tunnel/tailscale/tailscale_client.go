@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"tailscale.com/tsnet"
@@ -127,10 +126,12 @@ func (ts *tailscaleClient) Send(id uint32, msg []byte) {
 
 func (ts *tailscaleClient) connect(router *router.Switch) error {
 	// ... get authkey
-	authKey := ""
-	switch {
-	case strings.HasPrefix(ts.auth, "authkey:"):
-		authKey = strings.TrimSpace(ts.auth[8:])
+	var authKey string
+
+	if key, err := getAuthKey(ts.auth); err != nil {
+		return err
+	} else {
+		authKey = key
 	}
 
 	// ... initialise server

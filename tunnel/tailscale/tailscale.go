@@ -2,8 +2,10 @@ package tailscale
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func resolveTailscaleAddr(spec string) (string, uint16, error) {
@@ -16,4 +18,16 @@ func resolveTailscaleAddr(spec string) (string, uint16, error) {
 	} else {
 		return match[1], uint16(port), nil
 	}
+}
+
+func getAuthKey(auth string) (string, error) {
+	switch {
+	case strings.HasPrefix(auth, "authkey:"):
+		return strings.TrimSpace(auth[8:]), nil
+
+	case strings.HasPrefix(auth, "env:"):
+		return os.Getenv(strings.TrimSpace(auth[4:])), nil
+	}
+
+	return "", nil
 }

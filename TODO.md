@@ -14,11 +14,11 @@
       - [x] log format
       - [x] tsnet logging 
       - [ ] authorisation
-            - [x] TS_AUTHKEY
             - [x] manual
+            - [x] TS_AUTHKEY
             - [ ] TOML
                   - [x] authkey:
-                  - [ ] ENV:
+                  - [x] env:
                   - [ ] OAuth2
 
       - [ ] plugin

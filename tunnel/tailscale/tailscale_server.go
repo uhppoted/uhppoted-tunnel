@@ -7,7 +7,6 @@ import (
 	"io"
 	"net"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
@@ -114,10 +113,12 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 	var closing = false
 
 	// ... get authkey
-	authKey := ""
-	switch {
-	case strings.HasPrefix(ts.auth, "authkey:"):
-		authKey = strings.TrimSpace(ts.auth[8:])
+	var authKey string
+
+	if key, err := getAuthKey(ts.auth); err != nil {
+		return err
+	} else {
+		authKey = key
 	}
 
 	// ... initialise server
