@@ -10,6 +10,8 @@ require (
 require (
 	github.com/pelletier/go-toml/v2 v2.0.5
 	github.com/uhppoted/uhppote-core v0.8.5-0.20230328170429-e2d237dc75b1
+	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
+	tailscale.com v1.38.4
 )
 
 require (
@@ -34,6 +36,7 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/godbus/dbus/v5 v5.0.6 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/btree v1.0.1 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/hdevalence/ed25519consensus v0.0.0-20220222234857-c00d1f31bab3 // indirect
@@ -73,8 +76,9 @@ require (
 	golang.org/x/tools v0.4.1-0.20221208213631-3f74d914ae6d // indirect
 	golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2 // indirect
 	golang.zx2c4.com/wireguard/windows v0.5.3 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/protobuf v1.28.0 // indirect
 	gvisor.dev/gvisor v0.0.0-20221203005347-703fd9b7fbc0 // indirect
 	inet.af/peercred v0.0.0-20210906144145-0893ea02156a // indirect
 	nhooyr.io/websocket v1.8.7 // indirect
-	tailscale.com v1.38.4 // indirect
 )

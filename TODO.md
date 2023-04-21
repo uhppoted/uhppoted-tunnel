@@ -13,6 +13,7 @@
       - [x] hostname
       - [x] log format
       - [x] tsnet logging 
+            - [ ] TOML key
       - [ ] authorisation
             - [x] manual
             - [x] TS_AUTHKEY
@@ -20,10 +21,12 @@
                   - [x] authkey:
                   - [x] env:
                   - [ ] OAuth2
+                  - (?) Maybe fatal exit on failed auth method
 
       - [ ] plugin
       - [ ] README
             - [ ] TS_AUTHKEY
+            - [ ] TOML authorisation
             - [ ] ...;debug for tailscale logging
             - [ ] NOTE: Keep alive is expected to be an application thing because if the server is 
                   down for a long time an internal keep-alive could backoff to the maximum limit
