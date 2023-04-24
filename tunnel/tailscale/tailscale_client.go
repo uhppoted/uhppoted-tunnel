@@ -207,9 +207,6 @@ func (ts *tailscaleClient) connect(router *router.Switch) error {
 						socket.Close()
 						return
 					}
-
-					println("woot/sleep")
-					time.Sleep(1000)
 				}
 			}()
 

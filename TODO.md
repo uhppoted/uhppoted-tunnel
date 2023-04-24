@@ -2,10 +2,11 @@
 
 ## IN PROGRESS
 
-- (??) DERP
-       - https://pkg.go.dev/tailscale.com@v1.38.4/derp
-
 - [ ] Rate limit (for e.g. when you've misconfigured your UDP broadcast to send to your own listener)
+- [ ] Error on CTRL-C
+      ```
+      2023/04/19 10:07:03 FATAL         runtime error: invalid memory address or nil pointer dereference
+      ```
 
 - [ ] Tailscale
       - [x] addr
@@ -13,37 +14,30 @@
       - [x] hostname
       - [x] log format
       - [x] tsnet logging 
-            - [ ] TOML key
-      - [ ] authorisation
+      - [x] authorisation
             - [x] manual
             - [x] TS_AUTHKEY
-            - [ ] TOML
+            - [x] TOML
                   - [x] authkey:
                   - [x] env:
                   - [x] OAuth2
-                  - (?) Maybe fatal exit on failed auth method
-
+      - [ ] event connectors
       - [ ] plugin
+      - (?) Maybe fatal exit on failed auth method
       - [ ] README
             - [ ] TS_AUTHKEY
             - [ ] TOML authorisation
             - [ ] OAuth2 tailnet is organisation 
                   (Ref. https://github.com/tailscale/terraform-provider-tailscale/issues/206)
             - [ ] OAuth2 tagged devices don't expire
-            - [ ] ...;debug for tailscale logging
+            - [ ] ...,debug for tailscale logging
             - [ ] NOTE: Keep alive is expected to be an application thing because if the server is 
                   down for a long time an internal keep-alive could backoff to the maximum limit
                   and then the next request could take a long time. 
       - [ ] CHANGELOG
 
       - https://tailscale.com/kb/1244/tsnet/
-      - https://tailscale.dev/blog/embedded-funnel
       - https://github.com/tailscale/tailscale/issues/1552
-
-- [ ] Error on CTRL-C
-```
-2023/04/19 10:07:03 FATAL         runtime error: invalid memory address or nil pointer dereference
-```
 
 ## TODO
 

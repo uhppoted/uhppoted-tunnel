@@ -137,7 +137,7 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 		Hostname:  ts.hostname,
 		AuthKey:   authKey,
 		Dir:       ts.dir,
-		Ephemeral: true,
+		Ephemeral: false,
 	}
 
 	defer server.Close()
