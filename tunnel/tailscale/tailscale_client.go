@@ -128,10 +128,14 @@ func (ts *tailscaleClient) connect(router *router.Switch) error {
 	// ... get authkey
 	var authKey string
 
+	ts.Infof("authorising")
 	if key, err := getAuthKey(ts.auth); err != nil {
 		return err
-	} else {
+	} else if key != "" {
+		ts.Infof("authorised")
 		authKey = key
+	} else {
+		ts.Infof("using default TS_AUTHKEY")
 	}
 
 	// ... initialise server

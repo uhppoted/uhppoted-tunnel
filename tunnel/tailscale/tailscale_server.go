@@ -115,10 +115,14 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 	// ... get authkey
 	var authKey string
 
+	ts.Infof("authorising")
 	if key, err := getAuthKey(ts.auth); err != nil {
 		return err
-	} else {
+	} else if key != "" {
+		ts.Infof("authorised")
 		authKey = key
+	} else {
+		ts.Infof("using default TS_AUTHKEY")
 	}
 
 	// ... initialise server
@@ -133,7 +137,7 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 		Hostname:  ts.hostname,
 		AuthKey:   authKey,
 		Dir:       ts.dir,
-		Ephemeral: false,
+		Ephemeral: true,
 	}
 
 	defer server.Close()

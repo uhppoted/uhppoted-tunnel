@@ -20,13 +20,16 @@
             - [ ] TOML
                   - [x] authkey:
                   - [x] env:
-                  - [ ] OAuth2
+                  - [x] OAuth2
                   - (?) Maybe fatal exit on failed auth method
 
       - [ ] plugin
       - [ ] README
             - [ ] TS_AUTHKEY
             - [ ] TOML authorisation
+            - [ ] OAuth2 tailnet is organisation 
+                  (Ref. https://github.com/tailscale/terraform-provider-tailscale/issues/206)
+            - [ ] OAuth2 tagged devices don't expire
             - [ ] ...;debug for tailscale logging
             - [ ] NOTE: Keep alive is expected to be an application thing because if the server is 
                   down for a long time an internal keep-alive could backoff to the maximum limit
