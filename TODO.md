@@ -24,18 +24,17 @@
                   - [x] OAuth2
       - [x] event connectors
       - [ ] plugin
-      - [ ] README
-            - [ ] TS_AUTHKEY
-            - [ ] TOML authorisation
-            - [ ] OAuth2 tailnet is organisation 
+      - [x] README
+            - [x] TS_AUTHKEY
+            - [x] TOML authorisation
+            - [x] OAuth2 tailnet is organisation 
                   (Ref. https://github.com/tailscale/terraform-provider-tailscale/issues/206)
-            - [ ] OAuth2 tagged devices don't expire
-            - [ ] ...,debug for tailscale logging
-            - [ ] NOTE: Keep alive is expected to be an application thing because if the server is 
+            - [x] OAuth2 tagged devices don't expire
+            - [x] ...,debug for tailscale logging
+            - [x] NOTE: Keep alive is expected to be an application thing because if the server is 
                   down for a long time an internal keep-alive could backoff to the maximum limit
                   and then the next request could take a long time. 
-            - https://tailscale.com/kb/1244/tsnet/
-            - https://github.com/tailscale/tailscale/issues/1552
+            - [x] https://github.com/tailscale/tailscale/issues/1552
       - [x] CHANGELOG
 
 

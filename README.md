@@ -94,11 +94,12 @@ The above commands build the `uhppoted-tunnel` executable to the `bin` directory
 
 #### Dependencies
 
-| *Dependency*                                                            | *Description*                        |
-| ----------------------------------------------------------------------- | -------------------------------------|
-| [uhppote-core](https://github.com/uhppoted/uhppote-core)                | Device level API implementation      |
-| [uhppoted-lib](https://github.com/uhppoted/uhppoted-lib)                | Common library functions             |
-| golang.org/x/sys                                                        | (for Windows service integration)    |
+| *Dependency*                                                      | *Description*                            |
+|-------------------------------------------------------------------|------------------------------------------|
+| [uhppote-core](https://github.com/uhppoted/uhppote-core)          | Device level API implementation          |
+| [uhppoted-lib](https://github.com/uhppoted/uhppoted-lib)          | Common library functions                 |
+| golang.org/x/sys                                                  | (for Windows service integration)        |
+| tailscale.com                                                     | _tsnet_ library for Tailscale connectors |
 
 ## uhppoted-tunnel
 
@@ -147,11 +148,13 @@ Command line:
                     - tcp/client:<host address> (e.g. tcp/client:192.168.1.100:12345)
                     - tls/server:<bind address> (e.g. tls/server:0.0.0.0:12345)
                     - tls/client:<host address> (e.g. tls/client:192.168.1.100:12345)
+                    - tailscale/server:<server address> (e.g.uhppoted:12345,nolog)
                     - http/<bind address> (e.g. http/0.0.0.0:8080)
                     - https/<bind address> (e.g. https/0.0.0.0:8443)
 
-                    Under Linux and MacOS the in connector can be bound to a specific interface by prefixing the
-                    address with ::<interface> e.g. tcp/client::en3:192.168.1.100:12345
+                    Under Linux and MacOS TCP and UDP _in_ connectors can be bound to a specific interface by prefixing
+                    the address with ::<interface> e.g. tcp/client::en3:192.168.1.100:12345. The _Tailscale_ connector
+                    syntax is described below.
 
   --out <connector> Defines the connector that forwards received commands. Overrides the 'OUT' connector in the TOML
                     configuration if it exists. Valid 'out' connectors include: 
@@ -161,9 +164,11 @@ Command line:
                     - tcp/client:<host address> (e.g. tcp/client:192.168.1.100:12345)
                     - tls/server:<bind address> (e.g. tls/server:0.0.0.0:12345)
                     - tls/client:<host address> (e.g. tls/client:192.168.1.100:12345)
+                    - tailscale/client:<client address> (e.g. tailscale/client::makerspace:uhppoted:12345,nolog)
 
-                    Under Linux and MacOS the out connector can be bound to a specific interface by prefixing the
-                    address with ::<interface> e.g. udp/broadcast::lo0:127.0.0.01:12345
+                    Under Linux and MacOS TCP and UDP _out_ connectors can be bound to a specific interface by prefixing
+                    the address with ::<interface> e.g. udp/broadcast::lo0:127.0.0.01:12345. The _Tailscale_ connector
+                    syntax is described below.
 
   --console     Runs the UDP tunnel as a console application, logging events to the console.
   --debug       Displays verbose debugging information, in particular the communications with the 
@@ -203,7 +208,7 @@ and returns the replies to the _host_. It is however, possible to chain multiple
 The _event_ connectors are a specialization of the UDP _listen_ and _broadcast_ connectors in that events are relayed in a
 a single direction only, without expectation of a reply. It's quite possible to use the _listen_ and _broadcast_ connectors
 to relay events but the specialized connectors are slightly optimized for the use case and have also been put in place to 
-support future enhancements that may srely on the specialized connectors.
+support future enhancements that may rely on the specialized connectors.
 
 ### `daemonize`
 
@@ -282,6 +287,7 @@ _IN_ connectors:
 - TLS client
 - HTTP POST
 - HTTPS POST
+- Tailscale server
 
 _OUT_ connectors:
 
@@ -290,6 +296,7 @@ _OUT_ connectors:
 - TCP client
 - TLS server
 - TLS client
+- Tailscale client
 
 ### UDP listen
 
@@ -492,6 +499,125 @@ e.g.
     ]
   }
 ```
+
+### _Tailscale_ 
+
+#### _Tailscale_ server
+
+The _Tailscale_ server connector establishes a listening Tailscale connection that accepts connections from one or more Tailscale
+clients. Unlike the TCP connectors it is designed to act only as an _IN_ connector. Incoming requests are be forwarded to all connected clients.
+
+The Tailscale server _address_ comprises:
+- tailnet `machine` name to use for the server (required)
+- IP port on which to accept incoming connections
+- optional `debug` to display the tailscale connection logging. Defaults to 'no log' because the Tailscale logging is 
+  very verbose, but occasionally useful or necessary for debugging connection issues. The only valid value is `debug` -
+  other values (e.g. nolog) can be used as placeholder mnemonics.
+
+```
+--in tailscale/server:<device>:<port>[,debug]
+
+e.g. 
+
+--in tailscale/server:uhppoted:12345,debug
+--in tailscale/server:uhppoted:12345,nolog
+```
+
+Please note that Tailscale does not currently suppport binding to a specific interface (Ref. https://github.com/tailscale/tailscale/issues/1552).
+
+#### _Tailscale_ client
+
+The _Tailscale_ client connector connects to a listening _Tailscale_ server connecton. Unlike the TCP and UDP client connectors,
+a Tailscale client connector can only be configured as an _OUT_ connector i.e. it expects to receive commands on the UDP IN port
+and forwards the commands to the Tailscale server that is connected to the access controller.
+
+The Tailscale client _address_ comprises:
+- tailnet `machine` name to use for the server (optional, but recommended)
+- Tailnet server to which to connect, in the format <machine>:<port> (required)
+- optional `debug` to display the tailscale connection logging. Defaults to 'no log' because the Tailscale logging is 
+  very verbose, but occasionally useful or necessary for debugging connection issues. The only valid value is `debug` -
+  other values (e.g. nolog) can be used as placeholder mnemonics.
+
+
+```
+--in tailscale/client[::<machine>]:<server address>[,debug]
+
+e.g. 
+
+--out tailscale/client:uhppoted:12345
+--out tailscale/client::qwerty:uhppoted:12345,debug
+--out tailscale/client::qwerty:uhppoted:12345,nolog
+```
+
+Please note that Tailscale does not currently suppport binding to a specific interface (Ref. https://github.com/tailscale/tailscale/issues/1552).
+
+
+#### Authorisation
+
+By default connections to a Tailscale tailnet will use the authorisation key in the TS_AUTHKEY environment variable. If the environment variable is not defined or is blank then you will be prompted with an authorisation URL.
+
+Alternative authorisation methods can be configured in the TOML configuration file (specified using the `--config` command
+line option):
+
+1. A different environment variable can specified using the `env:<variable name>` syntax, e.g.
+```
+[tailscale-server]
+...
+authorisation = "env:TS_WORKSHOP"
+...
+```
+   This is an alternative to using a reusable authorisation key in the TS_AUTHKEY environment variable when running two
+   or more tunnels on the same machine.
+
+2. The authorisation key can specified directly using the `authkey:<key>` syntax, e.g.
+```
+[tailscale-server]
+...
+authorisation = "authkey:tskey-auth-xxxxxxxxxxxx-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+...
+```
+
+3. An OAuth2 client, using the `oauth2:<credentials>` syntax, e.g.
+```
+[tailscale-server]
+...
+authorisation = "oauth2:.credentials.workship"
+...
+```
+
+The `credentials` is a JSON file that contains the OAuth2 credentials for the OAuth2 client, e.g.
+```
+{ 
+    "tailscale": {
+        "oauth2": {
+            "client-id": "xxxxxxxxxxxx",
+            "client-secret": "tskey-client-xxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "auth-url": "https://api.tailscale.com/api/v2/oauth/token",
+            "tailnet": "qwerty@uiop.com",
+            "tag": "development",
+            "key-expiry": 300
+        }
+    }
+}
+```
+
+The `client-id` and `client-secret` are the keys generated when creating the OAuth2 client on the Tailscale admin console.
+The tailnet is the user account name ([**not** the tailnet DNS name](https://github.com/tailscale/terraform-provider-tailscale/issues/206)) but can be defaulted to a '-' since the API keys are organisation/client specific.
+
+Note that connections authorised using _OAuth2_ are required to be _tagged_ and the keys do not expire (but 
+can be expired manually on the Tailscale console.)
+
+#### Notes
+
+1. _tailscale/client_ connectors are declared as ephemeral i.e. will be cleaned up when disconnected.
+2. _tailscale/server_ connectors are not ephemeral. This is necessary for the case where a server restarts and
+   needs to reconnect as the 'same' machine so that existing clients can reconnect without having to be 
+   restarted.
+3. There is no internal 'keep-alive' - if a _tailscale-server_ goes offline the _tailscale-client_ will only
+   become aware of it when forwarding a command received on the UDP IN connector. This is by design - an application
+   specific keep-alive is more flexible and more useful. Additionally an internal keep-alive can potentially force
+   a connection to unnecessarily backoff to the maximum delay.
+
 
 ## Attribution
 
