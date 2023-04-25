@@ -12,6 +12,7 @@ proxy .. but we're going with _tunnel_ anyway.
 The implementation includes the following connectors:
 - UDP listen
 - UDP broadcast
+- UDP event
 - TCP server
 - TCP client
 - TLS server
