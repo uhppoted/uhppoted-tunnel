@@ -163,6 +163,12 @@ tailscale-server: build
 #	$(CMD) --debug --console --workdir ../runtime/uhppoted-tunnel --in tailscale/server:uhppoted:12345,nolog --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
 	$(CMD) --config "../runtime/uhppoted-tunnel/uhppoted-tunnel.toml#tailscale-server"
 
+tailscale-event-client: build
+	$(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tailscale/client::qwerty:uhppoted:12345,nolog
+
+tailscale-event-server: build
+	$(CMD) --debug --console --in tailscale/server:uhppoted:12345,nolog --out udp/event:192.168.1.255:60005
+
 daemonize: build
 	sudo $(CMD) daemonize --in  udp/listen:0.0.0.0:60000  --out tcp/server:0.0.0.0:12345
 	# sudo $(CMD) daemonize --in  udp/listen:0.0.0.0:60000  --out tcp/server:0.0.0.0:12345          --label qwerty

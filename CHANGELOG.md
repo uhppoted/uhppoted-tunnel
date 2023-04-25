@@ -3,10 +3,11 @@
 ## Unreleased
 
 ### Added
-1. tailscale connectors.
+1. Implemented tailscale client and server connectors.
 
 ### Updated
 1. Renamed _master_ branch to _main_.
+
 
 ## [0.8.4](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.4) - 2023-03-17
 

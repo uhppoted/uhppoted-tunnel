@@ -15,15 +15,15 @@
       - [x] log format
       - [x] tsnet logging 
       - [x] authorisation
+            - (?) Maybe fatal exit on failed auth method
             - [x] manual
             - [x] TS_AUTHKEY
             - [x] TOML
                   - [x] authkey:
                   - [x] env:
                   - [x] OAuth2
-      - [ ] event connectors
+      - [x] event connectors
       - [ ] plugin
-      - (?) Maybe fatal exit on failed auth method
       - [ ] README
             - [ ] TS_AUTHKEY
             - [ ] TOML authorisation
@@ -34,10 +34,10 @@
             - [ ] NOTE: Keep alive is expected to be an application thing because if the server is 
                   down for a long time an internal keep-alive could backoff to the maximum limit
                   and then the next request could take a long time. 
-      - [ ] CHANGELOG
+            - https://tailscale.com/kb/1244/tsnet/
+            - https://github.com/tailscale/tailscale/issues/1552
+      - [x] CHANGELOG
 
-      - https://tailscale.com/kb/1244/tsnet/
-      - https://github.com/tailscale/tailscale/issues/1552
 
 ## TODO
 
