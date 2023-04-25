@@ -23,7 +23,7 @@
                   - [x] env:
                   - [x] OAuth2
       - [x] event connectors
-      - [ ] plugin
+      - [ ] plugin (in branch)
       - [x] README
             - [x] TS_AUTHKEY
             - [x] TOML authorisation

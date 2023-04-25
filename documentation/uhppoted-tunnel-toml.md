@@ -59,24 +59,25 @@ interfaces = { "in" = "en3", "out" = "" }
 
 ### Settings
 
-| *Attribute*       | *Description*                                                    | *Default value*                |
-| ----------------- | ---------------------------------------------------------------- |------------------------------- |
-| in                | _IN_ connector that accepts external requests                    | _None_                         |
-| out               | _OUT_ connector that dispatches received requests                | _None_                         |
-| interfaces        | _IN_ and _OUT_ connector network interfaces                      | _None_                         |
-| lockfile          | lockfile used to prevent running multiple copies of the service  | _auto-generated_               |
-| max-retries       | Maximum number of times to retry failed connection.              | -1 (retry forever)             |
-| max-retry-delay   | Maximum delay between retrying failed connections                | 5m                             |
-| udp-timeout       | Maximum delay between retrying failed connections                | 5s                             |
-| ca-cert           | (TLS only) File path for CA certificate PEM file                 | ./ca.cert                      |
-| cert              | (TLS only) File path for client/server certificate PEM file      | ./client.cert or ./server.cert |
-| key               | (TLS only) File path for client/server key PEM file              | ./client.key  or ./server.key  |
-| client-auth       | (TLS only) Mandates client authentication                        | false                          |
-| html              | (HTTP only) Folder with HTML                                     | ./html                         |
-| log-level         | Sets the logging level (debug, info, warn or error)              | info./html                     |
-| console           | Runs in _console_ mode i.e. logs to console                      | false                          |
-| debug             | Enables display of low-level UDP messages                        | false                          |
-| label             | Service label used to distinguish multiple tunnesl on a machine  | _None_                         |
+| *Attribute*      | *Description*                                                   | *Default value*                   |
+| -----------------| ----------------------------------------------------------------|-----------------------------------|
+| in               | _IN_ connector that accepts external requests                   | _None_                            |
+| out              | _OUT_ connector that dispatches received requests               | _None_                            |
+| interfaces       | _IN_ and _OUT_ connector network interfaces                     | _None_                            |
+| lockfile         | lockfile used to prevent running multiple copies of the service | _auto-generated_                  |
+| max-retries      | Maximum number of times to retry failed connection.             | -1 (retry forever)                |
+| max-retry-delay  | Maximum delay between retrying failed connections               | 5m                                |
+| udp-timeout      | Maximum delay between retrying failed connections               | 5s                                |
+| ca-cert          | (TLS only) File path for CA certificate PEM file                | ./ca.cert                         |
+| cert             | (TLS only) File path for client/server certificate PEM file     | ./client.cert or ./server.cert    |
+| key              | (TLS only) File path for client/server key PEM file             | ./client.key  or ./server.key     |
+| client-auth      | (TLS only) Mandates client authentication                       | false                             |
+| authorisation    | (Tailscale only) Tailscale authorisation method                 | _TS_AUTHKEY_ environment variable |
+| html             | (HTTP only) Folder with HTML                                    | ./html                            |
+| log-level        | Sets the logging level (debug, info, warn or error)             | info./html                        |
+| console          | Runs in _console_ mode i.e. logs to console                     | false                             |
+| debug            | Enables display of low-level UDP messages                       | false                             |
+| label            | Service label used to distinguish multiple tunnesl on a machine | _None_                            |
 
 ## Service specific sections
 
@@ -101,6 +102,64 @@ preceded by a _#_, e.g.
 ./uhppoted-tunnel --config "#client" 
 ```
 
+## Tailscale authorisation
+
+By default connections to a Tailscale tailnet will use the authorisation key in the TS_AUTHKEY environment variable. If the 
+environment variable is not defined or is blank then you will be prompted with an authorisation URL. Alternative authorisation
+methods can be configured using the `authorisation` TOML configuration file key:
+
+1. A different environment variable can specified using the `env:<variable name>` syntax, e.g.
+```
+[tailscale-server]
+...
+authorisation = "env:TS_WORKSHOP"
+...
+```
+   This is an alternative to using a reusable authorisation key in the TS_AUTHKEY environment variable when running two
+   or more tunnels on the same machine.
+
+2. The authorisation key can specified directly using the `authkey:<key>` syntax, e.g.
+
+```
+[tailscale-server]
+...
+authorisation = "authkey:tskey-auth-xxxxxxxxxxxx-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+...
+```
+
+3. Authorisation can be done using an OAuth2 client ID created on the the Tailscale admin console.
+
+```
+[tailscale-server]
+...
+authorisation = "oauth2:.credentials.workship"
+...
+```
+
+The `credentials` is a JSON file that contains the OAuth2 credentials for the OAuth2 client, e.g.
+```
+{ 
+    "tailscale": {
+        "oauth2": {
+            "client-id": "xxxxxxxxxxxx",
+            "client-secret": "tskey-client-xxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "auth-url": "https://api.tailscale.com/api/v2/oauth/token",
+            "tailnet": "qwerty@uiop.com",
+            "tag": "development",
+            "key-expiry": 300
+        }
+    }
+}
+```
+
+- The `client-id` and `client-secret` are the keys generated when creating the OAuth2 client on the Tailscale admin console.
+- The tailnet is the user or organisation account name ([**not** the tailnet DNS 
+  name](https://github.com/tailscale/terraform-provider-tailscale/issues/206)) but can be defaulted to a '-' since the API
+  keys are organisation/client specific.
+
+Please note that connections authorised using _OAuth2_ are required to be _tagged_ and the keys do not expire, but 
+can be expired manually on the Tailscale console.
+
 ## Sample TOML file
 
 ```
@@ -123,7 +182,6 @@ out = "udp/broadcast:192.168.1.255:60000"
 udp-timeout = "1s"
 log-level = "info"
 label = "qwerty"
-
 ...
 ...
 ```

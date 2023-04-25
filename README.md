@@ -18,6 +18,8 @@ The implementation includes the following connectors:
 - TLS client
 - HTTP POST
 - HTTPS POST
+- Tailscale server
+- Tailscale client
 
 ## Raison d'être
 
@@ -71,7 +73,7 @@ Installation is straightforward - download the archive and extract it to a direc
 ### Building from source
 
 Required tools:
-- [Go 1.19+](https://go.dev)
+- [Go 1.20+](https://go.dev)
 - make (optional but recommended)
 
 To build using the included Makefile:
@@ -601,11 +603,10 @@ The `credentials` is a JSON file that contains the OAuth2 credentials for the OA
 }
 ```
 
-The `client-id` and `client-secret` are the keys generated when creating the OAuth2 client on the Tailscale admin console.
-The tailnet is the user account name ([**not** the tailnet DNS name](https://github.com/tailscale/terraform-provider-tailscale/issues/206)) but can be defaulted to a '-' since the API keys are organisation/client specific.
-
-Note that connections authorised using _OAuth2_ are required to be _tagged_ and the keys do not expire (but 
-can be expired manually on the Tailscale console.)
+- The `client-id` and `client-secret` are the keys generated when creating the OAuth2 client on the Tailscale admin console.
+- The `tailnet` is the user/organisation account name ([**not** the tailnet DNS name](https://github.com/tailscale/terraform-provider-tailscale/issues/206)) but can be defaulted to a '-' since the API keys are organisation/client specific.
+- Connections authorised using _OAuth2_ are required to be _tagged_ and the keys do not expire (but can be expired manually
+  on the Tailscale console.)
 
 #### Notes
 
