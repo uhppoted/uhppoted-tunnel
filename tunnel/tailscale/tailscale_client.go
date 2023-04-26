@@ -163,13 +163,13 @@ func (ts *tailscaleClient) connect(router *router.Switch) error {
 		// ... bring server up
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
-		defer cancel()
-
 		if status, err := server.Up(ctx); err != nil {
 			ts.Warnf("%v", err)
 		} else {
 			ts.Debugf("state  %v", status.BackendState)
 		}
+
+		cancel()
 
 		// ... manual authorisation if required
 		if lc, err := server.LocalClient(); err != nil {

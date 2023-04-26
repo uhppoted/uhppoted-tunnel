@@ -19,14 +19,14 @@ func NewSocketList() SocketList {
 	}
 }
 
-func (s SocketList) Add(socket TSocket) {
+func (s *SocketList) Add(socket TSocket) {
 	s.Lock()
 	defer s.Unlock()
 
 	s.list[socket] = struct{}{}
 }
 
-func (s SocketList) Close(socket TSocket) {
+func (s *SocketList) Close(socket TSocket) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -34,11 +34,11 @@ func (s SocketList) Close(socket TSocket) {
 	delete(s.list, socket)
 }
 
-func (s SocketList) CloseAll() {
+func (s *SocketList) CloseAll() {
 	s.Lock()
 	defer s.Unlock()
 
-	for socket, _ := range s.list {
+	for socket := range s.list {
 		socket.Close()
 	}
 }

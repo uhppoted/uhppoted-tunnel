@@ -156,9 +156,10 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 			if status, err := server.Up(ctx); err != nil {
 				ts.Warnf("%v", err)
 			} else {
-				cancel()
 				ts.Debugf("state  %v", status.BackendState)
 			}
+
+			cancel()
 
 			// ... manual authorisation if required
 			if lc, err := server.LocalClient(); err != nil {
@@ -228,36 +229,33 @@ func (ts *tailscaleServer) listen(socket net.Listener, router *router.Switch) {
 
 		ts.Infof("incoming connection (%v)", client.RemoteAddr())
 
-		if socket, ok := client.(net.Conn); !ok {
-			ts.Warnf("invalid tailscale socket (%v)", socket)
-			client.Close()
-		} else {
-			ts.Lock()
-			ts.connections[socket] = struct{}{}
-			ts.Unlock()
+		defer client.Close()
 
-			go func(socket net.Conn) {
-				for {
-					buffer := make([]byte, 2048) // buffer is handed off to router
-					if N, err := socket.Read(buffer); err != nil {
-						if err == io.EOF {
-							ts.Infof("client connection %v closed ", socket.RemoteAddr())
-						} else {
-							ts.Warnf("%v", err)
-						}
-						break
+		ts.Lock()
+		ts.connections[client] = struct{}{}
+		ts.Unlock()
+
+		go func(socket net.Conn) {
+			for {
+				buffer := make([]byte, 2048) // buffer is handed off to router
+				if N, err := socket.Read(buffer); err != nil {
+					if err == io.EOF {
+						ts.Infof("client connection %v closed ", socket.RemoteAddr())
 					} else {
-						ts.received(buffer[:N], router, socket)
+						ts.Warnf("%v", err)
 					}
-
-					time.Sleep(5000)
+					break
+				} else {
+					ts.received(buffer[:N], router, socket)
 				}
 
-				ts.Lock()
-				delete(ts.connections, socket)
-				ts.Unlock()
-			}(socket)
-		}
+				time.Sleep(5000)
+			}
+
+			ts.Lock()
+			delete(ts.connections, socket)
+			ts.Unlock()
+		}(client)
 	}
 }
 

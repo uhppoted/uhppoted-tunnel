@@ -26,7 +26,7 @@ type capabilities struct {
 }
 
 type devices struct {
-	Create create `json:"create`
+	Create create `json:"create"`
 }
 
 type create struct {
