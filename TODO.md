@@ -11,6 +11,10 @@
 - [x] Error on CTRL-C
 
 - [ ] Tailscale
+      - [ ] Close server more gracefully
+      ```
+      2023/04/26 11:06:19 WARN   tailscale  read tcp 100.112.82.254:12345: operation aborted
+      ```
       - [ ] plugin (in branch)
 
 
