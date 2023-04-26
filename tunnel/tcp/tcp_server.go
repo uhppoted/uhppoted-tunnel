@@ -86,8 +86,10 @@ func (tcp *tcpServer) Close() {
 }
 
 func (tcp *tcpServer) Run(router *router.Switch) (err error) {
-	var socket net.Listener
-	var closing = false
+	closing := false
+	sockets := conn.NewSocketList()
+
+	defer sockets.CloseAll()
 
 	go func() {
 	loop:
@@ -103,14 +105,15 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 				},
 			}
 
-			socket, err = listener.Listen(context.Background(), "tcp", fmt.Sprintf("%v", tcp.addr))
-			if err != nil {
+			if socket, err := listener.Listen(context.Background(), "tcp", fmt.Sprintf("%v", tcp.addr)); err != nil {
 				tcp.Warnf("%v", err)
 			} else if socket == nil {
 				tcp.Warnf("%v", fmt.Errorf("failed to create TCP listen socket (%v)", socket))
 			} else {
+				sockets.Add(socket)
 				tcp.retry.Reset()
 				tcp.listen(socket, router)
+				sockets.Close(socket)
 			}
 
 			if closing || !tcp.retry.Wait(tcp.Tag) {
@@ -128,7 +131,6 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 	<-tcp.ctx.Done()
 
 	closing = true
-	socket.Close()
 
 	return nil
 }

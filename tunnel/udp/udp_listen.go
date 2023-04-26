@@ -73,7 +73,10 @@ func (udp *udpListen) Close() {
 }
 
 func (udp *udpListen) Run(router *router.Switch) (err error) {
-	var closing = false
+	closing := false
+	sockets := conn.NewSocketList()
+
+	defer sockets.CloseAll()
 
 	listener := net.ListenConfig{
 		Control: func(network, address string, connection syscall.RawConn) error {
@@ -94,9 +97,11 @@ func (udp *udpListen) Run(router *router.Switch) (err error) {
 			} else if socket == nil {
 				udp.Warnf("Failed to create UDP listen socket (%v)", socket)
 			} else {
+				sockets.Add(socket)
 				udp.sockets[socket] = struct{}{}
 				udp.retry.Reset()
 				udp.listen(socket, router)
+				sockets.Close(socket)
 			}
 
 			delete(udp.sockets, socket)

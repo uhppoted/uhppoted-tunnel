@@ -109,8 +109,8 @@ func (ts *tailscaleServer) Close() {
 }
 
 func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
-	var socket net.Listener
-	var closing = false
+	closing := false
+	sockets := conn.NewSocketList()
 
 	// ... get authkey
 	var authKey string
@@ -141,6 +141,7 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 	}
 
 	defer server.Close()
+	defer sockets.CloseAll()
 
 	if err := server.Start(); err != nil {
 		return err
@@ -172,14 +173,17 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 			}
 
 			// ... 'k, we're good to go
-			socket, err := server.Listen("tcp", fmt.Sprintf(":%v", ts.port))
-			if err != nil {
+			if socket, err := server.Listen("tcp", fmt.Sprintf(":%v", ts.port)); err != nil {
 				ts.Warnf("%v", err)
 			} else if socket == nil {
 				ts.Warnf("%v", fmt.Errorf("failed to create tailscale listen socket (%v)", socket))
 			} else {
+				sockets.Add(socket)
+
 				ts.retry.Reset()
 				ts.listen(socket, router)
+
+				sockets.Close(socket)
 			}
 
 			if closing || !ts.retry.Wait(ts.Tag) {
@@ -197,7 +201,6 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 	<-ts.ctx.Done()
 
 	closing = true
-	socket.Close()
 
 	return nil
 }

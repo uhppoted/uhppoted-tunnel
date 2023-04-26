@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 	syslog "log"
+	sysdebug "runtime/debug"
 )
 
 type LogLevel int
@@ -69,6 +70,8 @@ func Errorf(format string, args ...any) {
 }
 
 func Fatalf(format string, args ...any) {
+	sysdebug.PrintStack()
+
 	if hook != nil {
 		hook()
 	}

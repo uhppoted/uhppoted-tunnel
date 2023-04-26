@@ -3,39 +3,16 @@
 ## IN PROGRESS
 
 - [ ] Rate limit (for e.g. when you've misconfigured your UDP broadcast to send to your own listener)
-- [ ] Error on CTRL-C
+      - https://blog.logrocket.com/rate-limiting-go-application/
+      - https://pkg.go.dev/golang.org/x/time/rate
+
+- [x] Error on CTRL-C
       ```
       2023/04/19 10:07:03 FATAL         runtime error: invalid memory address or nil pointer dereference
       ```
 
 - [ ] Tailscale
-      - [x] addr
-      - [x] workdir
-      - [x] hostname
-      - [x] log format
-      - [x] tsnet logging 
-      - [x] authorisation
-            - (?) Maybe fatal exit on failed auth method
-            - [x] manual
-            - [x] TS_AUTHKEY
-            - [x] TOML
-                  - [x] authkey:
-                  - [x] env:
-                  - [x] OAuth2
-      - [x] event connectors
       - [ ] plugin (in branch)
-      - [x] README
-            - [x] TS_AUTHKEY
-            - [x] TOML authorisation
-            - [x] OAuth2 tailnet is organisation 
-                  (Ref. https://github.com/tailscale/terraform-provider-tailscale/issues/206)
-            - [x] OAuth2 tagged devices don't expire
-            - [x] ...,debug for tailscale logging
-            - [x] NOTE: Keep alive is expected to be an application thing because if the server is 
-                  down for a long time an internal keep-alive could backoff to the maximum limit
-                  and then the next request could take a long time. 
-            - [x] https://github.com/tailscale/tailscale/issues/1552
-      - [x] CHANGELOG
 
 
 ## TODO

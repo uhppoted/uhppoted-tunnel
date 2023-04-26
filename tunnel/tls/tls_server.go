@@ -114,7 +114,9 @@ func (tcp *tlsServer) Close() {
 }
 
 func (tcp *tlsServer) Run(router *router.Switch) (err error) {
-	var socket net.Listener
+	sockets := conn.NewSocketList()
+
+	defer sockets.CloseAll()
 
 	go func() {
 	loop:
@@ -135,10 +137,14 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 			} else if sock == nil {
 				tcp.Warnf("%v", fmt.Errorf("failed to create TCP listen socket (%v)", sock))
 			} else {
-				socket = tls.NewListener(sock, tcp.config)
+				socket := tls.NewListener(sock, tcp.config)
+
+				sockets.Add(socket)
 
 				tcp.retry.Reset()
 				tcp.listen(socket, router)
+
+				sockets.Close(socket)
 			}
 
 			if !tcp.retry.Wait(tcp.Tag) {
@@ -154,8 +160,6 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 	}()
 
 	<-tcp.ctx.Done()
-
-	socket.Close()
 
 	return nil
 }
