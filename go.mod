@@ -11,6 +11,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.5
 	github.com/uhppoted/uhppote-core v0.8.5-0.20230328170429-e2d237dc75b1
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
+	golang.org/x/time v0.0.0-20220609170525-579cf78fd858
 	tailscale.com v1.38.4
 )
 
@@ -72,7 +73,6 @@ require (
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/term v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
-	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	golang.org/x/tools v0.4.1-0.20221208213631-3f74d914ae6d // indirect
 	golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2 // indirect
 	golang.zx2c4.com/wireguard/windows v0.5.3 // indirect

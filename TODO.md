@@ -3,13 +3,12 @@
 ## IN PROGRESS
 
 - [ ] Rate limit (for e.g. when you've misconfigured your UDP broadcast to send to your own listener)
-      - https://blog.logrocket.com/rate-limiting-go-application/
-      - https://pkg.go.dev/golang.org/x/time/rate
+      - [x] Rate limiter
+      - [ ] TOML file settings
+      - [ ] README
+      - [ ] CHANGELOG
 
 - [x] Error on CTRL-C
-      ```
-      2023/04/19 10:07:03 FATAL         runtime error: invalid memory address or nil pointer dereference
-      ```
 
 - [ ] Tailscale
       - [ ] plugin (in branch)

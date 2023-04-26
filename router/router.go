@@ -5,6 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/time/rate"
+
 	"github.com/uhppoted/uhppoted-tunnel/log"
 )
 
@@ -39,6 +41,7 @@ var router = Router{
 }
 
 var ticker = time.NewTicker(15 * time.Second)
+var limiter = rate.NewLimiter(1, 120)
 
 func init() {
 	go func() {
@@ -65,6 +68,11 @@ func NewSwitch(f func(uint32, []byte)) Switch {
 }
 
 func (s *Switch) Received(id uint32, message []byte, h func([]byte)) {
+	if !limiter.Allow() {
+		warnf("ROUTER", "rate limit exceeded")
+		return
+	}
+
 	if message != nil {
 		hf := router.get(id)
 
@@ -147,4 +155,10 @@ func infof(tag, format string, args ...any) {
 	f := fmt.Sprintf("%-10v %v", tag, format)
 
 	log.Infof(f, args...)
+}
+
+func warnf(tag, format string, args ...any) {
+	f := fmt.Sprintf("%-10v %v", tag, format)
+
+	log.Warnf(f, args...)
 }

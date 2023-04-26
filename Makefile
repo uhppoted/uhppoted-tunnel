@@ -163,6 +163,9 @@ tailscale-server: build
 #	$(CMD) --debug --console --workdir ../runtime/uhppoted-tunnel --in tailscale/server:uhppoted:12345,nolog --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
 	$(CMD) --config "../runtime/uhppoted-tunnel/uhppoted-tunnel.toml#tailscale-server"
 
+tailscale-server-misconfigured: build
+	$(CMD) --config "../runtime/uhppoted-tunnel/uhppoted-tunnel.toml#tailscale-server" --out udp/broadcast:192.168.1.255:60000
+
 tailscale-event-client: build
 	$(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tailscale/client::qwerty:uhppoted:12345,nolog
 
