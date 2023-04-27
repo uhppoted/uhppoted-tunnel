@@ -22,6 +22,7 @@ type tcpServer struct {
 	retry       conn.Backoff
 	connections map[net.Conn]struct{}
 	ctx         context.Context
+	closing     bool
 	closed      chan struct{}
 	sync.RWMutex
 }
@@ -86,7 +87,7 @@ func (tcp *tcpServer) Close() {
 }
 
 func (tcp *tcpServer) Run(router *router.Switch) (err error) {
-	closing := false
+	tcp.closing = false
 	sockets := conn.NewSocketList()
 
 	defer sockets.CloseAll()
@@ -113,10 +114,10 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 				sockets.Add(socket)
 				tcp.retry.Reset()
 				tcp.listen(socket, router)
-				sockets.Close(socket)
+				sockets.Closed(socket)
 			}
 
-			if closing || !tcp.retry.Wait(tcp.Tag) {
+			if tcp.closing || !tcp.retry.Wait(tcp.Tag) {
 				break loop
 			}
 		}
@@ -130,7 +131,7 @@ func (tcp *tcpServer) Run(router *router.Switch) (err error) {
 
 	<-tcp.ctx.Done()
 
-	closing = true
+	tcp.closing = true
 
 	return nil
 }
@@ -174,6 +175,8 @@ func (tcp *tcpServer) listen(socket net.Listener, router *router.Switch) {
 					if N, err := socket.Read(buffer); err != nil {
 						if err == io.EOF {
 							tcp.Infof("client connection %v closed ", socket.RemoteAddr())
+						} else if tcp.closing {
+							tcp.Infof("shutdown client connection %v", socket.RemoteAddr())
 						} else {
 							tcp.Warnf("%v", err)
 						}

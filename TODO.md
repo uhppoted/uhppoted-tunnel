@@ -9,6 +9,9 @@
       - [x] CHANGELOG
 
 - [x] Error on CTRL-C
+- [ ] Document openssl commands to generate keys
+      - Ref. https://openssl-ca.readthedocs.io/en/latest/sign-server-and-client-certificates.html
+      - Ref. https://stackoverflow.com/questions/10175812/how-to-generate-a-self-signed-ssl-certificate-using-openssl
 
 - [ ] Tailscale
       - [x] Close server more gracefully
