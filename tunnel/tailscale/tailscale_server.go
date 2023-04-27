@@ -29,6 +29,7 @@ type tailscaleServer struct {
 	connections map[net.Conn]struct{}
 	ctx         context.Context
 	closed      chan struct{}
+	closing     bool
 	sync.RWMutex
 }
 
@@ -42,16 +43,6 @@ func NewTailscaleInServer(workdir string, hostname string, spec string, auth str
 
 	return server, err
 }
-
-// func NewTCPOutServer(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpServer, error) {
-//     server, err := makeTCPServer(hwif, spec, retry, ctx)
-//
-//     if err == nil {
-//         server.Infof("connector::tcp-server-out")
-//     }
-//
-//     return server, err
-// }
 
 func makeTailscaleServer(workdir string, hostname string, spec string, auth string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleServer, error) {
 	addr, port, err := resolveTailscaleAddr(spec)
@@ -109,7 +100,7 @@ func (ts *tailscaleServer) Close() {
 }
 
 func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
-	closing := false
+	ts.closing = false
 	sockets := conn.NewSocketList()
 
 	// ... get authkey
@@ -187,7 +178,7 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 				sockets.Close(socket)
 			}
 
-			if closing || !ts.retry.Wait(ts.Tag) {
+			if ts.closing || !ts.retry.Wait(ts.Tag) {
 				break loop
 			}
 		}
@@ -201,7 +192,7 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 
 	<-ts.ctx.Done()
 
-	closing = true
+	ts.closing = true
 
 	return nil
 }
@@ -227,7 +218,9 @@ func (ts *tailscaleServer) listen(socket net.Listener, router *router.Switch) {
 			return
 		}
 
-		ts.Infof("incoming connection (%v)", client.RemoteAddr())
+		addr := client.RemoteAddr()
+
+		ts.Infof("incoming connection %v", addr)
 
 		defer client.Close()
 
@@ -240,7 +233,9 @@ func (ts *tailscaleServer) listen(socket net.Listener, router *router.Switch) {
 				buffer := make([]byte, 2048) // buffer is handed off to router
 				if N, err := socket.Read(buffer); err != nil {
 					if err == io.EOF {
-						ts.Infof("client connection %v closed ", socket.RemoteAddr())
+						ts.Infof("client connection %v closed ", addr)
+					} else if ts.closing {
+						ts.Infof("shutdown client connection %v", addr)
 					} else {
 						ts.Warnf("%v", err)
 					}

@@ -30,16 +30,6 @@ type tailscaleClient struct {
 	closed   chan struct{}
 }
 
-// func NewTCPInClient(hwif string, spec string, retry conn.Backoff, ctx context.Context) (*tcpClient, error) {
-//     client, err := makeTCPClient(hwif, spec, retry, ctx)
-//
-//     if err == nil {
-//         client.Infof("connector::tcp-client-in")
-//     }
-//
-//     return client, err
-// }
-
 func NewTailscaleOutClient(workdir string, hostname string, spec string, auth string, retry conn.Backoff, logging string, ctx context.Context) (*tailscaleClient, error) {
 	client, err := makeTailscaleClient(workdir, hostname, spec, auth, retry, logging, ctx)
 
