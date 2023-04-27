@@ -20,6 +20,7 @@ type udpListen struct {
 	retry   conn.Backoff
 	ctx     context.Context
 	sockets map[net.PacketConn]struct{}
+	closing bool
 	closed  chan struct{}
 }
 
@@ -73,7 +74,7 @@ func (udp *udpListen) Close() {
 }
 
 func (udp *udpListen) Run(router *router.Switch) (err error) {
-	closing := false
+	udp.closing = false
 	sockets := conn.NewSocketList()
 
 	defer sockets.CloseAll()
@@ -101,12 +102,12 @@ func (udp *udpListen) Run(router *router.Switch) (err error) {
 				udp.sockets[socket] = struct{}{}
 				udp.retry.Reset()
 				udp.listen(socket, router)
-				sockets.Close(socket)
+				sockets.Closed(socket)
 			}
 
 			delete(udp.sockets, socket)
 
-			if closing || !udp.retry.Wait(udp.Tag) {
+			if udp.closing || !udp.retry.Wait(udp.Tag) {
 				break loop
 			}
 		}
@@ -116,7 +117,7 @@ func (udp *udpListen) Run(router *router.Switch) (err error) {
 
 	<-udp.ctx.Done()
 
-	closing = true
+	udp.closing = true
 
 	return nil
 }
@@ -149,6 +150,8 @@ func (udp *udpListen) listen(socket net.PacketConn, router *router.Switch) {
 
 			if N, err := socket.WriteTo(reply, remote); err != nil {
 				udp.Warnf("%v", err)
+			} else if udp.closing {
+				udp.Infof("shutdown client connection")
 			} else {
 				udp.Debugf("sent %v bytes to %v\n", N, remote)
 			}
