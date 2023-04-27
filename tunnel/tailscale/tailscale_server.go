@@ -175,7 +175,7 @@ func (ts *tailscaleServer) Run(router *router.Switch) (err error) {
 				ts.retry.Reset()
 				ts.listen(socket, router)
 
-				sockets.Close(socket)
+				sockets.Closed(socket)
 			}
 
 			if ts.closing || !ts.retry.Wait(ts.Tag) {

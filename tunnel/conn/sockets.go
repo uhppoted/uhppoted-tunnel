@@ -34,6 +34,13 @@ func (s *SocketList) Close(socket TSocket) {
 	delete(s.list, socket)
 }
 
+func (s *SocketList) Closed(socket TSocket) {
+	s.Lock()
+	defer s.Unlock()
+
+	delete(s.list, socket)
+}
+
 func (s *SocketList) CloseAll() {
 	s.Lock()
 	defer s.Unlock()

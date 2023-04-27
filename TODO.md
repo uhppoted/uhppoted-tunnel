@@ -15,7 +15,7 @@
       ```
       2023/04/26 11:06:19 WARN   tailscale  read tcp 100.112.82.254:12345: operation aborted
       ```
-      - [ ] socket is closed in listen() - probaby don't need to close in sockets.Close as well
+      - [x] socket is closed in listen() - probaby don't need to close in sockets.Close as well
       - [ ] Update TCP/TLS server to match
       - [ ] plugin (in branch)
 
