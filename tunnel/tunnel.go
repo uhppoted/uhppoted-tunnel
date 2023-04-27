@@ -6,6 +6,8 @@ import (
 	"os"
 	"sync"
 
+	"golang.org/x/time/rate"
+
 	"github.com/uhppoted/uhppoted-tunnel/log"
 	"github.com/uhppoted/uhppoted-tunnel/router"
 )
@@ -17,21 +19,25 @@ type Conn interface {
 }
 
 type Tunnel struct {
-	in  Conn
-	out Conn
-	ctx context.Context
+	in      Conn
+	out     Conn
+	limiter *rate.Limiter
+	ctx     context.Context
 }
 
-func NewTunnel(in Conn, out Conn, ctx context.Context) *Tunnel {
+func NewTunnel(in Conn, out Conn, limiter *rate.Limiter, ctx context.Context) *Tunnel {
 	return &Tunnel{
-		in:  in,
-		out: out,
-		ctx: ctx,
+		in:      in,
+		out:     out,
+		limiter: limiter,
+		ctx:     ctx,
 	}
 }
 
 func (t *Tunnel) Run(interrupt chan os.Signal) (err error) {
 	infof("", "%v", "uhppoted-tunnel::run")
+
+	router.SetRateLimiter(t.limiter)
 
 	p := router.NewSwitch(func(id uint32, message []byte) {
 		t.out.Send(id, message)

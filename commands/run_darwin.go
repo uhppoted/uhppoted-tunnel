@@ -39,6 +39,9 @@ var RUN = Run{
 	workdir:     "/usr/local/var/com.github.uhppoted",
 	logFile:     fmt.Sprintf("/usr/local/var/com.github.uhppoted/logs/%s.log", SERVICE),
 	logFileSize: 10,
+
+	rateLimit:  1,
+	burstLimit: 120,
 }
 
 func (cmd *Run) FlagSet() *flag.FlagSet {

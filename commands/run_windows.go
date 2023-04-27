@@ -45,6 +45,9 @@ var RUN = Run{
 	workdir:     workdir(),
 	logFile:     filepath.Join(workdir(), "logs", fmt.Sprintf("%s.log", SERVICE)),
 	logFileSize: 10,
+
+	rateLimit:  1,
+	burstLimit: 120,
 }
 
 type service struct {

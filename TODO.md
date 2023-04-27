@@ -2,11 +2,11 @@
 
 ## IN PROGRESS
 
-- [ ] Rate limit (for e.g. when you've misconfigured your UDP broadcast to send to your own listener)
+- [x] Rate limit (for e.g. when you've misconfigured your UDP broadcast to send to your own listener)
       - [x] Rate limiter
-      - [ ] TOML file settings
-      - [ ] README
-      - [ ] CHANGELOG
+      - [x] TOML file settings
+      - [x] README
+      - [x] CHANGELOG
 
 - [x] Error on CTRL-C
 

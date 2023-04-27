@@ -3,6 +3,8 @@ lockfile = ""
 max-retries = 32
 max-retry-delay = "5m"
 udp-timeout = "5s"
+rate-limit = 1
+rate-limit-burst = 120
 
 [debug]
 in = "tcp/client:127.0.0.1:12345"

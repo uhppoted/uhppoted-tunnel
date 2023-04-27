@@ -14,6 +14,8 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/time/rate"
+
 	core "github.com/uhppoted/uhppote-core/uhppote"
 	"github.com/uhppoted/uhppoted-lib/config"
 	lib "github.com/uhppoted/uhppoted-lib/lockfile"
@@ -55,6 +57,9 @@ type Run struct {
 	debug             bool
 	console           bool
 	daemon            bool
+
+	rateLimit  rate.Limit
+	burstLimit int
 }
 
 const MAX_RETRIES = -1
@@ -174,6 +179,22 @@ func (cmd *Run) ParseCmd(args ...string) error {
 				cmd.auth = q
 			}
 		}
+
+		if p, ok := config["rate-limit"]; ok {
+			if q, ok := p.(float64); ok {
+				cmd.rateLimit = rate.Limit(q)
+			} else if q, ok := p.(int64); ok {
+				cmd.rateLimit = rate.Limit(q)
+			}
+		}
+
+		if p, ok := config["rate-limit-burst"]; ok {
+			if q, ok := p.(float64); ok {
+				cmd.burstLimit = int(q)
+			} else if q, ok := p.(int64); ok {
+				cmd.burstLimit = int(q)
+			}
+		}
 	}
 
 	return nil
@@ -225,7 +246,11 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 		return
 	}
 
-	t := tunnel.NewTunnel(in, out, ctx)
+	infof("tunnel", "rate  limit %v requests per second", cmd.rateLimit)
+	infof("tunnel", "burst limit %v requests", cmd.burstLimit)
+	limiter := rate.NewLimiter(cmd.rateLimit, cmd.burstLimit)
+
+	t := tunnel.NewTunnel(in, out, limiter, ctx)
 
 	f(t, ctx, cancel)
 

@@ -61,6 +61,12 @@ func init() {
 	}()
 }
 
+func SetRateLimiter(l *rate.Limiter) {
+	if l != nil {
+		limiter = l
+	}
+}
+
 func NewSwitch(f func(uint32, []byte)) Switch {
 	return Switch{
 		relay: f,

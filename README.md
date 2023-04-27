@@ -620,6 +620,22 @@ The `credentials` is a JSON file that contains the OAuth2 credentials for the OA
    specific keep-alive is more flexible and more useful. Additionally an internal keep-alive can potentially force
    a connection to unnecessarily backoff to the maximum delay.
 
+### _Rate Limiting_ 
+
+_uhppoted-tunnel_ has an internal rate limit that limits the number of requests per second that can be processed. The default
+settings are reasonably conservative:
+- rate limited to 1 request per second
+- burst rate of 120 requests
+
+These limits can be changed in the TOML configuration file, e.g.:
+```
+...
+rate-limit = 5
+rate-limit-burst = 300
+...
+```
+
+Fractional rate limits are supported e.g. `rate-limit = 0.1`
 
 ## Attribution
 

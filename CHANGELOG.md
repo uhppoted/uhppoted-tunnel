@@ -4,6 +4,7 @@
 
 ### Added
 1. Implemented tailscale client and server connectors.
+2. Added rate limiter for incoming requests/events.
 
 ### Updated
 1. Renamed _master_ branch to _main_.

@@ -52,6 +52,8 @@ max-retries = 32
 max-retry-delay = "5m"
 udp-timeout = "5s"
 interfaces = { "in" = "en3", "out" = "" }
+rate-limit = 1
+rate-limit-burst = 120
 ...
 
 
@@ -78,6 +80,10 @@ interfaces = { "in" = "en3", "out" = "" }
 | console          | Runs in _console_ mode i.e. logs to console                     | false                             |
 | debug            | Enables display of low-level UDP messages                       | false                             |
 | label            | Service label used to distinguish multiple tunnesl on a machine | _None_                            |
+|                  |                                                                 |                                   |
+| rate-limit       | Average request rate limit (requests/second)                    | 1                                 |
+| rate-limit-burst | Burst request rate limit (requests)                             | 120                               |
+
 
 ## Service specific sections
 

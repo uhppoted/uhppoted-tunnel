@@ -54,7 +54,7 @@ func Dump(m []byte, prefix string) string {
 }
 
 func Dumpf(tag string, message []byte, format string, args ...any) {
-	hex := Dump(message, "                                  ")
+	hex := Dump(message, "                                      ")
 	preamble := fmt.Sprintf(format, args...)
 
 	debugf(tag, "%v\n%s", preamble, hex)

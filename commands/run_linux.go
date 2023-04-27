@@ -40,6 +40,9 @@ var RUN = Run{
 	workdir:     "/var/uhppoted",
 	logFile:     fmt.Sprintf("/var/log/uhppoted/%s.log", SERVICE),
 	logFileSize: 10,
+
+	rateLimit:  1,
+	burstLimit: 120,
 }
 
 func (cmd *Run) FlagSet() *flag.FlagSet {
