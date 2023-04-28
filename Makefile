@@ -115,10 +115,18 @@ reverse-client: build
 	$(CMD) --debug --console --in tcp/server:0.0.0.0:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
 
 tls-host: build
-	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tls/server:0.0.0.0:12345 --client-auth
+	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tls/server:0.0.0.0:12345 \
+	       --ca-cert ../runtime/uhppoted-tunnel/ca.cert     \
+	       --key     ../runtime/uhppoted-tunnel/server.key  \
+	       --cert    ../runtime/uhppoted-tunnel/server.cert \
+           --client-auth
 
 tls-client: build
-	$(CMD) --debug --console --in tls/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
+	$(CMD) --debug --console --in tls/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60005 \
+	       --ca-cert ../runtime/uhppoted-tunnel/ca.cert     \
+	       --key     ../runtime/uhppoted-tunnel/client.key  \
+	       --cert    ../runtime/uhppoted-tunnel/client.cert
+	       --udp-timeout 1s
 
 event-client: build
 	$(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tcp/client:127.0.0.1:12345

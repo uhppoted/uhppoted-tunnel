@@ -2,25 +2,12 @@
 
 ## IN PROGRESS
 
-- [x] Rate limit (for e.g. when you've misconfigured your UDP broadcast to send to your own listener)
-      - [x] Rate limiter
-      - [x] TOML file settings
-      - [x] README
-      - [x] CHANGELOG
-
-- [x] Error on CTRL-C
-- [ ] Document openssl commands to generate keys
-      - Ref. https://openssl-ca.readthedocs.io/en/latest/sign-server-and-client-certificates.html
-      - Ref. https://stackoverflow.com/questions/10175812/how-to-generate-a-self-signed-ssl-certificate-using-openssl
-
-- [ ] Tailscale
-      - [x] Close server more gracefully
-      ```
-      2023/04/26 11:06:19 WARN   tailscale  read tcp 100.112.82.254:12345: operation aborted
-      ```
+- [x] Document openssl commands to generate keys
+- [x] Tailscale
       - [x] socket is closed in listen() - probaby don't need to close in sockets.Close as well
-      - [ ] Update TCP/TLS server to match
-      - [ ] plugin (in branch)
+      - [x] Update TCP/TLS server to match
+
+- [ ] Tailscale plugin (in branch)
 
 
 ## TODO

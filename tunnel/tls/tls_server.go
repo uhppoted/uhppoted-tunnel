@@ -27,6 +27,7 @@ type tlsServer struct {
 	connections map[net.Conn]struct{}
 	pending     map[uint32]context.CancelFunc
 	ctx         context.Context
+	closing     bool
 	closed      chan struct{}
 	sync.RWMutex
 }
@@ -114,6 +115,7 @@ func (tcp *tlsServer) Close() {
 }
 
 func (tcp *tlsServer) Run(router *router.Switch) (err error) {
+	tcp.closing = false
 	sockets := conn.NewSocketList()
 
 	defer sockets.CloseAll()
@@ -140,14 +142,12 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 				socket := tls.NewListener(sock, tcp.config)
 
 				sockets.Add(socket)
-
 				tcp.retry.Reset()
 				tcp.listen(socket, router)
-
-				sockets.Close(socket)
+				sockets.Closed(socket)
 			}
 
-			if !tcp.retry.Wait(tcp.Tag) {
+			if tcp.closing || !tcp.retry.Wait(tcp.Tag) {
 				break loop
 			}
 		}
@@ -160,6 +160,8 @@ func (tcp *tlsServer) Run(router *router.Switch) (err error) {
 	}()
 
 	<-tcp.ctx.Done()
+
+	tcp.closing = true
 
 	return nil
 }
