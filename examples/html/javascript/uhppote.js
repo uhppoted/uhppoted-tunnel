@@ -259,3 +259,12 @@ export function SetPcControl (deviceId, enable) {
       return reply ? decode.SetPcControlResponse(reply) : null
     })
 }
+
+export function SetInterlock (deviceId, interlock) {
+  const request = encode.SetInterlockRequest(deviceId, interlock)
+
+  return udp.send(request)
+    .then(reply => {
+      return reply ? decode.SetInterlockResponse(reply) : null
+    })
+}

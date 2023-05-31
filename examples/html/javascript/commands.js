@@ -290,6 +290,13 @@ export function setPCControl (controller, enabled) {
   return uhppote.SetPCControl(controller, enabled)
 }
 
+export function setInterlock (controller, interlock) {
+  controller = arg(controller)
+  interlock = arg(interlock)
+
+  return uhppote.SetInterlock(controller, interlock)
+}
+
 function arg (tag) {
   let e = document.querySelector(`input[data-tag="${tag}"]`)
 

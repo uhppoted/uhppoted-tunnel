@@ -387,6 +387,19 @@ export function SetPcControlRequest (deviceId, enable) {
   return request
 }
 
+export function SetInterlockRequest (deviceId, interlock) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+
+  request[0] = 0x17
+  request[1] = 0xa2
+
+  packUint32(deviceId, view, 4)
+  packUint8(interlock, view, 8)
+
+  return request
+}
+
 function packUint8 (v, packet, offset) {
   packet.setUint8(offset, v)
 }

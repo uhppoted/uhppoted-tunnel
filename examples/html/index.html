@@ -55,6 +55,7 @@
             <li onclick="onSelect(event)" data-cmd="clear-tasklist">clear-tasklist</li>
             <li class="spacer"></li>
             <li onclick="onSelect(event)" data-cmd="set-pc-control">set-pc-control</li>
+            <li onclick="onSelect(event)" data-cmd="set-interlock">set-interlock</li>
           </ul>
         </div>
 
@@ -219,6 +220,10 @@
             <label for="pc-control" class="parameter">
               PC control
               <input id="pc-control" type="checkbox" data-tag="pc-control" checked />
+            </label>
+            <label for="interlock" class="parameter">
+              Door interlock
+              <input id="interlock" type="number" placeholder="interlock mode" data-tag="interlock" />
             </label>
           </div>
 

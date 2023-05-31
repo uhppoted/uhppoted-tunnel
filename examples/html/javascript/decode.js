@@ -666,6 +666,29 @@ export function SetPcControlResponse (packet) {
   }
 }
 
+export function SetInterlockResponse (packet) {
+  const buffer = new Uint8Array(packet)
+  const view = new DataView(buffer.buffer)
+
+  if (buffer.length !== 64) {
+    throw new Error(`invalid reply packet length (${buffer.length})`)
+  }
+
+  // Ref. v6.62 firmware event
+  if (packet[0] !== 0x17 && (packet[0] !== 0x19 || packet[1] !== 0x20)) {
+    throw new Error(`invalid reply start of message byte (${buffer[10].toString(16).padStart(2, '0')})`)
+  }
+
+  if (buffer[1] !== 0xa2) {
+    throw new Error(`invalid reply function code (${buffer[1].toString(16).padStart(2, '0')})`)
+  }
+
+  return {
+    controller: unpackUint32(view, 4),
+    ok: unpackBool(view, 8)
+  }
+}
+
 function unpackUint8 (packet, offset) {
   return packet.getUint8(offset)
 }

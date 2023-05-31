@@ -2,10 +2,7 @@
 
 ## IN PROGRESS
 
-- [x] Document openssl commands to generate keys
-- [x] Tailscale
-      - [x] socket is closed in listen() - probaby don't need to close in sockets.Close as well
-      - [x] Update TCP/TLS server to match
+- [x] `set-interlock`
 
 - [ ] Tailscale plugin (in branch)
 
