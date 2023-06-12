@@ -51,6 +51,7 @@ Supported operating systems:
 
 | *Version* | *Description*                                                                             |
 | --------- | ----------------------------------------------------------------------------------------- |
+| v0.8.5    | Added support for _Tailscale_                                                             |
 | v0.8.4    | Added event connectors and support for binding to specific network interface              |
 | v0.8.3    | TOML configuration file support and reworked lockfile to use `flock` _syscall_            |
 | v0.8.2    | Completed HTTP/S example application                                                      |
