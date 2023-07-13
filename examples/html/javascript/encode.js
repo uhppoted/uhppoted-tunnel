@@ -400,6 +400,22 @@ export function SetInterlockRequest (deviceId, interlock) {
   return request
 }
 
+export function ActivateKeypadsRequest (deviceId, reader1, reader2, reader3, reader4) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+
+  request[0] = 0x17
+  request[1] = 0xa4
+
+  packUint32(deviceId, view, 4)
+  packBool(reader1, view, 8)
+  packBool(reader2, view, 9)
+  packBool(reader3, view, 10)
+  packBool(reader4, view, 11)
+
+  return request
+}
+
 function packUint8 (v, packet, offset) {
   packet.setUint8(offset, v)
 }

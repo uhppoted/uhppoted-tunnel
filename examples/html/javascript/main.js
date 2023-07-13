@@ -79,7 +79,8 @@ export const COMMANDS = new Map([
   ['refresh-tasklist', { fn: commands.refreshTaskList, args: ['controller'] }],
   ['clear-tasklist', { fn: commands.clearTaskList, args: ['controller'] }],
   ['set-pc-control', { fn: commands.setPCControl, args: ['controller', 'pc-control'] }],
-  ['set-interlock', { fn: commands.setInterlock, args: ['controller', 'interlock'] }]
+  ['set-interlock', { fn: commands.setInterlock, args: ['controller', 'interlock'] }],
+  ['activate-keypads', { fn: commands.activateKeypads, args: ['controller', 'reader1', 'reader2', 'reader3', 'reader4'] }]
 ])
 
 export function exec (cmd) {

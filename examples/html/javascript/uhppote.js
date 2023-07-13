@@ -268,3 +268,12 @@ export function SetInterlock (deviceId, interlock) {
       return reply ? decode.SetInterlockResponse(reply) : null
     })
 }
+
+export function ActivateKeypads (deviceId, reader1, reader2, reader3, reader4) {
+  const request = encode.ActivateKeypadsRequest(deviceId, reader1, reader2, reader3, reader4)
+
+  return udp.send(request)
+    .then(reply => {
+      return reply ? decode.ActivateKeypadsResponse(reply) : null
+    })
+}

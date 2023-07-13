@@ -2,7 +2,7 @@
 
 ## IN PROGRESS
 
-- [x] `set-interlock`
+- [x] activate-keypads (cf. https://github.com/uhppoted/uhppoted/issues/35)
 
 - [ ] Tailscale plugin (in branch)
 
@@ -34,6 +34,7 @@
 - [ ] XMPP
 - [ ] ZMQ
 - [ ] [nostr](https://github.com/nostr-protocol/nostr)
+- [ ] https://cloud.google.com/pubsub
 
 - (?) eBPF
 - (?) Encode packet with protocol buffers/MessagePack/Apache Avro

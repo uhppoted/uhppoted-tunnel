@@ -297,6 +297,16 @@ export function setInterlock (controller, interlock) {
   return uhppote.SetInterlock(controller, interlock)
 }
 
+export function activateKeypads (controller, reader1, reader2, reader3, reader4) {
+  controller = arg(controller)
+  reader1 = arg(reader1)
+  reader2 = arg(reader2)
+  reader3 = arg(reader3)
+  reader4 = arg(reader4)
+
+  return uhppote.ActivateKeypads(controller, reader1, reader2, reader3, reader4)
+}
+
 function arg (tag) {
   let e = document.querySelector(`input[data-tag="${tag}"]`)
 
