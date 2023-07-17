@@ -308,7 +308,7 @@ export function activateKeypads (controller, reader1, reader2, reader3, reader4)
 }
 
 function arg (tag) {
-  let e = document.querySelector(`input[data-tag="${tag}"]`)
+  let e = document.querySelector(`[data-tag="${tag}"]`)
 
   if (e) {
     if (e.type === 'checkbox') {
@@ -318,7 +318,7 @@ function arg (tag) {
     }
   }
 
-  e = document.querySelector(`input#${tag}`)
+  e = document.querySelector(`#${tag}`)
 
   if (e) {
     if (e.type === 'checkbox') {

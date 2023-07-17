@@ -188,6 +188,23 @@
 
           <div class="section tasks">
             <div class="section-label">task</div>
+            <label class="parameter-label">task type</label>
+            <select class="parameter-value" placeholder="task type" data-tag="task.type">
+              <option value="0">door controlled</option>
+              <option value="1">door normally open</option>
+              <option value="2">door normally closed</option>
+              <option value="3">disable time profile</option>
+              <option value="4">enable time profile</option>
+              <option value="5">card no password</option>
+              <option value="6">card in password</option>
+              <option value="7">card in out password</option>
+              <option value="8">enable more cards</option>
+              <option value="9">disable more cards</option>
+              <option value="10">trigger once</option>
+              <option value="11">disable push button</option>
+              <option value="12">enable push button</option>
+            </select>
+            
             <label class="parameter-label">start date</label>
             <input class="parameter-value" type="date" data-tag="task.start-date" />
             <label class="parameter-label">end date</label>
@@ -209,9 +226,6 @@
 
             <label class="parameter-label">door</label>
             <input class="parameter-value" type="number" min="1" max="4" placeholder="door" data-tag="task.door" />
-            
-            <label class="parameter-label">task type</label>
-            <input class="parameter-value" type="number" placeholder="task type" data-tag="task.type" />
             
             <label class="parameter-label">more cards</label>
             <input class="parameter-value" type="number" min="0" max="255" placeholder="number of cards" data-tag="task.more-cards" />

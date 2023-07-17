@@ -93,6 +93,7 @@ export function execute (event) {
         .catch(err => warn(`${err}`))
     }
   } catch (err) {
+    console.error(err)
     warn(err)
   }
 }
@@ -101,7 +102,7 @@ function stash (cmd) {
   const list = main.COMMANDS.get(cmd).args
 
   list
-    .map(tag => document.querySelector(`input[data-tag="${tag}"]`))
+    .map(tag => document.querySelector(`[data-tag="${tag}"]`))
     .filter(e => e.dataset.tag !== 'datetime')
     .forEach(e => put(e.dataset.tag, e.type === 'checkbox' ? e.checked : e.value))
 }

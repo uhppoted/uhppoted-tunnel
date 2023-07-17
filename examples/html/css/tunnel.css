@@ -194,6 +194,13 @@ main div.section .parameter-value {
   width: 120px;
 }
 
+select.parameter-value {
+  font-family: sans-serif;
+  font-variant: small-caps;
+  font-variant-caps: all-small-caps;
+  white-space: nowrap;
+}
+
 main div.section .parameter {
   grid-column: 2 / span 2;
   display: flex;
