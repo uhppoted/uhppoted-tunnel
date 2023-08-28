@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## [0.8.6](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.6) - 2023-08-30
 
 ### Added
 1. Added `activate-keypads` command to the HTTP connector example.
