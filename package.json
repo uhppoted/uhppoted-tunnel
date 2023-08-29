@@ -1,6 +1,6 @@
 {
   "name": "uhppoted-tunnel",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "description": "UDP tunnel for remote access to UHPPOTE controllers",
   "main": "index.js",
   "scripts": {
