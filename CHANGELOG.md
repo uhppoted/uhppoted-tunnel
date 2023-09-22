@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+1. Added `set-door-passcodes` command to the HTTP connector example.
+
 
 ## [0.8.6](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.6) - 2023-08-30
 

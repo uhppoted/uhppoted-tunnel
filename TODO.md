@@ -2,7 +2,11 @@
 
 ## IN PROGRESS
 
-- [x] activate-keypads (cf. https://github.com/uhppoted/uhppoted/issues/35)
+- [x] `set-door-passcodes` (cf. https://github.com/uhppoted/uhppoted/issues/40)
+      - [x] HTTP example
+      - [x] CHANGELOG
+      - [x] README
+
 
 - [ ] Tailscale plugin (in branch)
 

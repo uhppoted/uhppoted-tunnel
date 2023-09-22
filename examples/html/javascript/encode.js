@@ -416,6 +416,23 @@ export function ActivateKeypadsRequest (deviceId, reader1, reader2, reader3, rea
   return request
 }
 
+export function SetDoorPasscodesRequest (deviceId, door, passcode1, passcode2, passcode3, passcode4) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+
+  request[0] = 0x17
+  request[1] = 0x8c
+
+  packUint32(deviceId, view, 4)
+  packUint8(door, view, 8)
+  packUint32(passcode1, view, 12)
+  packUint32(passcode2, view, 16)
+  packUint32(passcode3, view, 20)
+  packUint32(passcode4, view, 24)
+
+  return request
+}
+
 function packUint8 (v, packet, offset) {
   packet.setUint8(offset, v)
 }

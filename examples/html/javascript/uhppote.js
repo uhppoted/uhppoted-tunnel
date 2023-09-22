@@ -277,3 +277,12 @@ export function ActivateKeypads (deviceId, reader1, reader2, reader3, reader4) {
       return reply ? decode.ActivateKeypadsResponse(reply) : null
     })
 }
+
+export function SetDoorPasscodes (deviceId, door, passcode1, passcode2, passcode3, passcode4) {
+  const request = encode.SetDoorPasscodesRequest(deviceId, door, passcode1, passcode2, passcode3, passcode4)
+
+  return udp.send(request)
+    .then(reply => {
+      return reply ? decode.SetDoorPasscodesResponse(reply) : null
+    })
+}

@@ -31,6 +31,7 @@
             <li onclick="onSelect(event)" data-cmd="set-time">set-time</li>
             <li onclick="onSelect(event)" data-cmd="get-door-control">get-door-control</li>
             <li onclick="onSelect(event)" data-cmd="set-door-control">set-door-control</li>
+            <li onclick="onSelect(event)" data-cmd="set-door-passcodes">set-door-passcodes</li>
             <li onclick="onSelect(event)" data-cmd="open-door">open-door</li>
             <li onclick="onSelect(event)" data-cmd="get-status">get-status</li>
             <li class="spacer"></li>
@@ -101,6 +102,22 @@
             <input id="door-mode"   class="parameter-value" type="number" min="1" max="3" placeholder="door control mode" value="3" data-tag="door.mode" />
             <label for="door-delay" class="parameter-label">delay</label>
             <input id="door-delay"  class="parameter-value" type="number" min="1" max="60" placeholder="door delay" value="5" data-tag="door.delay" />
+            <label for="passcode1" class="parameter">
+              Passcode 1
+              <input id="passcode1" type="number" data-tag="door.passcode1" />
+            </label>
+            <label for="passcode2" class="parameter">
+              Passcode 2
+              <input id="passcode2" type="number" data-tag="door.passcode2" />
+            </label>
+            <label for="passcode3" class="parameter">
+              Passcode 3
+              <input id="passcode3" type="number" data-tag="door.passcode3" />
+            </label>
+            <label for="passcode4" class="parameter">
+              Passcode 4
+              <input id="passcode4" type="number" data-tag="door.passcode4" />
+            </label>
           </div>
 
           <div class="section cards">

@@ -307,6 +307,17 @@ export function activateKeypads (controller, reader1, reader2, reader3, reader4)
   return uhppote.ActivateKeypads(controller, reader1, reader2, reader3, reader4)
 }
 
+export function setDoorPasscodes (controller, door, passcode1, passcode2, passcode3, passcode4) {
+  controller = arg(controller)
+  door = arg(door)
+  passcode1 = arg(passcode1)
+  passcode2 = arg(passcode2)
+  passcode3 = arg(passcode3)
+  passcode4 = arg(passcode4)
+
+  return uhppote.SetDoorPasscodes(controller, door, passcode1, passcode2, passcode3, passcode4)
+}
+
 function arg (tag) {
   let e = document.querySelector(`[data-tag="${tag}"]`)
 
