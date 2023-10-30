@@ -1,15 +1,15 @@
 module github.com/uhppoted/uhppoted-tunnel
 
-go 1.20
+go 1.21
 
 require (
-	github.com/uhppoted/uhppoted-lib v0.8.6
+	github.com/uhppoted/uhppoted-lib v0.8.7-0.20231024172141-b454e52e3418
 	golang.org/x/sys v0.13.0
 )
 
 require (
 	github.com/pelletier/go-toml/v2 v2.0.7
-	github.com/uhppoted/uhppote-core v0.8.6-0.20230828171048-fbdd46934ad7
+	github.com/uhppoted/uhppote-core v0.8.7-0.20231024161310-ebe955f9d238
 	golang.org/x/oauth2 v0.7.0
 	golang.org/x/time v0.3.0
 	tailscale.com v1.42.0
