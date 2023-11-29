@@ -47,17 +47,14 @@ Supported operating systems:
 - ARM7 _(e.g. RaspberryPi)_
 - Linux/ARM64 (experimental)
 
-## Releases
+## Release Notes
 
-| *Version* | *Description*                                                                             |
-| --------- | ----------------------------------------------------------------------------------------- |
-| v0.8.6    | Added `activate-keypads` to HTTP example                                                  |
-| v0.8.5    | Added support for _Tailscale_                                                             |
-| v0.8.4    | Added event connectors and support for binding to specific network interface              |
-| v0.8.3    | TOML configuration file support and reworked lockfile to use `flock` _syscall_            |
-| v0.8.2    | Completed HTTP/S example application                                                      |
-| v0.8.1    | Expanded on HTTP/S example application                                                    |
-| v0.8.0    | Initial release                                                                           |
+### Current Release
+
+**[v0.8.7](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.7) - 2023-12-01
+
+1. Added `set-door-passcodes` command to the HTTP connector example.
+
 
 ## Installation
 
