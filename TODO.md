@@ -49,3 +49,7 @@
 - [ ] httpd connector logo
       - https://graphicdesign.stackexchange.com/questions/159149/how-to-draw-parallel-inclined-surfaces-in-perspective
 
+## NOTES
+
+1. https://github.com/francoismichel/ssh3
+
