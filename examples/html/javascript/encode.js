@@ -1,4 +1,3 @@
-
 export function GetControllerRequest (deviceId) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
@@ -429,6 +428,19 @@ export function SetDoorPasscodesRequest (deviceId, door, passcode1, passcode2, p
   packUint32(passcode2, view, 16)
   packUint32(passcode3, view, 20)
   packUint32(passcode4, view, 24)
+
+  return request
+}
+
+export function RestoreDefaultParametersRequest (deviceId) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+
+  request[0] = 0x17
+  request[1] = 0xc8
+
+  packUint32(deviceId, view, 4)
+  packUint32(0x55aaaa55, view, 8)
 
   return request
 }

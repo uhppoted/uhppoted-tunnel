@@ -286,3 +286,12 @@ export function SetDoorPasscodes (deviceId, door, passcode1, passcode2, passcode
       return reply ? decode.SetDoorPasscodesResponse(reply) : null
     })
 }
+
+export function RestoreDefaultParameters (deviceId) {
+  const request = encode.RestoreDefaultParametersRequest(deviceId)
+
+  return udp.send(request)
+    .then(reply => {
+      return reply ? decode.RestoreDefaultParametersResponse(reply) : null
+    })
+}
