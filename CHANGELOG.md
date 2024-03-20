@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+1. Added `restore-default-parameters` command to the HTTP connector example.
+
 ### Updated
 1. Bumped Go version to 1.22
 
