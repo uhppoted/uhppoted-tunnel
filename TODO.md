@@ -14,6 +14,7 @@
 ## TODO
 
 - (?) https://shadowsocks.org
+- https://hackaday.com/2024/03/22/this-week-in-security-loop-dos-flipper-responds-and-more/
 
 - [ ] integration tests
 - io_uring
