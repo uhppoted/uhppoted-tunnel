@@ -51,9 +51,10 @@ Supported operating systems:
 
 ### Current Release
 
-**[v0.8.7](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.7) - 2023-12-01
+**[v0.8.8](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.8) - 2024-03-27
 
-1. Added `set-door-passcodes` command to the HTTP connector example.
+1. Added `restore-default-parameters` command to the HTTP connector example.
+2. Bumped Go version to 1.22
 
 
 ## Installation
