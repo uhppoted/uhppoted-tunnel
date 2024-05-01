@@ -2,11 +2,7 @@
 
 ## IN PROGRESS
 
-- [x] `set-door-passcodes` (cf. https://github.com/uhppoted/uhppoted/issues/40)
-      - [x] HTTP example
-      - [x] CHANGELOG
-      - [x] README
-
+- [ ] TCP/IP protocol (cf. https://github.com/uhppoted/uhppote-core/issues/17)
 
 - [ ] Tailscale plugin (in branch)
 
