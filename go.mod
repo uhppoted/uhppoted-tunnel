@@ -4,8 +4,8 @@ go 1.22.0
 
 require (
 	github.com/pelletier/go-toml/v2 v2.1.1
-	github.com/uhppoted/uhppote-core v0.8.9-0.20240515165158-910af58a95a2
-	github.com/uhppoted/uhppoted-lib v0.8.9-0.20240515165648-b0ffb4ea22dd
+	github.com/uhppoted/uhppote-core v0.8.9-0.20240516172829-ac8140e53a0d
+	github.com/uhppoted/uhppoted-lib v0.8.9-0.20240516174718-1f61e72907bd
 	golang.org/x/oauth2 v0.17.0
 	golang.org/x/sys v0.20.0
 	golang.org/x/time v0.5.0
