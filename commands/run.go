@@ -24,6 +24,7 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/tunnel"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/http"
+	"github.com/uhppoted/uhppoted-tunnel/tunnel/ip"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/tailscale"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/tcp"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/tls"
@@ -315,6 +316,7 @@ func (cmd *Run) makeOutConn(ctx context.Context) (tunnel.Conn, error) {
 	// ... construct connection
 	switch {
 	case
+		strings.HasPrefix(spec, "ip/out:"),
 		strings.HasPrefix(spec, "udp/broadcast:"),
 		strings.HasPrefix(spec, "udp/event:"),
 		strings.HasPrefix(spec, "tcp/client:"),
@@ -332,6 +334,9 @@ func (cmd *Run) makeOutConn(ctx context.Context) (tunnel.Conn, error) {
 func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events bool, ctx context.Context) (tunnel.Conn, error) {
 	retry := conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay, ctx)
 	switch {
+	case strings.HasPrefix(spec, "ip/out:"):
+		return ip.NewIPOut(hwif, spec[7:], cmd.udpTimeout, ctx)
+
 	case strings.HasPrefix(spec, "udp/listen:"):
 		return udp.NewUDPListen(hwif, spec[11:], retry, ctx)
 

@@ -74,7 +74,7 @@ publish: release
 	gh release create "$(VERSION)" "./dist/uhppoted-tunnel_$(VERSION).tar.gz" "./dist/uhppoted-tunnel_$(VERSION).zip" --draft --prerelease --title "$(VERSION)-beta" --notes-file release-notes.md
 
 debug: build
-	$(CMD) --debug --console --in tailscale/server:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
+	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out ip/out:192.168.1.255:60005 --udp-timeout 1s
 
 delve: build
 #   dlv exec ./bin/uhppoted-tunnel -- --debug --console
@@ -95,6 +95,12 @@ help: build
 host: build
 #	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/server:0.0.0.0:12345
 	$(CMD) --debug --console --in udp/listen:0.0.0.0:60005 --out tcp/server::lo0:127.0.0.1:12345
+
+# host-udp: build
+# 	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
+
+# host-tcp: build
+# 	$(CMD) --debug --console --in udp/listen:0.0.0.0:60000 --out tcp/client:192.168.1.100:60005
 
 client: build
 	$(CMD) --debug --console --in tcp/client:127.0.0.1:12345 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s
