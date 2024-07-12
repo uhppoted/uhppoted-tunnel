@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"net/netip"
-	"strings"
+	// "net/netip"
+	// "strings"
 	"syscall"
 	"time"
 
@@ -16,9 +16,9 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 )
 
-type address interface {
-	*net.UDPAddr | *net.TCPAddr
-}
+// type address interface {
+// 	*net.UDPAddr | *net.TCPAddr
+// }
 
 type ipOut struct {
 	conn.Conn
@@ -205,26 +205,26 @@ func (ip *ipOut) broadcast(id uint32, message []byte) {
 	}
 }
 
-func resolve(addr string) (any, error) {
-	if strings.HasPrefix(addr, "tcp:") {
-		if v, err := netip.ParseAddrPort(addr[4:]); err != nil {
-			return nil, err
-		} else {
-			return net.TCPAddrFromAddrPort(v), nil
-		}
-	}
-
-	if strings.HasPrefix(addr, "udp:") {
-		if v, err := netip.ParseAddrPort(addr[4:]); err != nil {
-			return nil, err
-		} else {
-			return net.UDPAddrFromAddrPort(v), nil
-		}
-	}
-
-	if v, err := netip.ParseAddrPort(addr); err != nil {
-		return nil, err
-	} else {
-		return net.UDPAddrFromAddrPort(v), nil
-	}
-}
+// func resolve(addr string) (any, error) {
+// 	if strings.HasPrefix(addr, "tcp:") {
+// 		if v, err := netip.ParseAddrPort(addr[4:]); err != nil {
+// 			return nil, err
+// 		} else {
+// 			return net.TCPAddrFromAddrPort(v), nil
+// 		}
+// 	}
+//
+// 	if strings.HasPrefix(addr, "udp:") {
+// 		if v, err := netip.ParseAddrPort(addr[4:]); err != nil {
+// 			return nil, err
+// 		} else {
+// 			return net.UDPAddrFromAddrPort(v), nil
+// 		}
+// 	}
+//
+// 	if v, err := netip.ParseAddrPort(addr); err != nil {
+// 		return nil, err
+// 	} else {
+// 		return net.UDPAddrFromAddrPort(v), nil
+// 	}
+// }
