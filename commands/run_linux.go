@@ -43,6 +43,8 @@ var RUN = Run{
 
 	rateLimit:  1,
 	burstLimit: 120,
+
+	controllers: map[uint32]string{},
 }
 
 func (cmd *Run) FlagSet() *flag.FlagSet {

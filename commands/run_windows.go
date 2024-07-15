@@ -48,6 +48,8 @@ var RUN = Run{
 
 	rateLimit:  1,
 	burstLimit: 120,
+
+	controllers: map[uint32]string{},
 }
 
 type service struct {

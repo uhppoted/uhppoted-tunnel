@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	// "net/netip"
-	// "strings"
+	"net/netip"
+	"strings"
 	"syscall"
 	"time"
 
@@ -31,7 +31,7 @@ type ipOut struct {
 	closed        chan struct{}
 }
 
-func NewIPOut(hwif string, spec string, timeout time.Duration, ctx context.Context) (*ipOut, error) {
+func NewIPOut(hwif string, spec string, controllers map[uint32]string, timeout time.Duration, ctx context.Context) (*ipOut, error) {
 	broadcast, err := net.ResolveUDPAddr("udp", spec)
 	if err != nil {
 		return nil, err
@@ -58,13 +58,13 @@ func NewIPOut(hwif string, spec string, timeout time.Duration, ctx context.Conte
 		closed:        make(chan struct{}),
 	}
 
-	// for k, v := range map[uint32]string{405419896: "tcp:192.168.1.100:60000"} {
-	// 	if addr, err := resolve(v); err != nil {
-	// 		ip.Warnf("invalid controller address '%v' (%v)", v, err)
-	// 	} else {
-	// 		ip.controllers[k] = addr
-	// 	}
-	// }
+	for k, v := range controllers {
+		if addr, err := resolve(v); err != nil {
+			ip.Warnf("invalid controller address '%v' (%v)", v, err)
+		} else {
+			ip.controllers[k] = addr
+		}
+	}
 
 	ip.Infof("connector::ip-out")
 
@@ -205,26 +205,26 @@ func (ip *ipOut) broadcast(id uint32, message []byte) {
 	}
 }
 
-// func resolve(addr string) (any, error) {
-// 	if strings.HasPrefix(addr, "tcp:") {
-// 		if v, err := netip.ParseAddrPort(addr[4:]); err != nil {
-// 			return nil, err
-// 		} else {
-// 			return net.TCPAddrFromAddrPort(v), nil
-// 		}
-// 	}
-//
-// 	if strings.HasPrefix(addr, "udp:") {
-// 		if v, err := netip.ParseAddrPort(addr[4:]); err != nil {
-// 			return nil, err
-// 		} else {
-// 			return net.UDPAddrFromAddrPort(v), nil
-// 		}
-// 	}
-//
-// 	if v, err := netip.ParseAddrPort(addr); err != nil {
-// 		return nil, err
-// 	} else {
-// 		return net.UDPAddrFromAddrPort(v), nil
-// 	}
-// }
+func resolve(addr string) (any, error) {
+	if strings.HasPrefix(addr, "tcp::") {
+		if v, err := netip.ParseAddrPort(addr[5:]); err != nil {
+			return nil, err
+		} else {
+			return net.TCPAddrFromAddrPort(v), nil
+		}
+	}
+
+	if strings.HasPrefix(addr, "udp::") {
+		if v, err := netip.ParseAddrPort(addr[5:]); err != nil {
+			return nil, err
+		} else {
+			return net.UDPAddrFromAddrPort(v), nil
+		}
+	}
+
+	if v, err := netip.ParseAddrPort(addr); err != nil {
+		return nil, err
+	} else {
+		return net.UDPAddrFromAddrPort(v), nil
+	}
+}

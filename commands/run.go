@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -41,6 +42,7 @@ type Run struct {
 		in  string
 		out string
 	}
+
 	maxRetries        int
 	maxRetryDelay     time.Duration
 	udpTimeout        time.Duration
@@ -61,6 +63,8 @@ type Run struct {
 
 	rateLimit  rate.Limit
 	burstLimit int
+
+	controllers map[uint32]string
 }
 
 const MAX_RETRIES = -1
@@ -196,6 +200,19 @@ func (cmd *Run) ParseCmd(args ...string) error {
 				cmd.burstLimit = int(q)
 			}
 		}
+
+		if p, ok := config["controllers"]; ok {
+			if q, ok := p.(map[string]any); ok {
+				m := map[uint32]string{}
+				for k, v := range q {
+					if id, err := strconv.ParseUint(k, 10, 32); err == nil {
+						m[uint32(id)] = fmt.Sprintf("%v", v)
+					}
+				}
+
+				cmd.controllers = m
+			}
+		}
 	}
 
 	return nil
@@ -315,15 +332,14 @@ func (cmd *Run) makeOutConn(ctx context.Context) (tunnel.Conn, error) {
 
 	// ... construct connection
 	switch {
-	case
-		strings.HasPrefix(spec, "ip/out:"),
-		strings.HasPrefix(spec, "udp/broadcast:"),
+	case strings.HasPrefix(spec, "udp/broadcast:"),
 		strings.HasPrefix(spec, "udp/event:"),
 		strings.HasPrefix(spec, "tcp/client:"),
 		strings.HasPrefix(spec, "tcp/server:"),
 		strings.HasPrefix(spec, "tls/client:"),
 		strings.HasPrefix(spec, "tls/server:"),
-		strings.HasPrefix(spec, "tailscale/client:"):
+		strings.HasPrefix(spec, "tailscale/client:"),
+		strings.HasPrefix(spec, "ip/out:"):
 		return cmd.makeConn("--out", hwif, spec, Out, events, ctx)
 
 	default:
@@ -335,7 +351,7 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 	retry := conn.NewBackoff(cmd.maxRetries, cmd.maxRetryDelay, ctx)
 	switch {
 	case strings.HasPrefix(spec, "ip/out:"):
-		return ip.NewIPOut(hwif, spec[7:], cmd.udpTimeout, ctx)
+		return ip.NewIPOut(hwif, spec[7:], cmd.controllers, cmd.udpTimeout, ctx)
 
 	case strings.HasPrefix(spec, "udp/listen:"):
 		return udp.NewUDPListen(hwif, spec[11:], retry, ctx)
