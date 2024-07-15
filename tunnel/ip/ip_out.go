@@ -128,7 +128,73 @@ func (ip *ipOut) send(id uint32, message []byte) {
 }
 
 func (ip *ipOut) udpSendto(id uint32, message []byte, addr *net.UDPAddr) {
-	fmt.Printf(">>>>> UDP/SENDTO %v\n", addr)
+	ip.Dumpf(message, "udp/sendto (%v bytes)", len(message))
+
+	deadline := time.Now().Add(ip.timeout)
+	address := fmt.Sprintf("%v", addr)
+	bind := &net.UDPAddr{
+		IP:   net.IPv4(0, 0, 0, 0),
+		Port: 0,
+		Zone: "",
+	}
+
+	dialer := net.Dialer{
+		Deadline:  deadline,
+		LocalAddr: bind,
+		Control: func(network, address string, connection syscall.RawConn) (err error) {
+			var operr error
+
+			f := func(fd uintptr) {
+				operr = setSocketOptions(fd)
+			}
+
+			if err := connection.Control(f); err != nil {
+				return err
+			} else {
+				return operr
+			}
+		},
+	}
+
+	if connection, err := dialer.Dial("udp4", address); err != nil {
+		ip.Warnf("%v", err)
+	} else if connection == nil {
+		ip.Warnf("invalid UDP socket (%v)", connection)
+	} else {
+		defer connection.Close()
+
+		if err := connection.SetWriteDeadline(deadline); err != nil {
+			ip.Warnf("%v", err)
+		}
+
+		if err := connection.SetReadDeadline(deadline); err != nil {
+			ip.Warnf("%v", err)
+		}
+
+		if N, err := connection.Write(message); err != nil {
+			ip.Warnf("failed to write to UDP socket (%v)", err)
+		} else {
+			ip.Debugf("sent     %v bytes to %v\n", N, address)
+
+			// NTS: set-ip doesn't return a reply
+			// if message[1] == 0x96 {
+			// 	return
+			// }
+
+			reply := make([]byte, 2048)
+
+			if N, err := connection.Read(reply); err != nil {
+				ip.Warnf("%v", err)
+			} else {
+				ip.Dumpf(reply[0:N], "received %v bytes from %v", N, address)
+
+				ip.ch <- protocol.Message{
+					ID:      id,
+					Message: reply[:N],
+				}
+			}
+		}
+	}
 }
 
 func (ip *ipOut) tcpSendto(id uint32, message []byte, addr *net.TCPAddr) {

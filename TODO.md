@@ -7,7 +7,7 @@
       - [x] controllers list in TOML file
       - [ ] ip/out
             - [x] UDP broadcast
-            - [ ] UDP sendto
+            - [x] UDP sendto
             - [ ] TCP sendto
       - [ ] CHANGELOG
       - [ ] README
