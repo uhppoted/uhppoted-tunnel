@@ -2,15 +2,15 @@
 
 ## IN PROGRESS
 
-- [ ] TCP/IP protocol (cf. https://github.com/uhppoted/uhppote-core/issues/17)
+- [x] TCP/IP protocol (cf. https://github.com/uhppoted/uhppote-core/issues/17)
       - [x] FIX: ... sent 64 bytes to 192.168.1.100:60000 (TCP)
       - [x] controllers list in TOML file
       - [x] ip/out
             - [x] UDP broadcast
             - [x] UDP sendto
             - [x] TCP sendto
-      - [ ] CHANGELOG
-      - [ ] README
+      - [x] CHANGELOG
+      - [x] README
 
 - [ ] Tailscale as seperate binary
 

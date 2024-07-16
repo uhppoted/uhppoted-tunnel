@@ -2,6 +2,7 @@
 bin
 node_modules
 dist
+tmp
 go.work
 go.work.sum
 ca.cert
@@ -14,5 +15,4 @@ examples/html/images/logo-new.png
 examples/html/images/logo.svg
 examples/html/images/logo-5x.png
 assets
-tmp
 release-notes.md

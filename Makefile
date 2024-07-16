@@ -187,6 +187,9 @@ tailscale-event-client: build
 tailscale-event-server: build
 	$(CMD) --debug --console --in tailscale/server:uhppoted:12345,nolog --out udp/event:192.168.1.255:60005
 
+ip: build
+	$(CMD) --config "./examples/uhppoted-tunnel.toml#ip"
+
 daemonize: build
 	sudo $(CMD) daemonize --in  udp/listen:0.0.0.0:60000  --out tcp/server:0.0.0.0:12345
 	# sudo $(CMD) daemonize --in  udp/listen:0.0.0.0:60000  --out tcp/server:0.0.0.0:12345          --label qwerty

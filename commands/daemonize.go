@@ -80,7 +80,8 @@ func (cmd *Daemonize) validate() (string, error) {
 		strings.HasPrefix(out, "tcp/client:"),
 		strings.HasPrefix(out, "tcp/server:"),
 		strings.HasPrefix(out, "tls/client:"),
-		strings.HasPrefix(out, "tls/server:"):
+		strings.HasPrefix(out, "tls/server:"),
+		strings.HasPrefix(out, "ip/out:"):
 	// OK
 
 	default:

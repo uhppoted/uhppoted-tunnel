@@ -21,6 +21,7 @@ The implementation includes the following connectors:
 - HTTPS POST
 - Tailscale server
 - Tailscale client
+- IP/out
 
 ## Raison d'être
 
@@ -300,6 +301,7 @@ _OUT_ connectors:
 - TLS server
 - TLS client
 - Tailscale client
+- IP
 
 ### UDP listen
 
@@ -619,6 +621,38 @@ The `credentials` is a JSON file that contains the OAuth2 credentials for the OA
    become aware of it when forwarding a command received on the UDP IN connector. This is by design - an application
    specific keep-alive is more flexible and more useful. Additionally an internal keep-alive can potentially force
    a connection to unnecessarily backoff to the maximum delay.
+
+### IP/out
+
+The IP/out connector supports the following connections to controllers:
+- UDP broadcast
+- UDP 'sendto' connections
+- TCP connections.
+
+The default connection is UDP broadcast but specific controllers in the TOML configuration file can be configured for
+UDP 'sendto' or TCP connections, making it a 'TOML' only connector for all practical purposes:
+
+```
+uhppoted-tunnel --config "uhppoted-tunnel.toml#ip"
+
+where the TOML 'ip' section comprises:
+...
+[ip]
+in = "udp/listen:0.0.0.0:60000"
+out = "ip/out:192.168.1.255:60005"
+console=true
+debug = true
+
+    [ip.controllers]
+    405419896 = "udp::192.168.1.100:60005"
+    303986753 = "tcp::192.168.1.100:60005"
+...
+
+- the 'in' connection is any supported IN connection
+- the 'out' connection defines the default UDP broadcast connection
+- the [controllers] subsection lists the controllers with transport protocol and IPv4 address
+```
+
 
 ### _Rate Limiting_ 
 

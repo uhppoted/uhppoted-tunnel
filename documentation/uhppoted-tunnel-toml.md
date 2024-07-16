@@ -190,4 +190,15 @@ log-level = "info"
 label = "qwerty"
 ...
 ...
+[ip]
+in = "udp/listen:0.0.0.0:60000"
+out = "ip/out:192.168.1.255:60005"
+console=true
+debug = true
+
+    [ip.controllers]
+    405419896 = "udp::192.168.1.100:60005"
+    201020304 = "tcp::192.168.1.100:60005"
+...
+...
 ```
