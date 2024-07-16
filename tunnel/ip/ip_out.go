@@ -16,10 +16,6 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 )
 
-// type address interface {
-// 	*net.UDPAddr | *net.TCPAddr
-// }
-
 type ipOut struct {
 	conn.Conn
 	hwif          string
@@ -163,13 +159,17 @@ func (ip *ipOut) udpSendto(id uint32, message []byte, addr *net.UDPAddr) {
 	} else {
 		defer connection.Close()
 
-		if err := connection.SetWriteDeadline(deadline); err != nil {
+		if err := connection.SetDeadline(deadline); err != nil {
 			ip.Warnf("%v", err)
 		}
 
-		if err := connection.SetReadDeadline(deadline); err != nil {
-			ip.Warnf("%v", err)
-		}
+		// if err := connection.SetWriteDeadline(deadline); err != nil {
+		// 	ip.Warnf("%v", err)
+		// }
+
+		// if err := connection.SetReadDeadline(deadline); err != nil {
+		// 	ip.Warnf("%v", err)
+		// }
 
 		if N, err := connection.Write(message); err != nil {
 			ip.Warnf("failed to write to UDP socket (%v)", err)
@@ -198,7 +198,69 @@ func (ip *ipOut) udpSendto(id uint32, message []byte, addr *net.UDPAddr) {
 }
 
 func (ip *ipOut) tcpSendto(id uint32, message []byte, addr *net.TCPAddr) {
-	fmt.Printf(">>>>> TCP/SENDTO %v\n", addr)
+	ip.Dumpf(message, "tcp/sendto (%v bytes)", len(message))
+
+	deadline := time.Now().Add(ip.timeout)
+	address := fmt.Sprintf("%v", addr)
+	bind := &net.TCPAddr{
+		IP:   net.IPv4(0, 0, 0, 0),
+		Port: 0,
+		Zone: "",
+	}
+
+	dialer := net.Dialer{
+		Deadline:  deadline,
+		LocalAddr: bind,
+		Control: func(network, address string, connection syscall.RawConn) (err error) {
+			var operr error
+
+			f := func(fd uintptr) {
+				operr = setSocketOptions(fd)
+			}
+
+			if err := connection.Control(f); err != nil {
+				return err
+			} else {
+				return operr
+			}
+		},
+	}
+
+	if connection, err := dialer.Dial("tcp4", address); err != nil {
+		ip.Warnf("%v", err)
+	} else if connection == nil {
+		ip.Warnf("invalid TCP socket (%v)", connection)
+	} else {
+		defer connection.Close()
+
+		if err := connection.SetDeadline(deadline); err != nil {
+			ip.Warnf("%v", err)
+		}
+
+		if N, err := connection.Write(message); err != nil {
+			ip.Warnf("failed to write to TCP socket [%v]", err)
+		} else {
+			ip.Debugf("sent     %v bytes to %v\n", N, address)
+
+			// // NTS: set-ip doesn't return a reply
+			// if message[1] == 0x96 {
+			// 	return
+			// }
+
+			reply := make([]byte, 1024)
+
+			if N, err := connection.Read(reply); err != nil {
+				ip.Warnf("%v", err)
+			} else {
+				ip.Dumpf(reply[0:N], "received %v bytes from %v", N, address)
+
+				ip.ch <- protocol.Message{
+					ID:      id,
+					Message: reply[:N],
+				}
+			}
+		}
+	}
 }
 
 func (ip *ipOut) broadcast(id uint32, message []byte) {
