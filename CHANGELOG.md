@@ -6,6 +6,9 @@
 1. _ip/out_ connector that supports UDP broadcast, UDP direct connections and TCP connections
    to controllers.
 
+### Updated
+1. Updated to Go 1.23.
+
 
 ## [0.8.8](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.8) - 2024-03-27
 

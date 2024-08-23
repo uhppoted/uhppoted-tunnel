@@ -3,14 +3,7 @@
 ## IN PROGRESS
 
 - [x] TCP/IP protocol (cf. https://github.com/uhppoted/uhppote-core/issues/17)
-      - [x] FIX: ... sent 64 bytes to 192.168.1.100:60000 (TCP)
-      - [x] controllers list in TOML file
-      - [x] ip/out
-            - [x] UDP broadcast
-            - [x] UDP sendto
-            - [x] TCP sendto
-      - [x] CHANGELOG
-      - [x] README
+- [x] Update to Go 1.23 (cf. https://github.com/uhppoted/uhppoted/issues/53)
 
 - [ ] Tailscale as seperate binary
 
