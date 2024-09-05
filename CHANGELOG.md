@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## [0.8.9](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.9) - 2024-09-06
 
 ### Added
 1. _ip/out_ connector that supports UDP broadcast, UDP direct connections and TCP connections

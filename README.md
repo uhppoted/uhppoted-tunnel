@@ -52,10 +52,11 @@ Supported operating systems:
 
 ### Current Release
 
-**[v0.8.8](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.8) - 2024-03-27
+**[v0.8.9](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.9) - 2024-09-06
 
-1. Added `restore-default-parameters` command to the HTTP connector example.
-2. Bumped Go version to 1.22
+1. Added _ip/out_ connector that supports UDP broadcast, UDP direct connections and TCP connections
+   to controllers.
+2. Updated to Go 1.23.
 
 
 ## Installation
