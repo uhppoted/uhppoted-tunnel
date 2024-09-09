@@ -1,0 +1,24 @@
+MROP78-vpnjantit.com
+UUID:
+11495444-6e9e-11ef-9ec6-872b5b80c522
+Vless WS with TLS:
+vless://11495444-6e9e-11ef-9ec6-872b5b80c522@ca2.vpnjantit.com:10002?encryption=none&security=tls&type=ws&path=%2fvpnjantit#MROP78-vpnjantit.com
+VLess Only WS:
+vless://11495444-6e9e-11ef-9ec6-872b5b80c522@ca2.vpnjantit.com:10004?encryption=none&security=none&type=ws&path=%2fvpnjantit#MROP78-vpnjantit.com
+Expiration Date:
+2024-09-16 / 18:24:2
+Location:
+Saint-Jean-sur-Richelieu, Canada
+Server Host Vless:
+ca2.vpnjantit.com
+
+Location:
+Saint-Jean-sur-Richelieu, Canada
+Server Host Vless:
+ca2.vpnjantit.com
+Provider:
+OVH
+Current speed usage:
+61.58Mbit/s
+Port V2ray Vless:
+10002-tls,10004-ws
