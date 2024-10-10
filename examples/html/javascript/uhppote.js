@@ -17,8 +17,8 @@ export function GetAllControllers () {
     })
 }
 
-export function GetController (deviceId) {
-  const request = encode.GetControllerRequest(deviceId)
+export function GetController (controller) {
+  const request = encode.GetControllerRequest(controller)
 
   return udp.send(request)
     .then(reply => {
@@ -26,8 +26,8 @@ export function GetController (deviceId) {
     })
 }
 
-export function SetIP (deviceId, address, netmask, gateway) {
-  const request = encode.SetIPRequest(deviceId, address, netmask, gateway)
+export function SetIP (controller, address, netmask, gateway) {
+  const request = encode.SetIPRequest(controller, address, netmask, gateway)
 
   return udp.send(request, true)
     .then(() => {
@@ -35,8 +35,8 @@ export function SetIP (deviceId, address, netmask, gateway) {
     })
 }
 
-export function GetTime (deviceId) {
-  const request = encode.GetTimeRequest(deviceId)
+export function GetTime (controller) {
+  const request = encode.GetTimeRequest(controller)
 
   return udp.send(request)
     .then(reply => {
@@ -44,8 +44,8 @@ export function GetTime (deviceId) {
     })
 }
 
-export function SetTime (deviceId, time) {
-  const request = encode.SetTimeRequest(deviceId, time)
+export function SetTime (controller, time) {
+  const request = encode.SetTimeRequest(controller, time)
 
   return udp.send(request)
     .then(reply => {
@@ -53,8 +53,8 @@ export function SetTime (deviceId, time) {
     })
 }
 
-export function GetStatus (deviceId) {
-  const request = encode.GetStatusRequest(deviceId)
+export function GetStatus (controller) {
+  const request = encode.GetStatusRequest(controller)
 
   return udp.send(request)
     .then(reply => {
@@ -62,8 +62,8 @@ export function GetStatus (deviceId) {
     })
 }
 
-export function GetListener (deviceId) {
-  const request = encode.GetListenerRequest(deviceId)
+export function GetListener (controller) {
+  const request = encode.GetListenerRequest(controller)
 
   return udp.send(request)
     .then(reply => {
@@ -71,8 +71,8 @@ export function GetListener (deviceId) {
     })
 }
 
-export function SetListener (deviceId, address, port) {
-  const request = encode.SetListenerRequest(deviceId, address, port)
+export function SetListener (controller, address, port, interval) {
+  const request = encode.SetListenerRequest(controller, address, port, interval)
 
   return udp.send(request)
     .then(reply => {
@@ -80,8 +80,8 @@ export function SetListener (deviceId, address, port) {
     })
 }
 
-export function GetDoorControl (deviceId, door) {
-  const request = encode.GetDoorControlRequest(deviceId, door)
+export function GetDoorControl (controller, door) {
+  const request = encode.GetDoorControlRequest(controller, door)
 
   return udp.send(request)
     .then(reply => {
@@ -89,8 +89,8 @@ export function GetDoorControl (deviceId, door) {
     })
 }
 
-export function SetDoorControl (deviceId, door, mode, delay) {
-  const request = encode.SetDoorControlRequest(deviceId, door, mode, delay)
+export function SetDoorControl (controller, door, mode, delay) {
+  const request = encode.SetDoorControlRequest(controller, door, mode, delay)
 
   return udp.send(request)
     .then(reply => {
@@ -98,8 +98,8 @@ export function SetDoorControl (deviceId, door, mode, delay) {
     })
 }
 
-export function OpenDoor (deviceId, door) {
-  const request = encode.OpenDoorRequest(deviceId, door)
+export function OpenDoor (controller, door) {
+  const request = encode.OpenDoorRequest(controller, door)
 
   return udp.send(request)
     .then(reply => {
@@ -107,8 +107,8 @@ export function OpenDoor (deviceId, door) {
     })
 }
 
-export function GetCards (deviceId) {
-  const request = encode.GetCardsRequest(deviceId)
+export function GetCards (controller) {
+  const request = encode.GetCardsRequest(controller)
 
   return udp.send(request)
     .then(reply => {
@@ -116,8 +116,8 @@ export function GetCards (deviceId) {
     })
 }
 
-export function GetCard (deviceId, cardNumber) {
-  const request = encode.GetCardRequest(deviceId, cardNumber)
+export function GetCard (controller, cardNumber) {
+  const request = encode.GetCardRequest(controller, cardNumber)
 
   return udp.send(request)
     .then(reply => {
@@ -125,8 +125,8 @@ export function GetCard (deviceId, cardNumber) {
     })
 }
 
-export function GetCardByIndex (deviceId, cardIndex) {
-  const request = encode.GetCardByIndexRequest(deviceId, cardIndex)
+export function GetCardByIndex (controller, cardIndex) {
+  const request = encode.GetCardByIndexRequest(controller, cardIndex)
 
   return udp.send(request)
     .then(reply => {
@@ -134,8 +134,8 @@ export function GetCardByIndex (deviceId, cardIndex) {
     })
 }
 
-export function PutCard (deviceId, cardNumber, startDate, endDate, door1, door2, door3, door4, PIN) {
-  const request = encode.PutCardRequest(deviceId, cardNumber, startDate, endDate, door1, door2, door3, door4, PIN)
+export function PutCard (controller, cardNumber, startDate, endDate, door1, door2, door3, door4, PIN) {
+  const request = encode.PutCardRequest(controller, cardNumber, startDate, endDate, door1, door2, door3, door4, PIN)
 
   return udp.send(request)
     .then(reply => {
@@ -143,8 +143,8 @@ export function PutCard (deviceId, cardNumber, startDate, endDate, door1, door2,
     })
 }
 
-export function DeleteCard (deviceId, cardNumber) {
-  const request = encode.DeleteCardRequest(deviceId, cardNumber)
+export function DeleteCard (controller, cardNumber) {
+  const request = encode.DeleteCardRequest(controller, cardNumber)
 
   return udp.send(request)
     .then(reply => {
@@ -152,8 +152,8 @@ export function DeleteCard (deviceId, cardNumber) {
     })
 }
 
-export function DeleteAllCards (deviceId) {
-  const request = encode.DeleteCardsRequest(deviceId)
+export function DeleteAllCards (controller) {
+  const request = encode.DeleteCardsRequest(controller)
 
   return udp.send(request)
     .then(reply => {
@@ -161,8 +161,8 @@ export function DeleteAllCards (deviceId) {
     })
 }
 
-export function GetEvent (deviceId, eventIndex) {
-  const request = encode.GetEventRequest(deviceId, eventIndex)
+export function GetEvent (controller, eventIndex) {
+  const request = encode.GetEventRequest(controller, eventIndex)
 
   return udp.send(request)
     .then(reply => {
@@ -170,8 +170,8 @@ export function GetEvent (deviceId, eventIndex) {
     })
 }
 
-export function GetEventIndex (deviceId) {
-  const request = encode.GetEventIndexRequest(deviceId)
+export function GetEventIndex (controller) {
+  const request = encode.GetEventIndexRequest(controller)
 
   return udp.send(request)
     .then(reply => {
@@ -179,8 +179,8 @@ export function GetEventIndex (deviceId) {
     })
 }
 
-export function SetEventIndex (deviceId, eventIndex) {
-  const request = encode.SetEventIndexRequest(deviceId, eventIndex)
+export function SetEventIndex (controller, eventIndex) {
+  const request = encode.SetEventIndexRequest(controller, eventIndex)
 
   return udp.send(request)
     .then(reply => {
@@ -188,8 +188,8 @@ export function SetEventIndex (deviceId, eventIndex) {
     })
 }
 
-export function RecordSpecialEvents (deviceId, enable) {
-  const request = encode.RecordSpecialEventsRequest(deviceId, enable)
+export function RecordSpecialEvents (controller, enable) {
+  const request = encode.RecordSpecialEventsRequest(controller, enable)
 
   return udp.send(request)
     .then(reply => {
@@ -197,8 +197,8 @@ export function RecordSpecialEvents (deviceId, enable) {
     })
 }
 
-export function GetTimeProfile (deviceId, profileId) {
-  const request = encode.GetTimeProfileRequest(deviceId, profileId)
+export function GetTimeProfile (controller, profileId) {
+  const request = encode.GetTimeProfileRequest(controller, profileId)
 
   return udp.send(request)
     .then(reply => {
@@ -206,8 +206,8 @@ export function GetTimeProfile (deviceId, profileId) {
     })
 }
 
-export function SetTimeProfile (deviceId, profileId, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, segment1Start, segment1End, segment2Start, segment2End, segment3Start, segment3End, linkedProfileId) {
-  const request = encode.SetTimeProfileRequest(deviceId, profileId, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, segment1Start, segment1End, segment2Start, segment2End, segment3Start, segment3End, linkedProfileId)
+export function SetTimeProfile (controller, profileId, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, segment1Start, segment1End, segment2Start, segment2End, segment3Start, segment3End, linkedProfileId) {
+  const request = encode.SetTimeProfileRequest(controller, profileId, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, segment1Start, segment1End, segment2Start, segment2End, segment3Start, segment3End, linkedProfileId)
 
   return udp.send(request)
     .then(reply => {
@@ -215,8 +215,8 @@ export function SetTimeProfile (deviceId, profileId, startDate, endDate, monday,
     })
 }
 
-export function DeleteAllTimeProfiles (deviceId) {
-  const request = encode.DeleteAllTimeProfilesRequest(deviceId)
+export function DeleteAllTimeProfiles (controller) {
+  const request = encode.DeleteAllTimeProfilesRequest(controller)
 
   return udp.send(request)
     .then(reply => {
@@ -224,8 +224,8 @@ export function DeleteAllTimeProfiles (deviceId) {
     })
 }
 
-export function AddTask (deviceId, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, startTime, door, taskType, moreCards) {
-  const request = encode.AddTaskRequest(deviceId, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, startTime, door, taskType, moreCards)
+export function AddTask (controller, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, startTime, door, taskType, moreCards) {
+  const request = encode.AddTaskRequest(controller, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, startTime, door, taskType, moreCards)
 
   return udp.send(request)
     .then(reply => {
@@ -233,8 +233,8 @@ export function AddTask (deviceId, startDate, endDate, monday, tuesday, wednesda
     })
 }
 
-export function RefreshTasklist (deviceId) {
-  const request = encode.RefreshTasklistRequest(deviceId)
+export function RefreshTasklist (controller) {
+  const request = encode.RefreshTasklistRequest(controller)
 
   return udp.send(request)
     .then(reply => {
@@ -242,8 +242,8 @@ export function RefreshTasklist (deviceId) {
     })
 }
 
-export function ClearTasklist (deviceId) {
-  const request = encode.ClearTasklistRequest(deviceId)
+export function ClearTasklist (controller) {
+  const request = encode.ClearTasklistRequest(controller)
 
   return udp.send(request)
     .then(reply => {
@@ -251,8 +251,8 @@ export function ClearTasklist (deviceId) {
     })
 }
 
-export function SetPcControl (deviceId, enable) {
-  const request = encode.SetPcControlRequest(deviceId, enable)
+export function SetPcControl (controller, enable) {
+  const request = encode.SetPcControlRequest(controller, enable)
 
   return udp.send(request)
     .then(reply => {
@@ -260,8 +260,8 @@ export function SetPcControl (deviceId, enable) {
     })
 }
 
-export function SetInterlock (deviceId, interlock) {
-  const request = encode.SetInterlockRequest(deviceId, interlock)
+export function SetInterlock (controller, interlock) {
+  const request = encode.SetInterlockRequest(controller, interlock)
 
   return udp.send(request)
     .then(reply => {
@@ -269,8 +269,8 @@ export function SetInterlock (deviceId, interlock) {
     })
 }
 
-export function ActivateKeypads (deviceId, reader1, reader2, reader3, reader4) {
-  const request = encode.ActivateKeypadsRequest(deviceId, reader1, reader2, reader3, reader4)
+export function ActivateKeypads (controller, reader1, reader2, reader3, reader4) {
+  const request = encode.ActivateKeypadsRequest(controller, reader1, reader2, reader3, reader4)
 
   return udp.send(request)
     .then(reply => {
@@ -278,8 +278,8 @@ export function ActivateKeypads (deviceId, reader1, reader2, reader3, reader4) {
     })
 }
 
-export function SetDoorPasscodes (deviceId, door, passcode1, passcode2, passcode3, passcode4) {
-  const request = encode.SetDoorPasscodesRequest(deviceId, door, passcode1, passcode2, passcode3, passcode4)
+export function SetDoorPasscodes (controller, door, passcode1, passcode2, passcode3, passcode4) {
+  const request = encode.SetDoorPasscodesRequest(controller, door, passcode1, passcode2, passcode3, passcode4)
 
   return udp.send(request)
     .then(reply => {
@@ -287,8 +287,8 @@ export function SetDoorPasscodes (deviceId, door, passcode1, passcode2, passcode
     })
 }
 
-export function RestoreDefaultParameters (deviceId) {
-  const request = encode.RestoreDefaultParametersRequest(deviceId)
+export function RestoreDefaultParameters (controller) {
+  const request = encode.RestoreDefaultParametersRequest(controller)
 
   return udp.send(request)
     .then(reply => {

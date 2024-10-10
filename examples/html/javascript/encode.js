@@ -75,7 +75,7 @@ export function GetListenerRequest (deviceId) {
   return request
 }
 
-export function SetListenerRequest (deviceId, address, port) {
+export function SetListenerRequest (deviceId, address, port, interval) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
@@ -85,6 +85,7 @@ export function SetListenerRequest (deviceId, address, port) {
   packUint32(deviceId, view, 4)
   packIPv4(address, view, 8)
   packUint16(port, view, 12)
+  packUint8(interval, view, 14)
 
   return request
 }

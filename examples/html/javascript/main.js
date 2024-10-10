@@ -7,7 +7,7 @@ export const COMMANDS = new Map([
   ['get-time', { fn: commands.getTime, args: ['controller'] }],
   ['set-time', { fn: commands.setTime, args: ['controller', 'datetime'] }],
   ['get-listener', { fn: commands.getListener, args: ['controller'] }],
-  ['set-listener', { fn: commands.setListener, args: ['controller', 'listener'] }],
+  ['set-listener', { fn: commands.setListener, args: ['controller', 'listener', 'interval'] }],
   ['get-door-control', { fn: commands.getDoorControl, args: ['controller', 'door.id'] }],
   ['set-door-control', { fn: commands.setDoorControl, args: ['controller', 'door.id', 'door.mode', 'door.delay'] }],
   ['set-door-passcodes', {

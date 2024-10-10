@@ -46,14 +46,15 @@ export function getListener (controller) {
   return uhppote.GetListener(controller)
 }
 
-export function setListener (controller, listener) {
+export function setListener (controller, listener, interval) {
   controller = arg(controller)
   listener = arg(listener)
+  interval = arg(interval)
 
   const address = listener.match(/^(.*?):([0-9]+)$/)[1]
   const port = listener.match(/^(.*?):([0-9]+)$/)[2]
 
-  return uhppote.SetListener(controller, address, port)
+  return uhppote.SetListener(controller, address, port, interval)
 }
 
 export function getDoorControl (controller, door) {

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Updated
+1. Added auto-send interval to get/set-listener in HTML example.
+
 
 ## [0.8.9](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.9) - 2024-09-06
 

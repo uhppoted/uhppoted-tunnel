@@ -137,7 +137,8 @@ export function GetListenerResponse (packet) {
   return {
     controller: unpackUint32(view, 4),
     address: unpackIPv4(view, 8),
-    port: unpackUint16(view, 12)
+    port: unpackUint16(view, 12),
+    interval: unpackUint8(view, 14)
   }
 }
 
