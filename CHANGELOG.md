@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+1. ARMv6 build target (RaspberryPi ZeroW).
+
 ### Updated
 1. Added auto-send interval to get/set-listener in HTML example.
 

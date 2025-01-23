@@ -45,7 +45,7 @@ Supported operating systems:
 - Linux
 - MacOS
 - Windows
-- ARM7 _(e.g. RaspberryPi)_
+- RaspberryPi (ARM/ARM7/ARM6)
 - Linux/ARM64 (experimental)
 
 ## Release Notes
@@ -671,6 +671,12 @@ rate-limit-burst = 300
 ```
 
 Fractional rate limits are supported e.g. `rate-limit = 0.1`
+
+### Notes
+
+1. [Mimic: UDP to TCP obfuscator]](https://github.com/hack3ric/mimic)
+2. [udpraw: UDP tunnel](https://github.com/wangyu-/udp2raw)
+3. [Phantum: UDP to TCP obfuscator](https://github.com/dndx/phantun)
 
 ## Attribution
 
