@@ -6,8 +6,8 @@ toolchain go1.23.5
 
 require (
 	github.com/pelletier/go-toml/v2 v2.2.3
-	github.com/uhppoted/uhppote-core v0.8.10-0.20250121172632-08d73ff3689e
-	github.com/uhppoted/uhppoted-lib v0.8.10-0.20250121173211-01a4a14fc786
+	github.com/uhppoted/uhppote-core v0.8.10
+	github.com/uhppoted/uhppoted-lib v0.8.10
 	golang.org/x/oauth2 v0.25.0
 	golang.org/x/sys v0.29.0
 	golang.org/x/time v0.9.0

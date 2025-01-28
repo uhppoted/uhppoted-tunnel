@@ -52,11 +52,10 @@ Supported operating systems:
 
 ### Current Release
 
-**[v0.8.9](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.9) - 2024-09-06
+**[v0.8.10](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.10) - 2024-01-30**
 
-1. Added _ip/out_ connector that supports UDP broadcast, UDP direct connections and TCP connections
-   to controllers.
-2. Updated to Go 1.23.
+1. Added ARMv6 build target (RaspberryPi ZeroW).
+2. Added event _auto-send interval_ to get/set-listener in HTML example.
 
 
 ## Installation
