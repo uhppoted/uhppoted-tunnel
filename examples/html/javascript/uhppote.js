@@ -287,6 +287,24 @@ export function SetDoorPasscodes (controller, door, passcode1, passcode2, passco
     })
 }
 
+export function GetAntipassback (controller) {
+  const request = encode.GetAntipassbackRequest(controller)
+
+  return udp.send(request)
+    .then(reply => {
+      return reply ? decode.GetAntipassbackResponse(reply) : null
+    })
+}
+
+export function SetAntipassback (controller, antipassback) {
+  const request = encode.SetAntipassbackRequest(controller, antipassback)
+
+  return udp.send(request)
+    .then(reply => {
+      return reply ? decode.SetAntipassbackResponse(reply) : null
+    })
+}
+
 export function RestoreDefaultParameters (controller) {
   const request = encode.RestoreDefaultParametersRequest(controller)
 

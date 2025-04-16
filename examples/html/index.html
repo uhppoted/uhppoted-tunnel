@@ -57,6 +57,8 @@
             <li class="spacer"></li>
             <li onclick="onSelect(event)" data-cmd="set-pc-control">set-pc-control</li>
             <li onclick="onSelect(event)" data-cmd="set-interlock">set-interlock</li>
+            <li onclick="onSelect(event)" data-cmd="get-antipassback">get-antipassback</li>
+            <li onclick="onSelect(event)" data-cmd="set-antipassback">set-antipassback</li>
             <li onclick="onSelect(event)" data-cmd="activate-keypads">activate-keypads</li>
             <li onclick="onSelect(event)" data-cmd="restore-default-parameters">restore-default-parameters</li>
           </ul>
@@ -274,6 +276,16 @@
             <label for="reader4" class="parameter">
               Reader 4 keypad
               <input id="reader4" type="checkbox" data-tag="reader4" />
+            </label>
+            <label for="antipassback" class="parameter antipassback">
+              Anti-passback mode
+              <select class="parameter-value" placeholder="anti-passback" data-tag="antipassback">
+                <option value="0">disabled</option>
+                <option value="1">(1:2);(3:4)</option>
+                <option value="2">(1,3):(2,4)</option>
+                <option value="3">1:(2,3)</option>
+                <option value="4">1:(2,3,4)</option>
+              </select>
             </label>
           </div>
 

@@ -433,6 +433,31 @@ export function SetDoorPasscodesRequest (deviceId, door, passcode1, passcode2, p
   return request
 }
 
+export function GetAntipassbackRequest (deviceId) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+
+  request[0] = 0x17
+  request[1] = 0x86
+
+  packUint32(deviceId, view, 4)
+
+  return request
+}
+
+export function SetAntipassbackRequest (deviceId, antipassback) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+
+  request[0] = 0x17
+  request[1] = 0x84
+
+  packUint32(deviceId, view, 4)
+  packUint8(antipassback, view, 8)
+
+  return request
+}
+
 export function RestoreDefaultParametersRequest (deviceId) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)

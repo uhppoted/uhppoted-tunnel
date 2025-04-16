@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+1. Added `get/set-antipassback` API command to the HTTP connector example.
+
+
 ### Updated
 1. Updated to Go 1.24.
 

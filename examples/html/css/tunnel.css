@@ -211,6 +211,10 @@ main div.section .parameter.disabled {
   color: #c0c0c0;
 }
 
+main div.section label.antipassback select {
+  margin-left: 8px;
+}
+
 main div.section .parameter input {
   margin-left: 8px;
 }
