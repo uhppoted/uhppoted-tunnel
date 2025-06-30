@@ -1,10 +1,9 @@
 # CHANGELOG
 
-## Unreleased
+## [0.8.11](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.11) - 2025-07-01
 
 ### Added
 1. Added `get/set-antipassback` API command to the HTTP connector example.
-
 
 ### Updated
 1. Updated to Go 1.24.
