@@ -10,6 +10,8 @@
 
 ## TODO
 
+- (?) GRE 
+   - https://en.wikipedia.org/wiki/Generic_routing_encapsulation
 - (?) https://shadowsocks.org
 - https://hackaday.com/2024/03/22/this-week-in-security-loop-dos-flipper-responds-and-more/
 
