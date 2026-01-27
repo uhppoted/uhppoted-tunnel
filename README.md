@@ -52,10 +52,8 @@ Supported operating systems:
 
 ### Current Release
 
-**[v0.8.11](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.8.11) - 2025-07-01**
-
-1. Added `get/set-antipassback` API command to the HTTP connector example.
-2. Updated to Go 1.24.
+**[v0.9.0](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.9.0) - 2026-01-27**
+1. Updated to Go 1.25.
 
 
 ## Installation
