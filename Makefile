@@ -20,10 +20,12 @@ clean:
 update:
 	go get -u github.com/uhppoted/uhppoted-lib@main
 	go mod tidy
+	go fix ./...
 
 update-release:
 	go get -u github.com/uhppoted/uhppoted-lib
 	go mod tidy
+	go fix ./...
 
 format: 
 	go fmt ./...

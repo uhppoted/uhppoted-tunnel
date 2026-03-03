@@ -3,6 +3,7 @@ package commands
 import (
 	"flag"
 	"fmt"
+	"maps"
 	"os"
 	"regexp"
 
@@ -73,17 +74,13 @@ func configure(configuration string) (map[string]any, error) {
 
 		if m, ok := c["defaults"]; ok {
 			if defaults, ok := m.(map[string]any); ok {
-				for k, v := range defaults {
-					config[k] = v
-				}
+				maps.Copy(config, defaults)
 			}
 		}
 
 		if m, ok := c[section]; ok {
 			if tunnel, ok := m.(map[string]any); ok {
-				for k, v := range tunnel {
-					config[k] = v
-				}
+				maps.Copy(config, tunnel)
 			}
 		}
 	}

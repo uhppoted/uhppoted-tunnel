@@ -50,7 +50,7 @@ func (cmd *Run) FlagSet() *flag.FlagSet {
 	return cmd.flags()
 }
 
-func (cmd *Run) Execute(args ...interface{}) error {
+func (cmd *Run) Execute(args ...any) error {
 	infof("---", "%s service %s - %s (PID %d)\n", SERVICE, uhppote.VERSION, "MacOS", os.Getpid())
 
 	f := func(t *tunnel.Tunnel, ctx context.Context, cancel context.CancelFunc) {

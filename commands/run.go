@@ -487,15 +487,13 @@ func (cmd *Run) run(t *tunnel.Tunnel, ctx context.Context, cancel context.Cancel
 
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 
 		infof("---", "uhppoted-tunnel %v", core.VERSION)
 		if err := t.Run(interrupt); err != nil {
 			errorf("---", "%v", err)
 		}
-	}()
+	})
 
 	<-interrupt
 
