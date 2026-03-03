@@ -15,12 +15,12 @@ jobs:
     steps:
 
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Set up Go 1.x
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
-        go-version: ^1.24
+        go-version: '1.26'
       id: go
 
     - name: Install staticcheck
@@ -33,43 +33,43 @@ jobs:
       run: make build-all
 
     - name: Upload Linux artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         path: dist/development/linux/uhppoted-tunnel
         name: uhppoted-tunnel_linux-nightly
 
     - name: Upload MacOS Intel artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         path: dist/development/darwin-x64/uhppoted-tunnel
         name: uhppoted-tunnel_darwin-x64-nightly
 
     - name: Upload MacOS Apple silicon artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         path: dist/development/darwin-arm64/uhppoted-tunnel
         name: uhppoted-tunnel_darwin-arm64-nightly
 
     - name: Upload Windows artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         path: dist/development/windows/uhppoted-tunnel.exe
         name: uhppoted-tunnel_windows-nightly.exe
 
     - name: Upload ARM64 artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         path: dist/development/arm/uhppoted-tunnel
         name: uhppoted-tunnel_arm-nightly
 
     - name: Upload ARMv7 artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         path: dist/development/arm7/uhppoted-tunnel
         name: uhppoted-tunnel_arm7-nightly
 
     - name: Upload ARMv6 artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         path: dist/development/arm6/uhppoted-tunnel
         name: uhppoted-tunnel_arm6-nightly
