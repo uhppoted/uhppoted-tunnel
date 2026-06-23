@@ -2,6 +2,7 @@
 bin
 node_modules
 dist
+workdir
 tmp
 go.work
 go.work.sum

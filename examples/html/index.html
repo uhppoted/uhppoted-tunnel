@@ -32,6 +32,7 @@
             <li onclick="onSelect(event)" data-cmd="get-door-control">get-door-control</li>
             <li onclick="onSelect(event)" data-cmd="set-door-control">set-door-control</li>
             <li onclick="onSelect(event)" data-cmd="set-door-passcodes">set-door-passcodes</li>
+            <li onclick="onSelect(event)" data-cmd="set-firstcard">set-firstcard</li>
             <li onclick="onSelect(event)" data-cmd="open-door">open-door</li>
             <li onclick="onSelect(event)" data-cmd="get-status">get-status</li>
             <li class="spacer"></li>
@@ -122,6 +123,34 @@
               Passcode 4
               <input id="passcode4" type="number" data-tag="door.passcode4" />
             </label>
+
+            <label for="firstcard-start"    class="parameter-label">firstcard start time</label>
+            <input id="firstcard-start"     class="parameter-value" type="time" placeholder="start time" data-tag="firstcard.start" />
+            <label for="firstcard-end"      class="parameter-label">firstcard end time</label>
+            <input id="firstcard-end"       class="parameter-value" type="time" placeholder="end time" data-tag="firstcard.end" />
+            <label for="firstcard-active"   class="parameter-label">firstcard active mode</label>
+            <input id="firstcard-active"    class="parameter-value" type="number" min="0" max="2" placeholder="active door control mode" value="1" data-tag="firstcard.active" />
+            <label for="firstcard-inactive" class="parameter-label">firstcard inactive mode</label>
+            <input id="firstcard-inactive"  class="parameter-value" type="number" min="0" max="3" placeholder="inactive door control mode" value="3" data-tag="firstcard.inactive" />
+
+            <label for="firstcard-weekdays" class="parameter-label">firstcard weekdays</label>
+            <div id="firstcard-weekdays" class="weekdays">
+              <label for="firstcard-monday" class="weekday">
+              <input id="firstcard-monday" type="checkbox" data-tag="firstcard.monday"/>Mon</label>
+              <label for="firstcard-tuesday" class="weekday">
+              <input id="firstcard-tuesday" type="checkbox" data-tag="firstcard.tuesday"/>Tue</label>
+              <label for="firstcard-wednesday" class="weekday">
+              <input id="firstcard-wednesday" type="checkbox" data-tag="firstcard.wednesday"/>Wed</label>
+              <label for="firstcard-thursday" class="weekday">
+              <input id="firstcard-thursday" type="checkbox" data-tag="firstcard.thursday"/>Thu</label>
+              <label for="firstcard-friday" class="weekday">
+              <input id="firstcard-friday" type="checkbox" data-tag="firstcard.friday"/>Fri</label>
+              <label for="firstcard-saturdday" class="weekday">
+              <input id="firstcard-saturdday" type="checkbox" data-tag="firstcard.saturday"/>Sat</label>
+              <label for="firstcard-sunday" class="weekday">
+              <input id="firstcard-sunday"    type="checkbox" data-tag="firstcard.sunday"/>Sun</label>
+            </div>
+
           </div>
 
           <div class="section cards">

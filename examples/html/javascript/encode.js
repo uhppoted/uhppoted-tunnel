@@ -1,23 +1,24 @@
-export function GetControllerRequest (deviceId) {
+
+export function GetControllerRequest(controller) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x94
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
 
   return request
 }
 
-export function SetIPRequest (deviceId, address, netmask, gateway) {
+export function SetIPv4Request(controller, address, netmask, gateway) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x96
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packIPv4(address, view, 8)
   packIPv4(netmask, view, 12)
   packIPv4(gateway, view, 16)
@@ -26,63 +27,51 @@ export function SetIPRequest (deviceId, address, netmask, gateway) {
   return request
 }
 
-export function GetTimeRequest (deviceId) {
+export function GetTimeRequest(controller) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x32
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
 
   return request
 }
 
-export function SetTimeRequest (deviceId, datetime) {
+export function SetTimeRequest(controller, datetime) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x30
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packDatetime(datetime, view, 8)
 
   return request
 }
 
-export function GetStatusRequest (deviceId) {
-  const request = new Uint8Array(64)
-  const view = new DataView(request.buffer)
-
-  request[0] = 0x17
-  request[1] = 0x20
-
-  packUint32(deviceId, view, 4)
-
-  return request
-}
-
-export function GetListenerRequest (deviceId) {
+export function GetListenerRequest(controller) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x92
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
 
   return request
 }
 
-export function SetListenerRequest (deviceId, address, port, interval) {
+export function SetListenerRequest(controller, address, port, interval) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x90
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packIPv4(address, view, 8)
   packUint16(port, view, 12)
   packUint8(interval, view, 14)
@@ -90,94 +79,123 @@ export function SetListenerRequest (deviceId, address, port, interval) {
   return request
 }
 
-export function GetDoorControlRequest (deviceId, door) {
+export function GetDoorRequest(controller, door) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x82
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packUint8(door, view, 8)
 
   return request
 }
 
-export function SetDoorControlRequest (deviceId, door, mode, delay) {
+export function SetDoorRequest(controller, door, mode, delay) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x80
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packUint8(door, view, 8)
-  packUint8(mode, view, 9)
+  packMode(mode, view, 9)
   packUint8(delay, view, 10)
 
   return request
 }
 
-export function OpenDoorRequest (deviceId, door) {
+export function SetDoorPasscodesRequest(controller, door, passcode1, passcode2, passcode3, passcode4) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+
+  request[0] = 0x17
+  request[1] = 0x8c
+  
+  packUint32(controller, view, 4)
+  packUint8(door, view, 8)
+  packPin(passcode1, view, 12)
+  packPin(passcode2, view, 16)
+  packPin(passcode3, view, 20)
+  packPin(passcode4, view, 24)
+
+  return request
+}
+
+export function OpenDoorRequest(controller, door) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x40
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packUint8(door, view, 8)
 
   return request
 }
 
-export function GetCardsRequest (deviceId) {
+export function GetStatusRequest(controller) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+
+  request[0] = 0x17
+  request[1] = 0x20
+  
+  packUint32(controller, view, 4)
+
+  return request
+}
+
+export function GetCardsRequest(controller) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x58
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
 
   return request
 }
 
-export function GetCardRequest (deviceId, cardNumber) {
+export function GetCardRequest(controller, cardNumber) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x5a
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packUint32(cardNumber, view, 8)
 
   return request
 }
 
-export function GetCardByIndexRequest (deviceId, cardIndex) {
+export function GetCardAtIndexRequest(controller, index) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x5c
-
-  packUint32(deviceId, view, 4)
-  packUint32(cardIndex, view, 8)
+  
+  packUint32(controller, view, 4)
+  packUint32(index, view, 8)
 
   return request
 }
 
-export function PutCardRequest (deviceId, cardNumber, startDate, endDate, door1, door2, door3, door4, PIN) {
+export function PutCardRequest(controller, card, startDate, endDate, door1, door2, door3, door4, PIN) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x50
-
-  packUint32(deviceId, view, 4)
-  packUint32(cardNumber, view, 8)
+  
+  packUint32(controller, view, 4)
+  packUint32(card, view, 8)
   packDate(startDate, view, 12)
   packDate(endDate, view, 16)
   packUint8(door1, view, 20)
@@ -189,106 +207,106 @@ export function PutCardRequest (deviceId, cardNumber, startDate, endDate, door1,
   return request
 }
 
-export function DeleteCardRequest (deviceId, cardNumber) {
+export function DeleteCardRequest(controller, cardNumber) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x52
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packUint32(cardNumber, view, 8)
 
   return request
 }
 
-export function DeleteCardsRequest (deviceId) {
+export function DeleteCardsRequest(controller) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x54
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packUint32(0x55aaaa55, view, 8)
 
   return request
 }
 
-export function GetEventRequest (deviceId, eventIndex) {
+export function GetEventRequest(controller, eventIndex) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0xb0
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packUint32(eventIndex, view, 8)
 
   return request
 }
 
-export function GetEventIndexRequest (deviceId) {
+export function GetEventIndexRequest(controller) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0xb4
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
 
   return request
 }
 
-export function SetEventIndexRequest (deviceId, eventIndex) {
+export function SetEventIndexRequest(controller, eventIndex) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0xb2
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packUint32(eventIndex, view, 8)
   packUint32(0x55aaaa55, view, 12)
 
   return request
 }
 
-export function RecordSpecialEventsRequest (deviceId, enable) {
+export function RecordSpecialEventsRequest(controller, enabled) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x8e
-
-  packUint32(deviceId, view, 4)
-  packBool(enable, view, 8)
+  
+  packUint32(controller, view, 4)
+  packBool(enabled, view, 8)
 
   return request
 }
 
-export function GetTimeProfileRequest (deviceId, profileId) {
+export function GetTimeProfileRequest(controller, profile) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x98
-
-  packUint32(deviceId, view, 4)
-  packUint8(profileId, view, 8)
+  
+  packUint32(controller, view, 4)
+  packUint8(profile, view, 8)
 
   return request
 }
 
-export function SetTimeProfileRequest (deviceId, profileId, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, segment1Start, segment1End, segment2Start, segment2End, segment3Start, segment3End, linkedProfileId) {
+export function SetTimeProfileRequest(controller, profile, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, segment1Start, segment1End, segment2Start, segment2End, segment3Start, segment3End, linkedProfileId) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x88
-
-  packUint32(deviceId, view, 4)
-  packUint8(profileId, view, 8)
+  
+  packUint32(controller, view, 4)
+  packUint8(profile, view, 8)
   packDate(startDate, view, 9)
   packDate(endDate, view, 13)
   packBool(monday, view, 17)
@@ -309,27 +327,28 @@ export function SetTimeProfileRequest (deviceId, profileId, startDate, endDate, 
   return request
 }
 
-export function DeleteAllTimeProfilesRequest (deviceId) {
+export function ClearTimeProfilesRequest(controller) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x8a
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packUint32(0x55aaaa55, view, 8)
 
   return request
 }
 
-export function AddTaskRequest (deviceId, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, startTime, door, taskType, moreCards) {
+export function AddTaskRequest(controller, task, startDate, endDate, monday, tuesday, wednesday, thursday, friday, saturday, sunday, startTime, door, moreCards) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0xa8
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
+  packTask(task, view, 26)
   packDate(startDate, view, 8)
   packDate(endDate, view, 12)
   packBool(monday, view, 16)
@@ -341,73 +360,72 @@ export function AddTaskRequest (deviceId, startDate, endDate, monday, tuesday, w
   packBool(sunday, view, 22)
   packHHmm(startTime, view, 23)
   packUint8(door, view, 25)
-  packUint8(taskType, view, 26)
   packUint8(moreCards, view, 27)
 
   return request
 }
 
-export function RefreshTasklistRequest (deviceId) {
+export function RefreshTaskListRequest(controller) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0xac
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packUint32(0x55aaaa55, view, 8)
 
   return request
 }
 
-export function ClearTasklistRequest (deviceId) {
+export function ClearTaskListRequest(controller) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0xa6
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packUint32(0x55aaaa55, view, 8)
 
   return request
 }
 
-export function SetPcControlRequest (deviceId, enable) {
+export function SetPCControlRequest(controller, enabled) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0xa0
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packUint32(0x55aaaa55, view, 8)
-  packBool(enable, view, 12)
+  packBool(enabled, view, 12)
 
   return request
 }
 
-export function SetInterlockRequest (deviceId, interlock) {
+export function SetInterlockRequest(controller, interlock) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0xa2
-
-  packUint32(deviceId, view, 4)
-  packUint8(interlock, view, 8)
+  
+  packUint32(controller, view, 4)
+  packInterlock(interlock, view, 8)
 
   return request
 }
 
-export function ActivateKeypadsRequest (deviceId, reader1, reader2, reader3, reader4) {
+export function ActivateKeypadsRequest(controller, reader1, reader2, reader3, reader4) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0xa4
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packBool(reader1, view, 8)
   packBool(reader2, view, 9)
   packBool(reader3, view, 10)
@@ -416,82 +434,92 @@ export function ActivateKeypadsRequest (deviceId, reader1, reader2, reader3, rea
   return request
 }
 
-export function SetDoorPasscodesRequest (deviceId, door, passcode1, passcode2, passcode3, passcode4) {
-  const request = new Uint8Array(64)
-  const view = new DataView(request.buffer)
-
-  request[0] = 0x17
-  request[1] = 0x8c
-
-  packUint32(deviceId, view, 4)
-  packUint8(door, view, 8)
-  packUint32(passcode1, view, 12)
-  packUint32(passcode2, view, 16)
-  packUint32(passcode3, view, 20)
-  packUint32(passcode4, view, 24)
-
-  return request
-}
-
-export function GetAntipassbackRequest (deviceId) {
+export function GetAntipassbackRequest(controller) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x86
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
 
   return request
 }
 
-export function SetAntipassbackRequest (deviceId, antipassback) {
+export function SetAntipassbackRequest(controller, antipassback) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0x84
-
-  packUint32(deviceId, view, 4)
-  packUint8(antipassback, view, 8)
+  
+  packUint32(controller, view, 4)
+  packAntiPassback(antipassback, view, 8)
 
   return request
 }
 
-export function RestoreDefaultParametersRequest (deviceId) {
+export function SetFirstCardRequest(controller, door, startTime, endTime, activeMode, inactiveMode, monday, tuesday, wednesday, thursday, friday, saturday, sunday) {
+  const request = new Uint8Array(64)
+  const view = new DataView(request.buffer)
+
+  request[0] = 0x17
+  request[1] = 0xaa
+  
+  packUint32(controller, view, 4)
+  packUint8(door, view, 8)
+  packHHmm(startTime, view, 9)
+  packHHmm(endTime, view, 12)
+  packUint8(activeMode, view, 11)
+  packUint8(inactiveMode, view, 14)
+  packBool(monday, view, 15)
+  packBool(tuesday, view, 16)
+  packBool(wednesday, view, 17)
+  packBool(thursday, view, 18)
+  packBool(friday, view, 19)
+  packBool(saturday, view, 20)
+  packBool(sunday, view, 21)
+
+  return request
+}
+
+export function RestoreDefaultParametersRequest(controller) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
   request[0] = 0x17
   request[1] = 0xc8
-
-  packUint32(deviceId, view, 4)
+  
+  packUint32(controller, view, 4)
   packUint32(0x55aaaa55, view, 8)
 
   return request
 }
 
-function packUint8 (v, packet, offset) {
+
+
+
+function packUint8(v, packet, offset) {
   packet.setUint8(offset, v)
 }
 
-function packUint16 (v, packet, offset) {
+function packUint16(v, packet, offset) {
   packet.setUint16(offset, v, true)
 }
 
-function packUint32 (v, packet, offset) {
+function packUint32(v, packet, offset) {
   packet.setUint32(offset, v, true)
 }
 
-function packBool (v, packet, offset) {
+function packBool(v, packet, offset) {
   if (v) {
-    packet.setUint8(offset, 0x01)
+    packet.setUint8(offset, 0x01)    
   } else {
-    packet.setUint8(offset, 0x00)
+    packet.setUint8(offset, 0x00)        
   }
 }
 
-function packIPv4 (v, packet, offset) {
+function packIPv4(v, packet, offset) {
   const re = /([0-9]{0,3})\.([0-9]{0,3})\.([0-9]{0,3})\.([0-9]{0,3})/
   const match = v.match(re)
 
@@ -504,7 +532,7 @@ function packIPv4 (v, packet, offset) {
     if (Number.isNaN(b) || b > 255) {
       throw new Error(`invalid IP address ${v}`)
     } else {
-      packet.setUint8(offset + i, b)
+      packet.setUint8(offset+i, b)
     }
   }
 }
@@ -520,10 +548,10 @@ function packDate (v, packet, offset) {
     const date = `${year}${month}${day}`
     const bytes = bcd2bin(`${date}`)
 
-    packet.setUint8(offset + 0, bytes[0])
-    packet.setUint8(offset + 1, bytes[1])
-    packet.setUint8(offset + 2, bytes[2])
-    packet.setUint8(offset + 3, bytes[3])
+    packet.setUint8(offset+0, bytes[0])
+    packet.setUint8(offset+1, bytes[1])
+    packet.setUint8(offset+2, bytes[2])
+    packet.setUint8(offset+3, bytes[3])
   }
 }
 
@@ -540,7 +568,7 @@ function packDatetime (v, packet, offset) {
   const bytes = bcd2bin(`${date}${time}`)
 
   for (let i = 0; i < 7; i++) {
-    packet.setUint8(offset + i, bytes[i])
+      packet.setUint8(offset+i, bytes[i])
   }
 }
 
@@ -554,15 +582,31 @@ function packHHmm (v, packet, offset) {
     const time = `${hour}${minute}`
     const bytes = bcd2bin(`${time}`)
 
-    packet.setUint8(offset + 0, bytes[0])
-    packet.setUint8(offset + 1, bytes[1])
+    packet.setUint8(offset+0, bytes[0])
+    packet.setUint8(offset+1, bytes[1])
   }
 }
 
-function packPin (v, packet, offset) {
-  packet.setUint8(offset + 0, (v >> 0) & 0x00ff)
-  packet.setUint8(offset + 1, (v >> 8) & 0x00ff)
-  packet.setUint8(offset + 2, (v >> 16) & 0x00ff)
+function packPin(v, packet, offset) {
+  packet.setUint8(offset+0, (v >> 0) & 0x00ff)
+  packet.setUint8(offset+1, (v >> 8) & 0x00ff)
+  packet.setUint8(offset+2, (v >> 16) & 0x00ff)
+}
+
+function packMode(v, packet, offset) {
+  packet.setUint8(offset, v)
+}
+
+function packTask(v, packet, offset) {
+  packet.setUint8(offset, v)
+}
+
+function packInterlock(v, packet, offset) {
+  packet.setUint8(offset, v)
+}
+
+function packAntiPassback(v, packet, offset) {
+  packet.setUint8(offset, v)
 }
 
 function bcd2bin (bcd) {

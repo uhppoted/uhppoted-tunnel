@@ -181,7 +181,7 @@ tls-reverse-event-host: build
 
 http: build
 	npx eslint --fix ./examples/html/javascript/*.js
-	$(CMD) --debug --console --in http/0.0.0.0:8082 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s --html ./examples/html
+	$(CMD) --debug --console --config ./examples/uhppoted-tunnel.toml --in http/0.0.0.0:8082 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s --html ./examples/html
 
 https: build
 	npx eslint --fix ./examples/html/javascript/*.js

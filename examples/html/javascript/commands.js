@@ -9,18 +9,18 @@ export function getAllControllers () {
 }
 
 export function getController (controller) {
-  controller = arg(controller)
+                                 controller = arg(controller)
 
-  return uhppote.GetController(controller)
+             return uhppote.GetController(controller)
 }
 
-export function setIP (controller, address, netmask, gateway) {
+export function setIPv4 (controller, address, netmask, gateway) {
   controller = arg(controller)
   address = arg(address)
   netmask = arg(netmask)
   gateway = arg(gateway)
 
-  return uhppote.SetIP(controller, address, netmask, gateway)
+  return uhppote.SetIPv4(controller, address, netmask, gateway)
 }
 
 export function getTime (controller) {
@@ -57,20 +57,20 @@ export function setListener (controller, listener, interval) {
   return uhppote.SetListener(controller, address, port, interval)
 }
 
-export function getDoorControl (controller, door) {
+export function getDoor (controller, door) {
   controller = arg(controller)
   door = arg(door)
 
-  return uhppote.GetDoorControl(controller, door)
+  return uhppote.GetDoor(controller, door)
 }
 
-export function setDoorControl (controller, door, mode, delay) {
+export function setDoor (controller, door, mode, delay) {
   controller = arg(controller)
   door = arg(door)
   mode = arg(mode)
   delay = arg(delay)
 
-  return uhppote.SetDoorControl(controller, door, mode, delay)
+  return uhppote.SetDoor(controller, door, mode, delay)
 }
 
 export function openDoor (controller, door) {
@@ -97,7 +97,7 @@ export function getCard (controller, card) {
   card = arg(card)
 
   return uhppote.GetCard(controller, card).then(response => {
-    if (response.cardNumber === 0) {
+    if (response.card === 0) {
       throw new Error(`card ${card} not found`)
     }
 
@@ -105,14 +105,14 @@ export function getCard (controller, card) {
   })
 }
 
-export function getCardByIndex (controller, index) {
+export function getCardAtIndex (controller, index) {
   controller = arg(controller)
   index = arg(index)
 
-  return uhppote.GetCardByIndex(controller, index).then(response => {
-    if (response.cardNumber === 0) {
+  return uhppote.GetCardAtIndex(controller, index).then(response => {
+    if (response.card === 0) {
       throw new Error(`card @ index ${index} not found`)
-    } else if (response.cardNumber === 0xffffffff) {
+    } else if (response.card === 0xffffffff) {
       throw new Error(`card @ index ${index} deleted`)
     }
 
@@ -235,17 +235,19 @@ export function setTimeProfile (controller,
     linkedProfileID)
 }
 
-export function deleteAllTimeProfiles (controller) {
+export function clearTimeProfiles (controller) {
   controller = arg(controller)
 
-  return uhppote.DeleteAllTimeProfiles(controller)
+  return uhppote.ClearTimeProfiles(controller)
 }
 
 export function addTask (controller,
+  taskType, 
   startdate, enddate,
   monday, tuesday, wednesday, thursday, friday, saturday, sunday,
   starttime,
-  door, taskType, moreCards) {
+  door, moreCards) {
+
   controller = arg(controller)
   startdate = arg(startdate)
   enddate = arg(enddate)
@@ -264,11 +266,11 @@ export function addTask (controller,
   moreCards = arg(moreCards)
 
   return uhppote.AddTask(controller,
+    taskType,
     startdate, enddate,
     monday, tuesday, wednesday, thursday, friday, saturday, sunday,
     starttime,
     door,
-    taskType,
     moreCards)
 }
 
@@ -322,14 +324,38 @@ export function setDoorPasscodes (controller, door, passcode1, passcode2, passco
 export function getAntiPassback (controller) {
   controller = arg(controller)
 
-  return uhppote.GetAntipassback(controller)
+  return uhppote.GetAntiPassback(controller)
 }
 
 export function setAntiPassback (controller, antipassback) {
   controller = arg(controller)
   antipassback = arg(antipassback)
 
-  return uhppote.SetAntipassback(controller, antipassback)
+  return uhppote.SetAntiPassback(controller, antipassback)
+}
+
+export function setFirstCard (controller, door,
+                                          start, end,
+                                          active, inactive,
+                                          monday, tuesday, wednesday, thursday, friday, saturday, sunday) {
+  controller = arg(controller)
+  door = arg(door)
+  start = arg(start)
+  end = arg(end)
+  active = arg(active)
+  inactive = arg(inactive)
+  monday = arg(monday)
+  tuesday  = arg(tuesday)
+  wednesday = arg(wednesday)
+  thursday = arg(thursday)
+  friday = arg(friday)
+  saturday = arg(saturday)
+  sunday = arg(sunday)
+
+  return uhppote.SetFirstCard(controller, door,
+                                          start, end,
+                                          active, inactive,
+                                          monday, tuesday, wednesday, thursday, friday, saturday, sunday)
 }
 
 export function restoreDefaultParameters (controller) {

@@ -2,10 +2,8 @@
 
 ## IN PROGRESS
 
-- [x] event listener: add listen auto-send interval (cf. https://github.com/uhppoted/uhppote-core/issues/21)
-- [x] ARM6 target (cf. https://github.com/uhppoted/uhppoted/issues/55)
-
-- [ ] Tailscale as seperate binary
+- [x] 'first card' API (cf. https://github.com/uhppoted/uhppoted/issues/82)
+- [ ] Remove tailscale connector (cf. https://github.com/uhppoted/uhppoted-tunnel/issues/12)
 
 
 ## TODO

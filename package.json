@@ -1,10 +1,10 @@
 {
   "name": "uhppoted-tunnel",
-  "version": "0.8.9",
+  "version": "0.9.1",
   "description": "UDP tunnel for remote access to UHPPOTE controllers",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Nothing to do\" && exit 0"
   },
   "repository": {
     "type": "git",
@@ -17,10 +17,8 @@
   },
   "homepage": "https://github.com/uhppoted/uhppoted-tunnel#readme",
   "devDependencies": {
-    "eslint": "^8.18.0",
-    "eslint-config-standard": "^17.0.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-n": "^15.2.3",
-    "eslint-plugin-promise": "^6.0.0"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.5.0",
+    "globals": "^17.7.0"
   }
 }

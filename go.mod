@@ -4,10 +4,10 @@ go 1.26
 
 require (
 	github.com/pelletier/go-toml/v2 v2.2.3
-	github.com/uhppoted/uhppote-core v0.9.1-0.20260219172325-1dd279d6cc53
-	github.com/uhppoted/uhppoted-lib v0.9.1-0.20260220173047-f3a88dcbc696
+	github.com/uhppoted/uhppote-core v0.9.1-0.20260413153340-6648eb33ce77
+	github.com/uhppoted/uhppoted-lib v0.9.1-0.20260413153439-864cae69b6e0
 	golang.org/x/oauth2 v0.27.0
-	golang.org/x/sys v0.41.0
+	golang.org/x/sys v0.43.0
 	golang.org/x/time v0.9.0
 	tailscale.com v1.78.3
 )
