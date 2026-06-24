@@ -37,7 +37,6 @@ var RUN = Run{
 	daemon:   false,
 
 	conf:        "",
-	workdir:     "/var/uhppoted",
 	logFile:     fmt.Sprintf("/var/log/uhppoted/%s.log", SERVICE),
 	logFileSize: 10,
 

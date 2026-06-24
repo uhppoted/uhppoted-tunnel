@@ -187,23 +187,6 @@ https: build
 	npx eslint --fix ./examples/html/javascript/*.js
 	$(CMD) --debug --console --in https/0.0.0.0:8443 --out udp/broadcast:192.168.1.255:60000 --udp-timeout 1s --html ./examples/html
 
-tailscale-client: build
-#	$(CMD) --debug --console --workdir ../runtime/uhppoted-tunnel --in udp/listen:0.0.0.0:60000 --out tailscale/client::qwerty:uhppoted:12345,nolog
-	$(CMD) --config "../runtime/uhppoted-tunnel/uhppoted-tunnel.toml#tailscale-client"
-
-tailscale-server: build
-#	$(CMD) --debug --console --workdir ../runtime/uhppoted-tunnel --in tailscale/server:uhppoted:12345,nolog --out udp/broadcast:192.168.1.255:60005 --udp-timeout 1s
-	$(CMD) --config "../runtime/uhppoted-tunnel/uhppoted-tunnel.toml#tailscale-server"
-
-tailscale-server-misconfigured: build
-	$(CMD) --config "../runtime/uhppoted-tunnel/uhppoted-tunnel.toml#tailscale-server" --out udp/broadcast:192.168.1.255:60000
-
-tailscale-event-client: build
-	$(CMD) --debug --console --in udp/event:0.0.0.0:60001 --out tailscale/client::qwerty:uhppoted:12345,nolog
-
-tailscale-event-server: build
-	$(CMD) --debug --console --in tailscale/server:uhppoted:12345,nolog --out udp/event:192.168.1.255:60005
-
 ip: build
 	$(CMD) --config "./examples/uhppoted-tunnel.toml#ip"
 

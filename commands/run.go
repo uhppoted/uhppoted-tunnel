@@ -26,7 +26,6 @@ import (
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/http"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/ip"
-	"github.com/uhppoted/uhppoted-tunnel/tunnel/tailscale"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/tcp"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/tls"
 	"github.com/uhppoted/uhppoted-tunnel/tunnel/udp"
@@ -56,7 +55,6 @@ type Run struct {
 	logFile           string
 	logFileSize       int
 	logLevel          string
-	workdir           string
 	debug             bool
 	console           bool
 	daemon            bool
@@ -99,7 +97,6 @@ func (cmd *Run) flags() *flag.FlagSet {
 	flagset.BoolVar(&cmd.requireClientAuth, "client-auth", cmd.requireClientAuth, "Requires client authentication for TLS")
 
 	flagset.StringVar(&cmd.html, "html", cmd.html, "HTML folder for HTTP/HTTPS connectors")
-	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "work folder (for e.g. tailscale state)")
 	flagset.StringVar(&cmd.logLevel, "log-level", cmd.logLevel, "Sets the log level (debug, info, warn or error)")
 	flagset.BoolVar(&cmd.console, "console", cmd.console, "Runs as a console application rather than a service")
 	flagset.BoolVar(&cmd.debug, "debug", cmd.debug, "Enables detailed debugging logs")
@@ -260,10 +257,6 @@ func (cmd *Run) execute(f func(t *tunnel.Tunnel, ctx context.Context, cancel con
 	}
 
 	// ... run
-	if err = os.MkdirAll(cmd.workdir, os.ModeDir|os.ModePerm); err != nil {
-		return
-	}
-
 	infof("tunnel", "rate  limit %v requests per second", cmd.rateLimit)
 	infof("tunnel", "burst limit %v requests", cmd.burstLimit)
 	limiter := rate.NewLimiter(cmd.rateLimit, cmd.burstLimit)
@@ -302,7 +295,6 @@ func (cmd *Run) makeInConn(ctx context.Context) (tunnel.Conn, error) {
 		strings.HasPrefix(spec, "tcp/server:"),
 		strings.HasPrefix(spec, "tls/client:"),
 		strings.HasPrefix(spec, "tls/server:"),
-		strings.HasPrefix(spec, "tailscale/server:"),
 		strings.HasPrefix(spec, "http/"),
 		strings.HasPrefix(spec, "https/"):
 		return cmd.makeConn("--in", hwif, spec, In, events, ctx)
@@ -321,7 +313,7 @@ func (cmd *Run) makeOutConn(ctx context.Context) (tunnel.Conn, error) {
 	hwif := cmd.interfaces.out
 	spec := cmd.out
 
-	re := regexp.MustCompile(`((?:(?:udp)/(?:broadcast|listen|event))|(?:(?:tcp|tls|tailscale)/(?:client|server)))::(.*?):(.*)`)
+	re := regexp.MustCompile(`((?:(?:udp)/(?:broadcast|listen|event))|(?:(?:tcp|tls)/(?:client|server)))::(.*?):(.*)`)
 	if match := re.FindStringSubmatch(cmd.out); match != nil {
 		hwif = match[2]
 		spec = fmt.Sprintf("%v:%v", match[1], match[3])
@@ -338,7 +330,6 @@ func (cmd *Run) makeOutConn(ctx context.Context) (tunnel.Conn, error) {
 		strings.HasPrefix(spec, "tcp/server:"),
 		strings.HasPrefix(spec, "tls/client:"),
 		strings.HasPrefix(spec, "tls/server:"),
-		strings.HasPrefix(spec, "tailscale/client:"),
 		strings.HasPrefix(spec, "ip/out:"):
 		return cmd.makeConn("--out", hwif, spec, Out, events, ctx)
 
@@ -448,32 +439,6 @@ func (cmd Run) makeConn(arg, hwif string, spec string, dir direction, events boo
 		} else {
 			fmt.Printf("%v\n%v\n%v\n%v\n", cmd.caCertificate, cmd.certificate, cmd.key, cmd.requireClientAuth)
 			return http.NewHTTPS(spec[6:], cmd.html, ca, *certificate, cmd.requireClientAuth, retry, ctx)
-		}
-
-	case strings.HasPrefix(spec, "tailscale/server:"):
-		switch {
-		case dir == In:
-			if match := regexp.MustCompile("(.*?),(.*)").FindStringSubmatch(spec[17:]); len(match) > 2 {
-				return tailscale.NewTailscaleInServer(cmd.workdir, hwif, spec[17:], cmd.auth, retry, match[2], ctx)
-			} else {
-				return tailscale.NewTailscaleInServer(cmd.workdir, hwif, spec[17:], cmd.auth, retry, "", ctx)
-			}
-
-		default:
-			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
-		}
-
-	case strings.HasPrefix(spec, "tailscale/client:"):
-		switch {
-		case dir == Out:
-			if match := regexp.MustCompile("(.*?),(.*)").FindStringSubmatch(spec[17:]); len(match) > 2 {
-				return tailscale.NewTailscaleOutClient(cmd.workdir, hwif, spec[17:], cmd.auth, retry, match[2], ctx)
-			} else {
-				return tailscale.NewTailscaleOutClient(cmd.workdir, hwif, spec[17:], cmd.auth, retry, "", ctx)
-			}
-
-		default:
-			return nil, fmt.Errorf("invalid %v argument (%v)", arg, spec)
 		}
 
 	default:

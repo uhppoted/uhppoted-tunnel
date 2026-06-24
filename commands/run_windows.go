@@ -42,7 +42,6 @@ var RUN = Run{
 	daemon:   false,
 
 	conf:        "",
-	workdir:     workdir(),
 	logFile:     filepath.Join(workdir(), "logs", fmt.Sprintf("%s.log", SERVICE)),
 	logFileSize: 10,
 

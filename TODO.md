@@ -3,7 +3,7 @@
 ## IN PROGRESS
 
 - [x] 'first card' API (cf. https://github.com/uhppoted/uhppoted/issues/82)
-- [ ] Remove tailscale connector (cf. https://github.com/uhppoted/uhppoted-tunnel/issues/12)
+- [x] Remove tailscale connector (cf. https://github.com/uhppoted/uhppoted-tunnel/issues/12)
 
 
 ## TODO

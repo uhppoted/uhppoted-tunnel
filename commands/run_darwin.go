@@ -36,7 +36,6 @@ var RUN = Run{
 	daemon:   false,
 
 	conf:        "/usr/local/etc/com.github.uhppoted/uhppoted-tunnel.toml",
-	workdir:     "/usr/local/var/com.github.uhppoted",
 	logFile:     fmt.Sprintf("/usr/local/var/com.github.uhppoted/logs/%s.log", SERVICE),
 	logFileSize: 10,
 

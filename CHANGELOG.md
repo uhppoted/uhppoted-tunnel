@@ -2,9 +2,15 @@
 
 ## Unreleased
 
+### Added
+1. `set-firstcard` API in _http__ example.
+
 ### Updated
 1. Updated to Go v1.26.
 2. Updated to _modern_ Go with 'go fix'.
+
+### Removed
+1. _tailscale_ connector (redundant since tailscale now supports service connections).
 
 
 ## [0.9.0](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.9.0) - 2026-01-27

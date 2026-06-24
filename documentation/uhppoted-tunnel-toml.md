@@ -108,64 +108,6 @@ preceded by a _#_, e.g.
 ./uhppoted-tunnel --config "#client" 
 ```
 
-## Tailscale authorisation
-
-By default connections to a Tailscale tailnet will use the authorisation key in the TS_AUTHKEY environment variable. If the 
-environment variable is not defined or is blank then you will be prompted with an authorisation URL. Alternative authorisation
-methods can be configured using the `authorisation` TOML configuration file key:
-
-1. A different environment variable can specified using the `env:<variable name>` syntax, e.g.
-```
-[tailscale-server]
-...
-authorisation = "env:TS_WORKSHOP"
-...
-```
-   This is an alternative to using a reusable authorisation key in the TS_AUTHKEY environment variable when running two
-   or more tunnels on the same machine.
-
-2. The authorisation key can specified directly using the `authkey:<key>` syntax, e.g.
-
-```
-[tailscale-server]
-...
-authorisation = "authkey:tskey-auth-xxxxxxxxxxxx-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-...
-```
-
-3. Authorisation can be done using an OAuth2 client ID created on the the Tailscale admin console.
-
-```
-[tailscale-server]
-...
-authorisation = "oauth2:.credentials.workship"
-...
-```
-
-The `credentials` is a JSON file that contains the OAuth2 credentials for the OAuth2 client, e.g.
-```
-{ 
-    "tailscale": {
-        "oauth2": {
-            "client-id": "xxxxxxxxxxxx",
-            "client-secret": "tskey-client-xxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-            "auth-url": "https://api.tailscale.com/api/v2/oauth/token",
-            "tailnet": "qwerty@uiop.com",
-            "tag": "development",
-            "key-expiry": 300
-        }
-    }
-}
-```
-
-- The `client-id` and `client-secret` are the keys generated when creating the OAuth2 client on the Tailscale admin console.
-- The tailnet is the user or organisation account name ([**not** the tailnet DNS 
-  name](https://github.com/tailscale/terraform-provider-tailscale/issues/206)) but can be defaulted to a '-' since the API
-  keys are organisation/client specific.
-
-Please note that connections authorised using _OAuth2_ are required to be _tagged_ and the keys do not expire, but 
-can be expired manually on the Tailscale console.
-
 ## Sample TOML file
 
 ```
