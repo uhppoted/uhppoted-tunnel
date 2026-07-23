@@ -8,6 +8,8 @@
 
 ## TODO
 
+- (?) https://avlasov.cabal.run/notes/001/index.html
+
 - (?) GRE 
    - https://en.wikipedia.org/wiki/Generic_routing_encapsulation
 - (?) https://shadowsocks.org
