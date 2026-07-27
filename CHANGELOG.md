@@ -8,6 +8,8 @@
 ### Updated
 1. Updated to Go v1.26.
 2. Updated to _modern_ Go with 'go fix'.
+3. Migrated from _github.com/uhppoted/uhppoted-tunnel_ to _codeberg.org/uhppoted/uhppoted-tunnel_.
+
 
 ### Removed
 1. _tailscale_ connector (redundant since tailscale now supports service endpoints).

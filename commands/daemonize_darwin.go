@@ -10,7 +10,7 @@ import (
 	"strings"
 	"text/template"
 
-	xpath "github.com/uhppoted/uhppoted-lib/encoding/plist"
+	xpath "codeberg.org/uhppoted/uhppoted-lib/encoding/plist"
 )
 
 type info struct {
@@ -36,11 +36,11 @@ const newsyslog = `#logfilename                                       [owner:gro
 {{end}}`
 
 var DAEMONIZE = Daemonize{
-	plist:   fmt.Sprintf("com.github.uhppoted.%s.plist", SERVICE),
+	plist:   fmt.Sprintf("org.codeberg.uhppoted.%s.plist", SERVICE),
 	conf:    "",
-	workdir: "/usr/local/var/com.github.uhppoted/tunnel",
-	logdir:  "/usr/local/var/com.github.uhppoted/logs",
-	etc:     "/usr/local/etc/com.github.uhppoted/tunnel",
+	workdir: "/usr/local/var/org.codeberg.uhppoted/tunnel",
+	logdir:  "/usr/local/var/org.codeberg.uhppoted/logs",
+	etc:     "/usr/local/etc/org.codeberg.uhppoted/tunnel",
 }
 
 type Daemonize struct {
@@ -109,7 +109,7 @@ func (cmd *Daemonize) Execute(args ...any) error {
 	}
 
 	if label != "" {
-		cmd.plist = fmt.Sprintf("com.github.uhppoted.%v-%v.plist", SERVICE, label)
+		cmd.plist = fmt.Sprintf("org.codeberg.uhppoted.%v-%v.plist", SERVICE, label)
 	}
 
 	return cmd.execute(label)
@@ -124,9 +124,9 @@ func (cmd *Daemonize) execute(label string) error {
 		return err
 	}
 
-	l := fmt.Sprintf("com.github.uhppoted.%s", SERVICE)
+	l := fmt.Sprintf("org.codeberg.uhppoted.%s", SERVICE)
 	if label != "" {
-		l = fmt.Sprintf("com.github.uhppoted.%s-%v", SERVICE, label)
+		l = fmt.Sprintf("org.codeberg.uhppoted.%s-%v", SERVICE, label)
 	}
 
 	i := info{

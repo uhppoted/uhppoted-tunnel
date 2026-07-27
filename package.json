@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/uhppoted/uhppoted-tunnel.git"
+    "url": "git+https://codeberg.org/uhppoted/uhppoted-tunnel.git"
   },
   "author": "uhppoted",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/uhppoted/uhppoted-tunnel/issues"
+    "url": "https://codeberg.org/uhppoted/uhppoted-tunnel/issues"
   },
-  "homepage": "https://github.com/uhppoted/uhppoted-tunnel#readme",
+  "homepage": "https://codeberg.org/uhppoted/uhppoted-tunnel#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.5.0",

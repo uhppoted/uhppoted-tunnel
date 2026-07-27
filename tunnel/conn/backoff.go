@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/uhppoted/uhppoted-tunnel/log"
+	"codeberg.org/uhppoted/uhppoted-tunnel/log"
 )
 
 const RETRY_MIN_DELAY = 5 * time.Second

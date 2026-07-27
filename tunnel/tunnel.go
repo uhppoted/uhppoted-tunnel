@@ -8,8 +8,8 @@ import (
 
 	"golang.org/x/time/rate"
 
-	"github.com/uhppoted/uhppoted-tunnel/log"
-	"github.com/uhppoted/uhppoted-tunnel/router"
+	"codeberg.org/uhppoted/uhppoted-tunnel/log"
+	"codeberg.org/uhppoted/uhppoted-tunnel/router"
 )
 
 type Conn interface {

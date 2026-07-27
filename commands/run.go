@@ -17,18 +17,18 @@ import (
 
 	"golang.org/x/time/rate"
 
-	core "github.com/uhppoted/uhppote-core/uhppote"
-	"github.com/uhppoted/uhppoted-lib/config"
-	lib "github.com/uhppoted/uhppoted-lib/lockfile"
+	core "codeberg.org/uhppoted/uhppoted-core/uhppote"
+	"codeberg.org/uhppoted/uhppoted-lib/config"
+	lib "codeberg.org/uhppoted/uhppoted-lib/lockfile"
 
-	"github.com/uhppoted/uhppoted-tunnel/log"
-	"github.com/uhppoted/uhppoted-tunnel/tunnel"
-	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
-	"github.com/uhppoted/uhppoted-tunnel/tunnel/http"
-	"github.com/uhppoted/uhppoted-tunnel/tunnel/ip"
-	"github.com/uhppoted/uhppoted-tunnel/tunnel/tcp"
-	"github.com/uhppoted/uhppoted-tunnel/tunnel/tls"
-	"github.com/uhppoted/uhppoted-tunnel/tunnel/udp"
+	"codeberg.org/uhppoted/uhppoted-tunnel/log"
+	"codeberg.org/uhppoted/uhppoted-tunnel/tunnel"
+	"codeberg.org/uhppoted/uhppoted-tunnel/tunnel/conn"
+	"codeberg.org/uhppoted/uhppoted-tunnel/tunnel/http"
+	"codeberg.org/uhppoted/uhppoted-tunnel/tunnel/ip"
+	"codeberg.org/uhppoted/uhppoted-tunnel/tunnel/tcp"
+	"codeberg.org/uhppoted/uhppoted-tunnel/tunnel/tls"
+	"codeberg.org/uhppoted/uhppoted-tunnel/tunnel/udp"
 )
 
 type Run struct {

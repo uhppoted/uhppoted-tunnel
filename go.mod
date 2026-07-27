@@ -1,12 +1,12 @@
-module github.com/uhppoted/uhppoted-tunnel
+module codeberg.org/uhppoted/uhppoted-tunnel
 
 go 1.26
 
 require (
+	codeberg.org/uhppoted/uhppoted-core v0.0.0-20260723154335-7d132936dee1
+	codeberg.org/uhppoted/uhppoted-lib v0.0.0-20260727160533-1532e691085e
 	github.com/pelletier/go-toml/v2 v2.2.3
-	github.com/uhppoted/uhppote-core v0.9.1-0.20260413153340-6648eb33ce77
-	github.com/uhppoted/uhppoted-lib v0.9.1-0.20260413153439-864cae69b6e0
-	golang.org/x/sys v0.43.0
+	golang.org/x/sys v0.47.0
 	golang.org/x/time v0.9.0
 )
 

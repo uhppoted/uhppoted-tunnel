@@ -9,10 +9,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/uhppoted/uhppote-core/uhppote"
-	"github.com/uhppoted/uhppoted-lib/config"
-	"github.com/uhppoted/uhppoted-lib/eventlog"
-	"github.com/uhppoted/uhppoted-tunnel/tunnel"
+	"codeberg.org/uhppoted/uhppoted-core/uhppote"
+	"codeberg.org/uhppoted/uhppoted-lib/config"
+	"codeberg.org/uhppoted/uhppoted-lib/eventlog"
+	"codeberg.org/uhppoted/uhppoted-tunnel/tunnel"
 )
 
 var RUN = Run{
@@ -35,8 +35,8 @@ var RUN = Run{
 	console:  false,
 	daemon:   false,
 
-	conf:        "/usr/local/etc/com.github.uhppoted/uhppoted-tunnel.toml",
-	logFile:     fmt.Sprintf("/usr/local/var/com.github.uhppoted/logs/%s.log", SERVICE),
+	conf:        "/usr/local/etc/org.codeberg.uhppoted/uhppoted-tunnel.toml",
+	logFile:     fmt.Sprintf("/usr/local/var/org.codeberg.uhppoted/logs/%s.log", SERVICE),
 	logFileSize: 10,
 
 	rateLimit:  1,

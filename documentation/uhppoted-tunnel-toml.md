@@ -6,7 +6,7 @@ The file is intended to allow simple and maintainable configuration for systems 
 services and provides a base configuration which can be overridden by command line arguments when necessary e.g. for 
 running a _tunnel_ in console mode.
 
-A sample `uhppoted-tunnel.toml` is included in the [examples](https://github.com/uhppoted/uhppoted-tunnel/blob/master/examples/uhppoted-tunnel.toml).
+A sample `uhppoted-tunnel.toml` is included in the [examples](https://codeberg.org/uhppoted/uhppoted-tunnel/blob/main/examples/uhppoted-tunnel.toml).
 
 A `uhppoted-tunnel.toml` file comprises:
 - a _defaults_ section which defines the base configuration for all _uhppoted-tunnels_

@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/uhppoted/uhppoted-tunnel/protocol"
-	"github.com/uhppoted/uhppoted-tunnel/router"
-	"github.com/uhppoted/uhppoted-tunnel/tunnel/conn"
+	"codeberg.org/uhppoted/uhppoted-tunnel/protocol"
+	"codeberg.org/uhppoted/uhppoted-tunnel/router"
+	"codeberg.org/uhppoted/uhppoted-tunnel/tunnel/conn"
 )
 
 type tcpServer struct {

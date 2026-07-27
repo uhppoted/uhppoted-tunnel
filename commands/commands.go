@@ -9,7 +9,7 @@ import (
 
 	"github.com/pelletier/go-toml/v2"
 
-	"github.com/uhppoted/uhppoted-tunnel/log"
+	"codeberg.org/uhppoted/uhppoted-tunnel/log"
 )
 
 const (

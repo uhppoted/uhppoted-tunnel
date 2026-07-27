@@ -31,13 +31,13 @@ which means UDP broadcast doesn't just work. And poking holes in the firewall an
 or setting up a VPN is either not going to happen or is more trouble than it's worth.
 
 Also useful for remotely using
-- [uhppote-cli](https://github.com/uhppoted/uhppote-cli)
-- [uhppoted-app-sheets](https://github.com/uhppoted/uhppoted-app-sheets) 
-- [uhppoted-app-wildapricot](https://github.com/uhppoted/uhppoted-app-wildapricot)
+- [uhppoted-cli](https://codeberg.org/uhppoted/uhppoted-cli)
+- [uhppoted-app-sheets](https://codeberg.org/uhppoted/uhppoted-app-sheets) 
+- [uhppoted-app-wildapricot](https://codeberg.org/uhppoted/uhppoted-app-wildapricot)
 
 and is a simpler alternative to:
-- [uhppoted-rest](https://github.com/uhppoted/uhppoted-rest)
-- [uhppoted-mqtt](https://github.com/uhppoted/uhppoted-mqtt)
+- [uhppoted-rest](https://codeberg.org/uhppoted/uhppoted-rest)
+- [uhppoted-mqtt](https://codeberg.org/uhppoted/uhppoted-mqtt)
 
 ## Status
 
@@ -58,9 +58,9 @@ Supported operating systems:
 
 ## Installation
 
-Executables for all the supported operating systems are packaged in the [releases](https://github.com/uhppoted/uhppoted-tunnel/releases):
+Executables for all the supported operating systems are packaged in the [releases](https://codeberg.org/uhppoted/uhppoted-tunnel/releases):
 
-The release tarballs contain the executables for all the operating systems - OS specific tarballs with all the _uhppoted_ components can be found in [uhpppoted](https://github.com/uhppoted/uhppoted/releases) releases.
+The release tarballs contain the executables for all the operating systems - OS specific tarballs with all the _uhppoted_ components can be found in [uhpppoted](https://codeberg.org/uhppoted/uhppoted/releases) releases.
 
 Installation is straightforward - download the archive and extract it to a directory of your choice. To install `uhppoted-tunnel` as a system service:
 ```
@@ -79,14 +79,14 @@ Required tools:
 To build using the included Makefile:
 
 ```
-git clone https://github.com/uhppoted/uhppoted-tunnel.git
+git clone https://codeberg.org/uhppoted/uhppoted-tunnel.git
 cd uhppoted-tunnel
 make build
 ```
 
 Without using `make`:
 ```
-git clone https://github.com/uhppoted/uhppoted-tunnel.git
+git clone https://codeberg.org/uhppoted/uhppoted-tunnel.git
 cd uhppoted-tunnel
 go build -trimpath -o bin/ ./...
 ```
@@ -98,8 +98,8 @@ The above commands build the `uhppoted-tunnel` executable to the `bin` directory
 
 | *Dependency*                                                      | *Description*                            |
 |-------------------------------------------------------------------|------------------------------------------|
-| [uhppote-core](https://github.com/uhppoted/uhppote-core)          | Device level API implementation          |
-| [uhppoted-lib](https://github.com/uhppoted/uhppoted-lib)          | Common library functions                 |
+| [uhppote-core](https://codeberg.org/uhppoted/uhppote-core)          | Device level API implementation          |
+| [uhppoted-lib](https://codeberg.org/uhppoted/uhppoted-lib)          | Common library functions                 |
 | golang.org/x/sys                                                  | (for Windows service integration)        |
 
 
@@ -119,7 +119,7 @@ Defaults to `run` if the command it not provided i.e. ```uhppoted-tunnel --in <c
 
 #### Configuration
 
-For _uhppoted-tunnel_ v0.8.3+, runtime configuration is defined in a TOML file (documented [here](https://github.com/uhppoted/uhppoted-tunnel/blob/master/documentation/uhppoted-tunnel-toml.md)) and any future enhancements will
+For _uhppoted-tunnel_ v0.8.3+, runtime configuration is defined in a TOML file (documented [here](https://codeberg.org/uhppoted/uhppoted-tunnel/blob/master/documentation/uhppoted-tunnel-toml.md)) and any future enhancements will
 be configurable only in the TOML file.
 
 The command line arguments described below are for legacy support and overriding specific settings in the TOML configuation.

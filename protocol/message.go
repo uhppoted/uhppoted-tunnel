@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync/atomic"
 
-	"github.com/uhppoted/uhppoted-tunnel/log"
+	"codeberg.org/uhppoted/uhppoted-tunnel/log"
 )
 
 var PACKETID uint32 = 0

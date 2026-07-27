@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	core "github.com/uhppoted/uhppote-core/uhppote"
-	lib "github.com/uhppoted/uhppoted-lib/command"
+	core "codeberg.org/uhppoted/uhppoted-core/uhppote"
+	lib "codeberg.org/uhppoted/uhppoted-lib/command"
 
-	"github.com/uhppoted/uhppoted-tunnel/commands"
+	"codeberg.org/uhppoted/uhppoted-tunnel/commands"
 )
 
 var cli = []lib.Command{

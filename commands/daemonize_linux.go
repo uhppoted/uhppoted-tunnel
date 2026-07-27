@@ -212,7 +212,7 @@ func (cmd *Daemonize) execute() error {
 
 	i := info{
 		Description:   "UHPPOTE UTO311-L0x access card controllers UDP tunnel service/daemon ",
-		Documentation: "https://github.com/uhppoted/uhppoted-tunnel",
+		Documentation: "https://codeberg.org/uhppoted/uhppoted-tunnel",
 		Executable:    executable,
 		Conf:          conf,
 		In:            cmd.in,

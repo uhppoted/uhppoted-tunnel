@@ -1,4 +1,4 @@
 package commands
 
-const DefaultConfig = "/usr/local/etc/com.github.uhppoted/uhppoted-tunnel.toml"
+const DefaultConfig = "/usr/local/etc/org.codeberg.uhppoted/uhppoted-tunnel.toml"
 const DefaultLockfile = ""
