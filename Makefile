@@ -22,14 +22,14 @@ clean:
 	rm -rf bin
 
 update:
-	go get -u org.codeberg/uhppoted/uhppoted-core@main
-	go get -u org.codeberg/uhppoted/uhppoted-lib@main
+	go get -u codeberg.org/uhppoted/uhppoted-core@main
+	go get -u codeberg.org/uhppoted/uhppoted-lib@main
 	go mod tidy
 	go fix ./...
 
 update-release:
-	go get -u org.codeberg/uhppoted/uhppoted-core
-	go get -u org.codeberg/uhppoted/uhppoted-lib
+	go get -u codeberg.org/uhppoted/uhppoted-core
+	go get -u codeberg.org/uhppoted/uhppoted-lib
 	go mod tidy
 	go fix ./...
 
@@ -102,7 +102,7 @@ debug: build
 
 delve: build
 #   dlv exec ./bin/uhppoted-tunnel -- --debug --console
-	dlv test org.codeberg/uhppoted/uhppoted-tunnel -- run Test*
+	dlv test codeberg.org/uhppoted/uhppoted-tunnel -- run Test*
 
 godoc:
 	godoc -http=:80	-index_interval=60s
