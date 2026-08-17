@@ -187,7 +187,7 @@ export function GetCardAtIndexRequest(controller, index) {
   return request
 }
 
-export function PutCardRequest(controller, card, startDate, endDate, door1, door2, door3, door4, PIN) {
+export function PutCardRequest(controller, card, startDate, endDate, door1, door2, door3, door4, PIN, firstcard) {
   const request = new Uint8Array(64)
   const view = new DataView(request.buffer)
 
@@ -203,6 +203,7 @@ export function PutCardRequest(controller, card, startDate, endDate, door1, door
   packUint8(door3, view, 22)
   packUint8(door4, view, 23)
   packPin(PIN, view, 24)
+  packUint8(firstcard, view, 27)
 
   return request
 }

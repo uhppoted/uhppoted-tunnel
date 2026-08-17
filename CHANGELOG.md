@@ -4,6 +4,7 @@
 
 ### Added
 1. `set-firstcard` API in _http__ example.
+2. Added first-card privilege bitmask to `get-card`, `get-card-at-index` and `put-card` in HTML example.
 
 ### Updated
 1. Updated to Go v1.26.

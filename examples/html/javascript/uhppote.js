@@ -134,8 +134,8 @@ export function GetCardAtIndex(controller, index) {
     })
 }
 
-export function PutCard(controller, card, startDate, endDate, door1, door2, door3, door4, PIN) { 
-  const request = encode.PutCardRequest(controller, card, startDate, endDate, door1, door2, door3, door4, PIN)
+export function PutCard(controller, card, startDate, endDate, door1, door2, door3, door4, PIN, firstCard) { 
+  const request = encode.PutCardRequest(controller, card, startDate, endDate, door1, door2, door3, door4, PIN, firstCard)
 
   return udp.send(request)
     .then(reply => {

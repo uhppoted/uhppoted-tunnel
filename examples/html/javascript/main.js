@@ -29,7 +29,8 @@ export const COMMANDS = new Map([
                                                                    'card.doors.2', 
                                                                    'card.doors.3', 
                                                                    'card.doors.4',
-                                                                   'card.PIN']}],
+                                                                   'card.PIN',
+                                                                   'card.firstcard']}],
 
   ['delete-card',           { fn: commands.deleteCard,          args: ['controller', 'card.number']}],
   ['delete-all-cards',      { fn: commands.deleteAllCards,      args: ['controller']}],

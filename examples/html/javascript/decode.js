@@ -335,6 +335,7 @@ export function GetCardResponse(packet) {
     door3: unpackUint8(view, 22),
     door4: unpackUint8(view, 23),
     PIN: unpackPin(view, 24),
+    firstcard: unpackUint8(view, 27),
   }
 }
 
@@ -365,6 +366,7 @@ export function GetCardAtIndexResponse(packet) {
     door3: unpackUint8(view, 22),
     door4: unpackUint8(view, 23),
     PIN: unpackPin(view, 24),
+    firstcard: unpackUint8(view, 27),
   }
 }
 
