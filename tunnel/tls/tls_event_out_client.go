@@ -33,8 +33,7 @@ func NewTLSEventOutClient(hwif string, spec string, ca *x509.CertPool, keypair *
 			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
 			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
 		},
-		PreferServerCipherSuites: true,
-		MinVersion:               tls.VersionTLS12,
+		MinVersion: tls.VersionTLS12,
 	}
 
 	if keypair != nil {
