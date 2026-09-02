@@ -1,7 +1,7 @@
-codeberg.org/uhppoted/uhppoted-core v0.9.1-0.20260813185934-c004d9c86466 h1:i778JsUnaOMBOQ3SBS0HIt2YHt/BL/smFLj688Z5NBY=
-codeberg.org/uhppoted/uhppoted-core v0.9.1-0.20260813185934-c004d9c86466/go.mod h1:MoeCM7GWMq72F2tUs6/lBt9tlnBoOsMFT6effpitLRs=
-codeberg.org/uhppoted/uhppoted-lib v0.9.1-0.20260811151401-370952f4629a h1:yFosg4nCarDYN3l+sY3eOfqWgu0PQruf8weJGAA13ko=
-codeberg.org/uhppoted/uhppoted-lib v0.9.1-0.20260811151401-370952f4629a/go.mod h1:0GAYfXxnmDI4j5wxGx4+me4Xp+RHASifTfHRVvk3BIk=
+codeberg.org/uhppoted/uhppoted-core v0.9.1-0.20260826154903-9a53ea34a863 h1:lC5rR11iLWuLmoiQD2BeUs2W59EDf+rM+umOH3OGZi4=
+codeberg.org/uhppoted/uhppoted-core v0.9.1-0.20260826154903-9a53ea34a863/go.mod h1:MoeCM7GWMq72F2tUs6/lBt9tlnBoOsMFT6effpitLRs=
+codeberg.org/uhppoted/uhppoted-lib v0.9.1-0.20260901151700-ef907f296911 h1:lba5CA4n7lW91J2Gntl93aofIDGIiC8Ay1jq29Zns5Q=
+codeberg.org/uhppoted/uhppoted-lib v0.9.1-0.20260901151700-ef907f296911/go.mod h1:r8KVWWXlqh+CT17OG+wTF4jOIC0NbCHGdN6WxsVSv1k=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pelletier/go-toml/v2 v2.2.3 h1:YmeHyLY8mFWbdkNWwpr+qIL2bEqT0o95WSdkNHvL12M=
