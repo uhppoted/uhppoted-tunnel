@@ -59,9 +59,7 @@ func makeTCPServer(hwif string, spec string, retry conn.Backoff, ctx context.Con
 	}
 
 	tcp := tcpServer{
-		Conn: conn.Conn{
-			Tag: "TCP",
-		},
+		Tag:         "TCP",
 		hwif:        hwif,
 		addr:        addr,
 		retry:       retry,

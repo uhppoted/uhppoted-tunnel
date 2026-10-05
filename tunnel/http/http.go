@@ -74,9 +74,7 @@ func NewHTTP(spec string, html string, retry conn.Backoff, ctx context.Context) 
 	}
 
 	h := httpd{
-		Conn: conn.Conn{
-			Tag: "HTTP",
-		},
+		Tag:     "HTTP",
 		addr:    addr,
 		retry:   retry,
 		timeout: 5 * time.Second,

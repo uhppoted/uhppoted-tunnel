@@ -81,9 +81,7 @@ func makeTLSServer(hwif string, spec string, ca *x509.CertPool, keypair tls.Cert
 	}
 
 	tcp := tlsServer{
-		Conn: conn.Conn{
-			Tag: "TLS",
-		},
+		Tag:         "TLS",
 		hwif:        hwif,
 		addr:        addr,
 		config:      &config,

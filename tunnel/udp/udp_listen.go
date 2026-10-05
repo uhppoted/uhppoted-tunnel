@@ -39,9 +39,7 @@ func NewUDPListen(hwif string, spec string, retry conn.Backoff, ctx context.Cont
 	}
 
 	udp := udpListen{
-		Conn: conn.Conn{
-			Tag: "UDP",
-		},
+		Tag:     "UDP",
 		hwif:    hwif,
 		addr:    addr,
 		retry:   retry,

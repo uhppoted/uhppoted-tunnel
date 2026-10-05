@@ -1,7 +1,7 @@
-codeberg.org/uhppoted/uhppoted-core v0.9.1-0.20260826154903-9a53ea34a863 h1:lC5rR11iLWuLmoiQD2BeUs2W59EDf+rM+umOH3OGZi4=
-codeberg.org/uhppoted/uhppoted-core v0.9.1-0.20260826154903-9a53ea34a863/go.mod h1:MoeCM7GWMq72F2tUs6/lBt9tlnBoOsMFT6effpitLRs=
-codeberg.org/uhppoted/uhppoted-lib v0.9.1-0.20260901151700-ef907f296911 h1:lba5CA4n7lW91J2Gntl93aofIDGIiC8Ay1jq29Zns5Q=
-codeberg.org/uhppoted/uhppoted-lib v0.9.1-0.20260901151700-ef907f296911/go.mod h1:r8KVWWXlqh+CT17OG+wTF4jOIC0NbCHGdN6WxsVSv1k=
+codeberg.org/uhppoted/uhppoted-core v0.9.1-0.20261001173143-860675f9c219 h1:1vO4vcCMWMz2XjtXDNO8MU0xErrMSv5Z3gLJvoruZtU=
+codeberg.org/uhppoted/uhppoted-core v0.9.1-0.20261001173143-860675f9c219/go.mod h1:EVFvPdCbbCe6svMwMNBYO8SuA/MxGfWo4blhZIJICZc=
+codeberg.org/uhppoted/uhppoted-lib v0.9.1-0.20261001184412-e96a37c5413e h1:qNnhuQGiHTbNuQUgY6+CMxgIcUhXoRufAXhR3xeuHsQ=
+codeberg.org/uhppoted/uhppoted-lib v0.9.1-0.20261001184412-e96a37c5413e/go.mod h1:TBi5EXHSy2tUdamaeK0P+HHWQogkX0XG4X36VJKUoaA=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pelletier/go-toml/v2 v2.2.3 h1:YmeHyLY8mFWbdkNWwpr+qIL2bEqT0o95WSdkNHvL12M=
@@ -10,8 +10,8 @@ github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRI
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
-golang.org/x/sys v0.47.0 h1:o7XGOvZQCADBQQ4Y7VNq2dRWQR7JmOUW8Kxx4ZsNgWs=
-golang.org/x/sys v0.47.0/go.mod h1:4GL1E5IUh+htKOUEOaiffhrAeqysfVGipDYzABqnCmw=
+golang.org/x/sys v0.48.0 h1:bbX/i/6MgT9BVLM9RT1thmxL04yeTAhbEz4SyadbXoo=
+golang.org/x/sys v0.48.0/go.mod h1:hNLxWAXmnKAxqDtdwIYC4bM9oQPEecfsnNMuSxOs3og=
 golang.org/x/time v0.9.0 h1:EsRrnYcQiGH+5FfbgvV4AP7qEZstoyrHB0DzarOQ4ZY=
 golang.org/x/time v0.9.0/go.mod h1:3BpzKBy/shNhVucY/MWOyx10tF3SFh9QdLuxbVysPQM=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=

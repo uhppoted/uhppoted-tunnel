@@ -38,9 +38,7 @@ func NewUDPBroadcast(hwif string, spec string, timeout time.Duration, ctx contex
 	}
 
 	udp := udpBroadcast{
-		Conn: conn.Conn{
-			Tag: "UDP",
-		},
+		Tag:     "UDP",
 		hwif:    hwif,
 		addr:    addr,
 		timeout: timeout,

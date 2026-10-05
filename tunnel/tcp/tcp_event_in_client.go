@@ -25,9 +25,7 @@ func NewTCPEventInClient(hwif string, spec string, retry conn.Backoff, ctx conte
 
 	tcp := tcpEventInClient{
 		tcpEventClient{
-			Conn: conn.Conn{
-				Tag: "TCP",
-			},
+			Tag:     "TCP",
 			hwif:    hwif,
 			addr:    addr,
 			retry:   retry,

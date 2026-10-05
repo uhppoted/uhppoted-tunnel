@@ -52,19 +52,15 @@ func NewHTTPS(spec string, html string, ca *x509.CertPool, keypair tls.Certifica
 	}
 
 	h := https{
-		httpd: httpd{
-			Conn: conn.Conn{
-				Tag: "HTTPS",
-			},
-			addr:    addr,
-			retry:   retry,
-			timeout: 5 * time.Second,
-			fs:      fs,
-			ctx:     ctx,
-			ch:      make(chan protocol.Message, 16),
-			closed:  make(chan struct{}),
-		},
-		TLS: &config,
+		Tag:     "HTTPS",
+		addr:    addr,
+		retry:   retry,
+		timeout: 5 * time.Second,
+		fs:      fs,
+		ctx:     ctx,
+		ch:      make(chan protocol.Message, 16),
+		closed:  make(chan struct{}),
+		TLS:     &config,
 	}
 
 	return &h, nil

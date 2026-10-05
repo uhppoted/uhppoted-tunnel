@@ -25,9 +25,7 @@ func NewTCPEventOutClient(hwif string, spec string, retry conn.Backoff, ctx cont
 
 	tcp := tcpEventOutClient{
 		tcpEventClient{
-			Conn: conn.Conn{
-				Tag: "TCP",
-			},
+			Tag:     "TCP",
 			hwif:    hwif,
 			addr:    addr,
 			retry:   retry,

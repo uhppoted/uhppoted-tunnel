@@ -42,9 +42,7 @@ func NewTLSEventInClient(hwif string, spec string, ca *x509.CertPool, keypair *t
 
 	tcp := tlsEventInClient{
 		tlsEventClient{
-			Conn: conn.Conn{
-				Tag: "TLS",
-			},
+			Tag:     "TLS",
 			hwif:    hwif,
 			addr:    addr,
 			config:  &config,

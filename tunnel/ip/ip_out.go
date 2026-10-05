@@ -42,9 +42,7 @@ func NewIPOut(hwif string, spec string, controllers map[uint32]string, timeout t
 	}
 
 	ip := ipOut{
-		Conn: conn.Conn{
-			Tag: "IP",
-		},
+		Tag:           "IP",
 		hwif:          hwif,
 		broadcastAddr: broadcast,
 		timeout:       timeout,

@@ -46,9 +46,7 @@ func NewTLSEventOutServer(hwif string, spec string, ca *x509.CertPool, keypair t
 
 	tcp := tlsEventOutServer{
 		tlsEventServer{
-			Conn: conn.Conn{
-				Tag: "TLS",
-			},
+			Tag:         "TLS",
 			hwif:        hwif,
 			addr:        addr,
 			config:      &config,

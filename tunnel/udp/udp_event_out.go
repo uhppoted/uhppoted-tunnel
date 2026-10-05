@@ -37,9 +37,7 @@ func NewUDPEventOut(hwif string, spec string, ctx context.Context) (*udpEventOut
 	}
 
 	udp := udpEventOut{
-		Conn: conn.Conn{
-			Tag: "UDP",
-		},
+		Tag:     "UDP",
 		hwif:    hwif,
 		addr:    addr,
 		timeout: 5 * time.Second,

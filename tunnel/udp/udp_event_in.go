@@ -37,9 +37,7 @@ func NewUDPEventIn(hwif string, spec string, retry conn.Backoff, ctx context.Con
 	}
 
 	udp := udpEventIn{
-		Conn: conn.Conn{
-			Tag: "UDP",
-		},
+		Tag:    "UDP",
 		hwif:   hwif,
 		addr:   addr,
 		retry:  retry,

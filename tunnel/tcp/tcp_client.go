@@ -53,9 +53,7 @@ func makeTCPClient(hwif string, spec string, retry conn.Backoff, ctx context.Con
 	}
 
 	in := tcpClient{
-		Conn: conn.Conn{
-			Tag: "TCP",
-		},
+		Tag:     "TCP",
 		hwif:    hwif,
 		addr:    addr,
 		retry:   retry,
