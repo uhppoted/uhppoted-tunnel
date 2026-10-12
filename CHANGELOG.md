@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## [0.9.1](https://codeberg.org/uhppoted/uhppoted-tunnel/releases/tag/v0.9.1) - 2026-10-12
 
 ### Added
 1. `set-firstcard` API in _http__ example.
@@ -16,7 +16,7 @@
 1. _tailscale_ connector (redundant since tailscale now supports service endpoints).
 
 
-## [0.9.0](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.9.0) - 2026-01-27
+## [0.9.0](https://codeberg.org/uhppoted/uhppoted-tunnel/releases/tag/v0.9.0) - 2026-01-27
 
 ### Updated
 1. Updated to Go 1.25.

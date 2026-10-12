@@ -53,8 +53,13 @@ Supported operating systems:
 
 ### Current Release
 
-**[v0.9.0](https://codeberg.org/uhppoted/uhppoted-tunnel/releases/tag/v0.9.0) - 2026-01-27**
-1. Updated to Go 1.25.
+## [0.9.1](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.9.1) - 2026-10-12
+
+1. Migrated from _github_ to _codeberg_.
+2. Updated to Go v1.27.
+3. Removed _tailscale_ connector (superseded by tailscale service endpoints).
+4. Added `set-firstcard` API to _http__ example.
+5. Added first-card privilege bitmask to `get-card`, `get-card-at-index` and `put-card` in HTML example.
 
 
 ## Installation
