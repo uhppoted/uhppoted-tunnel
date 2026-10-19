@@ -1,4 +1,4 @@
-![build](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/twystd/2609d9356470acaf904386ce4a74f54e/raw/uhppoted-tunnel.json)
+![build](https://github.com/uhppoted/uhppoted-tunnel/workflows/build/badge.svg)
 
 
 # uhppoted-tunnel
@@ -53,7 +53,7 @@ Supported operating systems:
 
 ### Current Release
 
-## [0.9.1](https://github.com/uhppoted/uhppoted-tunnel/releases/tag/v0.9.1) - 2026-10-12
+## [0.9.1](https://codeberg.org/uhppoted/uhppoted-tunnel/releases/tag/v0.9.1) - 2026-10-12
 
 1. Migrated from _github_ to _codeberg_.
 2. Updated to Go v1.27.

@@ -1,13 +1,9 @@
 # TODO
 
-## IN PROGRESS
-
-- [x] 'first card' API (cf. https://codeberg.org/uhppoted/uhppoted/issues/2)
-- [x] Remove tailscale connector (cf. https://github.com/uhppoted/uhppoted-tunnel/issues/12)
-- [x] add first-card privilege to `get-card` and `put-card` (cf. https://codeberg.org/uhppoted/uhppoted/issues/3)
+## In Progress
 
 
-## TODO
+## To Be Done
 
 - (?) https://avlasov.cabal.run/notes/001/index.html
 
